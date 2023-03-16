@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -16,14 +17,11 @@ public class Lexer implements Iterable<Token> {
 
     private static final int LEXEM_MAX_SIZE = 256;
 
+    @Getter
     private Token currentToken;
 
     public Stream<Token> stream() {
         return StreamSupport.stream(this.spliterator(), false);
-    }
-
-    public Token getCurrentToken() {
-        return currentToken;
     }
 
     public Token getNextToken() {

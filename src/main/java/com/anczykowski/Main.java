@@ -5,6 +5,10 @@ import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
+import com.anczykowski.lexer.Lexer;
+import com.anczykowski.lexer.Source;
+import com.anczykowski.lexer.TokenFilters;
+
 public class Main {
 
     public static void main(String[] args) throws Exception {

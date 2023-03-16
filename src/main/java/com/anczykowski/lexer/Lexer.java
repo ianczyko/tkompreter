@@ -1,4 +1,4 @@
-package com.anczykowski;
+package com.anczykowski.lexer;
 
 import static java.lang.Character.isDigit;
 import static java.lang.Character.isLetter;

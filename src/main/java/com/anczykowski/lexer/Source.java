@@ -1,4 +1,4 @@
-package com.anczykowski;
+package com.anczykowski.lexer;
 
 import java.io.BufferedReader;
 import java.io.IOException;

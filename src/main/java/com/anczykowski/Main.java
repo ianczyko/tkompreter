@@ -20,7 +20,7 @@ public class Main {
         try (var src = new Source(reader)) {
             var lexer = new Lexer(src);
             lexer.stream()
-                .filter(token -> !token.type.equals(TokenType.WHITESPACE))
+                .filter(TokenFilters.getWhitespaceFilter())
                 .forEach(System.out::println);
         }
     }

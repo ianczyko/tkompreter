@@ -1,6 +1,6 @@
 package com.anczykowski;
 
-public enum LexemType {
+public enum TokenType {
     WHITESPACE,
     IDENTIFIER,
     NUMBER,

@@ -1,14 +1,13 @@
 package com.anczykowski;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
 public class Main {
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws Exception {
         Reader reader;
         if (args.length == 1) {
             var path = args[0];
@@ -20,10 +19,9 @@ public class Main {
 
         try (var src = new Source(reader)) {
             var lexer = new Lexer(src);
-            lexer.getLexemStream()
-                .filter(lexem -> !lexem.type.equals(LexemType.WHITESPACE))
+            lexer.stream()
+                .filter(token -> !token.type.equals(TokenType.WHITESPACE))
                 .forEach(System.out::println);
         }
     }
-
 }

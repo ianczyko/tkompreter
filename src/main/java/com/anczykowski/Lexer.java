@@ -11,18 +11,22 @@ import java.util.stream.StreamSupport;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class Lexer implements Iterable<Lexem> {
+public class Lexer implements Iterable<Token> {
     private final Source source;
 
     private static final int LEXEM_MAX_SIZE = 256;
 
-    private Lexem Token;
+    private Token currentToken;
 
-    public Stream<Lexem> getLexemStream() {
+    public Stream<Token> stream() {
         return StreamSupport.stream(this.spliterator(), false);
     }
 
-    public Lexem getLexem() {
+    public Token getCurrentToken() {
+        return currentToken;
+    }
+
+    public Token getNextToken() {
 
         // TODO: Trim whitespace?
 
@@ -32,27 +36,27 @@ public class Lexer implements Iterable<Lexem> {
             || tryBuildWhitespace()
             || tryBuildIdentOrKeyword()
         ) {
-            return Token;
+            return currentToken;
         } else {
             // TODO: make this better
             StringBuilder stringBuilder = new StringBuilder();
             consume(stringBuilder);
-            return Lexem.builder()
+            return Token.builder()
                 .value(source.getCurrentCharacter().toString())
-                .type(LexemType.UNKNOWN)
+                .type(TokenType.UNKNOWN)
                 .build();
         }
     }
 
     @Override
-    public Iterator<Lexem> iterator() {
+    public Iterator<Token> iterator() {
         return new Iterator<>() {
             public boolean hasNext() {
                 return source.isNotEOF();
             }
 
-            public Lexem next() {
-                return getLexem();
+            public Token next() {
+                return Lexer.this.getNextToken();
             }
         };
     }
@@ -66,9 +70,9 @@ public class Lexer implements Iterable<Lexem> {
         do {
             consume(lexemValueBuilder);
         } while (source.isNotEOF() && isDigit(source.getCurrentCharacter()));
-        Token = Lexem.builder()
+        currentToken = Token.builder()
             .value(lexemValueBuilder.toString())
-            .type(LexemType.NUMBER)
+            .type(TokenType.NUMBER)
             .build();
         return true;
     }
@@ -82,9 +86,9 @@ public class Lexer implements Iterable<Lexem> {
             consume(lexemValueBuilder);
         } while (source.isNotEOF() && (isLetter(source.getCurrentCharacter()) || isDigit(
             source.getCurrentCharacter())));
-        Token = Lexem.builder()
+        currentToken = Token.builder()
             .value(lexemValueBuilder.toString())
-            .type(LexemType.IDENTIFIER)
+            .type(TokenType.IDENTIFIER)
             .build();
         return true;
     }
@@ -102,9 +106,9 @@ public class Lexer implements Iterable<Lexem> {
             consume(lexemValueBuilder);
         } while (source.isNotEOF() && !source.getCurrentCharacter().equals(endCharacter));
         consume(lexemValueBuilder);
-        Token = Lexem.builder()
+        currentToken = Token.builder()
             .value(lexemValueBuilder.toString())
-            .type(LexemType.STRING)
+            .type(TokenType.STRING)
             .build();
         return true;
     }
@@ -121,9 +125,9 @@ public class Lexer implements Iterable<Lexem> {
         } while (source.isNotEOF() && isWhitespace(source.getCurrentCharacter()));
 
 
-        Token = Lexem.builder()
+        currentToken = Token.builder()
             .value(lexemValueBuilder.toString())
-            .type(LexemType.WHITESPACE)
+            .type(TokenType.WHITESPACE)
             .build();
         return true;
     }
@@ -131,27 +135,27 @@ public class Lexer implements Iterable<Lexem> {
     private Boolean tryBuildSimpleTokens() {
         // TODO use map
         var lexemValueBuilder = new StringBuilder();
-        LexemType lexemType;
+        TokenType tokenType;
         switch (source.getCurrentCharacter()) {
             case '/':
             case '*':
             case '+':
             case '-':
             case '=':
-                lexemType = LexemType.OPERATOR;
+                tokenType = TokenType.OPERATOR;
                 break;
             case ',':
             case '.':
             case ';':
-                lexemType = LexemType.SEPARATOR;
+                tokenType = TokenType.SEPARATOR;
                 break;
             default:
                 return false;
         }
         consume(lexemValueBuilder);
-        Token = Lexem.builder()
+        currentToken = Token.builder()
             .value(lexemValueBuilder.toString())
-            .type(lexemType)
+            .type(tokenType)
             .build();
         return true;
     }

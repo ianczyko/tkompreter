@@ -3,8 +3,8 @@ package com.anczykowski;
 import lombok.Builder;
 
 @Builder
-public class Lexem {
-    LexemType type;
+public class Token {
+    TokenType type;
 
     String value;
 

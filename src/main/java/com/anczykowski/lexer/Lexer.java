@@ -131,28 +131,20 @@ public class Lexer implements Iterable<Token> {
     }
 
     private Boolean tryBuildSimpleTokens() {
-        // TODO use map
         var lexemValueBuilder = new StringBuilder();
-        TokenType tokenType;
-        switch (source.getCurrentCharacter()) {
-            case '/':
-            case '*':
-            case '+':
-            case '-':
-            case '=':
-                tokenType = TokenType.OPERATOR;
-                break;
-            case ',':
-            case '.':
-            case ';':
-                tokenType = TokenType.SEPARATOR;
-                break;
-            default:
-                return false;
+        TokenType tokenType = TokenType.matchSimpleTokenType(lexemValueBuilder.toString() + source.getCurrentCharacter());
+        if (tokenType == TokenType.UNKNOWN) return false;
+        if (tokenType == TokenType.INDISTINGUISHABLE) {
+            consume(lexemValueBuilder);
+            tokenType = TokenType.matchSimpleTokenType(lexemValueBuilder.toString() + source.getCurrentCharacter());
+            if(tokenType.getArity() == 2){
+                consume(lexemValueBuilder);
+            }
         }
-        consume(lexemValueBuilder);
+        else {
+            consume(lexemValueBuilder);
+        }
         currentToken = Token.builder()
-            .value(lexemValueBuilder.toString())
             .type(tokenType)
             .build();
         return true;

@@ -9,6 +9,9 @@ public class Token {
     String value;
 
     public String toString() {
+        if(value == null){
+            return "Lexem(type=" + this.type + ")";
+        }
         return "Lexem(type=" + this.type + ", value=[" + this.value + "])";
     }
 }

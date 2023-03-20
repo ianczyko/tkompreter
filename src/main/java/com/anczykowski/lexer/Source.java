@@ -8,7 +8,8 @@ public class Source implements AutoCloseable {
 
     private final Reader reader;
 
-    private Character currentCharacter = null;
+    // UTF8 characters might not fit into a single character, because of that string is used
+    private String currentCharacter = null;
 
     private boolean isEOF = false;
 
@@ -16,7 +17,7 @@ public class Source implements AutoCloseable {
         return !isEOF;
     }
 
-    public Character getCurrentCharacter() {
+    public String getCurrentCharacter() {
         if (currentCharacter == null) {
             fetchCharacter();
         }
@@ -25,12 +26,24 @@ public class Source implements AutoCloseable {
 
     public void fetchCharacter() {
         try {
-            int c;
-            if ((c = reader.read()) != -1) {
-                currentCharacter = (char) c;
-            } else {
+            int highUnit = reader.read();
+            if (highUnit < 0){
                 isEOF = true;
+                return;
             }
+            if (!Character.isHighSurrogate((char)highUnit))
+            {
+                currentCharacter = Character.toString(highUnit);
+                return;
+            }
+
+            int lowUnit = reader.read();
+            if (!Character.isLowSurrogate((char)lowUnit))
+                throw new RuntimeException("Unmatched utf8 surrogate pair");
+
+            currentCharacter = Character.toString(Character.toCodePoint((char)highUnit, (char)lowUnit));
+
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

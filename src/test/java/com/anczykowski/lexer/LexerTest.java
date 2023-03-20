@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import com.anczykowski.lexer.helpers.SourceHelpers;
 
-// TODO: refactor order expected/actual
-
 class LexerTest {
 
     @Test
@@ -21,7 +19,7 @@ class LexerTest {
 
             // then
             assertEquals(lexer.getCurrentToken().type, TokenType.IDENTIFIER);
-            assertEquals(lexer.getCurrentToken().value, "abc");
+            assertEquals("abc", lexer.getCurrentToken().value);
         }
     }
 
@@ -35,8 +33,8 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(lexer.getCurrentToken().type, TokenType.IDENTIFIER);
-            assertEquals(lexer.getCurrentToken().value, SourceHelpers.createUnicodeString("ząb"));
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
+            assertEquals(SourceHelpers.createUnicodeString("ząb"), lexer.getCurrentToken().value);
         }
     }
 
@@ -50,8 +48,8 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(lexer.getCurrentToken().type, TokenType.IDENTIFIER);
-            assertEquals(lexer.getCurrentToken().value, SourceHelpers.createUnicodeString("中国"));
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
+            assertEquals(SourceHelpers.createUnicodeString("中国"), lexer.getCurrentToken().value);
         }
     }
 
@@ -65,8 +63,8 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(lexer.getCurrentToken().type, TokenType.IDENTIFIER);
-            assertEquals(lexer.getCurrentToken().value, SourceHelpers.createUnicodeString("你好"));
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
+            assertEquals(SourceHelpers.createUnicodeString("你好"), lexer.getCurrentToken().value);
         }
     }
 
@@ -82,8 +80,8 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(lexer.getCurrentToken().type, TokenType.IDENTIFIER);
-            assertEquals(lexer.getCurrentToken().value, SourceHelpers.createUnicodeString("a🚀b"));
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
+            assertEquals(SourceHelpers.createUnicodeString("a🚀b"), lexer.getCurrentToken().value);
         }
     }
 
@@ -99,8 +97,8 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(lexer.getCurrentToken().type, TokenType.IDENTIFIER);
-            assertEquals(lexer.getCurrentToken().value, "def");
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
+            assertEquals("def", lexer.getCurrentToken().value);
         }
     }
 
@@ -115,7 +113,7 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(lexer.getCurrentToken().type, TokenType.LT);
+            assertEquals(TokenType.LT, lexer.getCurrentToken().type);
         }
     }
 
@@ -130,7 +128,7 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(lexer.getCurrentToken().type, TokenType.LE);
+            assertEquals(TokenType.LE, lexer.getCurrentToken().type);
         }
     }
 }

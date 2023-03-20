@@ -16,7 +16,7 @@ class SourceTest {
             src.fetchCharacter();
 
             // then
-            assertEquals(src.getCurrentCharacter(), 'a');
+            assertEquals("a", src.getCurrentCharacter());
         }
     }
 
@@ -29,7 +29,7 @@ class SourceTest {
             src.fetchCharacter();
 
             // then
-            assertEquals(src.getCurrentCharacter(), 'b');
+            assertEquals("b", src.getCurrentCharacter());
         }
     }
 

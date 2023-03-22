@@ -27,14 +27,12 @@ public class Main {
     }
 
     private static Reader getInputReader(String[] args) throws IOException {
-        Reader inputReader;
         if (args.length == 1) {
             var path = args[0];
             var file = new File(path);
-            inputReader = new FileReader(file, StandardCharsets.UTF_8);
+            return new FileReader(file, StandardCharsets.UTF_8);
         } else {
-            inputReader = new InputStreamReader(System.in);
+            return new InputStreamReader(System.in);
         }
-        return inputReader;
     }
 }

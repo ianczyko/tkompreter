@@ -16,7 +16,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         var inputReader = getInputReader(args);
-        var outPrintStream = new PrintStream(System.out, false, StandardCharsets.UTF_8);
+        var outPrintStream = getPrintStream();
 
         try (var src = new Source(inputReader)) {
             var lexer = new Lexer(src);
@@ -24,6 +24,10 @@ public class Main {
                 .filter(TokenFilters.getWhitespaceFilter())
                 .forEach(outPrintStream::println);
         }
+    }
+
+    private static PrintStream getPrintStream() {
+        return new PrintStream(System.out, false, StandardCharsets.UTF_8);
     }
 
     private static Reader getInputReader(String[] args) throws IOException {

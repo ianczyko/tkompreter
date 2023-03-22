@@ -2,6 +2,7 @@ package com.anczykowski;
 
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.Reader;
@@ -14,22 +15,26 @@ import com.anczykowski.lexer.TokenFilters;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        Reader reader;
-        if (args.length == 1) {
-            var path = args[0];
-            var file = new File(path);
-            reader = new FileReader(file, StandardCharsets.UTF_8);
-        } else {
-            reader = new InputStreamReader(System.in);
-        }
+        var inputReader = getInputReader(args);
+        var outPrintStream = new PrintStream(System.out, false, StandardCharsets.UTF_8);
 
-        PrintStream out = new PrintStream(System.out, false, StandardCharsets.UTF_8);
-
-        try (var src = new Source(reader)) {
+        try (var src = new Source(inputReader)) {
             var lexer = new Lexer(src);
             lexer.stream()
                 .filter(TokenFilters.getWhitespaceFilter())
-                .forEach(out::println);
+                .forEach(outPrintStream::println);
         }
+    }
+
+    private static Reader getInputReader(String[] args) throws IOException {
+        Reader inputReader;
+        if (args.length == 1) {
+            var path = args[0];
+            var file = new File(path);
+            inputReader = new FileReader(file, StandardCharsets.UTF_8);
+        } else {
+            inputReader = new InputStreamReader(System.in);
+        }
+        return inputReader;
     }
 }

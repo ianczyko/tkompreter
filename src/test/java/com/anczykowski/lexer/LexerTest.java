@@ -6,6 +6,9 @@ import org.junit.jupiter.api.Test;
 
 import com.anczykowski.lexer.helpers.SourceHelpers;
 
+// TODO: Edge cases
+// TODO: Cases for each token
+
 class LexerTest {
 
     @Test

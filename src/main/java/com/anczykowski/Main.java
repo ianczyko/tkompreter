@@ -32,7 +32,7 @@ public class Main {
             var file = new File(path);
             return new FileReader(file, StandardCharsets.UTF_8);
         } else {
-            return new InputStreamReader(System.in);
+            return new InputStreamReader(System.in, StandardCharsets.UTF_8);
         }
     }
 }

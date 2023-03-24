@@ -31,6 +31,7 @@ public enum TokenType {
         this.arity = arity;
     }
 
+    // TODO: inline in lexer and remove INDISTINGUISHABLE
     public static TokenType matchSimpleTokenType(String currentValue) {
         var firstChar = currentValue.charAt(0);
         Character secondChar = null;

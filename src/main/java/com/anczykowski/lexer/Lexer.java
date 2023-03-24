@@ -88,6 +88,7 @@ public class Lexer implements Iterable<Token> {
                     || EmojiManager.containsEmoji(source.getCurrentCharacter())
             )
         );
+        // TODO: keywords
         currentToken = Token.builder()
             .value(lexemValueBuilder.toString())
             .type(TokenType.IDENTIFIER)
@@ -98,13 +99,14 @@ public class Lexer implements Iterable<Token> {
     private Boolean tryBuildString() {
         // TODO: handle escaped \"
         // TODO: handle escaped characters like \t
+        // TODO: handle empty string ""
         if (!source.getCurrentCharacter().equals("\"") && !source.getCurrentCharacter().equals("'")) {
             return false;
         }
 
         var lexemValueBuilder = new StringBuilder();
         var endCharacter = source.getCurrentCharacter();
-        do {
+        do { // TODO: while instead of do while
             consume(lexemValueBuilder);
         } while (source.isNotEOF() && !source.getCurrentCharacter().equals(endCharacter));
         consume(lexemValueBuilder);
@@ -115,6 +117,7 @@ public class Lexer implements Iterable<Token> {
         return true;
     }
 
+    // TODO: Remove this and replace with comments (and filter them out)
     private Boolean tryBuildWhitespace() {
         if (!StringUtils.isWhitespace(source.getCurrentCharacter())) {
             return false;
@@ -135,7 +138,8 @@ public class Lexer implements Iterable<Token> {
     }
 
     private Boolean tryBuildSimpleTokens() {
-        var lexemValueBuilder = new StringBuilder();
+        var lexemValueBuilder = new StringBuilder(); //TODO: remove StringBuilder
+        // TODO: inline matchSimpleTokenType
         TokenType tokenType = TokenType.matchSimpleTokenType(lexemValueBuilder + source.getCurrentCharacter());
         if (tokenType == TokenType.UNKNOWN) return false;
         if (tokenType == TokenType.INDISTINGUISHABLE) {

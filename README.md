@@ -17,24 +17,25 @@ Spis treści:
 Składnia:
 
 ```
-var_stmt           = "var", identifier, ["=", rval] ,";";
+var_stmt           = "var", identifier, ["=", expr] ,";";
 func_def           = "def", identifier, "(", [argument, {",", argument }], ")", code_block;
 class_def          = "class", class_identifier, class_body;
-cond_stmt          = "if", "(", condition, ")", code_block, ["else", code_block];
-while_stmt         = "while", "(", condition, ")", code_block;
+cond_stmt          = "if", "(", expr, ")", code_block, ["else", code_block];
+while_stmt         = "while", "(", expr, ")", code_block;
 for_stmt           = "for", "(", identifier, "in", (identifier | fun_call_stmt), ")", code_block;
 switch_stmt        = "switch", "(", (type | class_identifier) , ")", ;
 
 program            = { func_def | class_def | comment };
-code_block         = "{", { non_ret_stmt | ["return"], stmt, ";" }, "}";
+code_block         = "{", { non_ret_stmt | ["return"], expr, ";" }, "}";
 argument           = ["ref"], identifier;
-stmt               = fun_call_stmt | identifier | condition;
 non_ret_stmt       = var_stmt | assign_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
 class_body         = "{", { func_def | var_stmt } , "}";
-fun_call_stmt      = identifier, (", [stmt, {",", stmt }], ")";
-condition          = rval, cond_operator, rval;
-assign_stmt        = identifier, "=", rval, ";";
-rval               = ["(", type, ")"], (constant | fun_call_stmt | identifier | condition);
+fun_call_stmt      = identifier, (", [expr, {",", expr }], ")";
+assign_stmt        = identifier, "=", expr, ";";
+expr               = simple_expr | (simple_expr, cond_operator, simple_expr);
+simple_expr        = term | {add_op, term};
+term               = factor | {mult_op, factor};
+factor             = ["(", type, ")"], ("(", expr, ")" | constant | fun_call_stmt | identifier | expr);
 ```
 
 Konwencje leksykalne:
@@ -50,6 +51,8 @@ constant           = integer_const | float_const;
 integer_const      = positive_digit, { digit };
 float_const        = positive_digit, { digit }, ".", { digit };
 cond_operator      = "==" | "!=" | "<" | "<=" | ">" | ">=";
+add_op             = "+" | "-"
+mult_op            = "*" | "/"
 type               = "int" | "float";
 comment            = "//", { inline_char }, newline;
 inline_char        = letter | digit | special_character | inline_whitespace;

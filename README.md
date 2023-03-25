@@ -14,6 +14,51 @@ Spis treści:
 
 ## Gramatyka
 
+Składnia:
+
+```
+var_stmt           = "var", identifier, ";";
+func_def           = "def", identifier, "(", [argument, {",", argument }], ")", code_block;
+class_def          = "class", class_identifier, class_body;
+cond_stmt          = "if", "(", condition, ")", code_block, ["else", code_block];
+while_stmt         = "while", "(", condition, ")", code_block;
+for_stmt           = "for", "(", identifier, "in", (identifier | fun_call_stmt), ")", code_block;
+switch_stmt        = "switch", "(", (type | class_identifier) , ")", ;
+
+program            = { func_def | class_def | comment };
+code_block         = "{", { non_ret_stmt | ["return"], stmt, ";" }, "}";
+argument           = ["ref"], identifier;
+stmt               = fun_call_stmt | identifier | condition;
+non_ret_stmt       = var_stmt | assign_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
+class_body         = "{", { func_def | var_stmt, ";" } , "}";
+fun_call_stmt      = identifier, (", [stmt, {",", stmt }], ")";
+condition          = rval, cond_operator, rval;
+assign_stmt        = identifier, "=", rval, ";";
+rval               = ["(", type, ")"], (constant | fun_call_stmt | identifier | condition);
+```
+
+Konwencje leksykalne:
+
+```
+letter             = "a-z" | uppercase_letter;
+uppercase_letter   = "A-Z";
+digit              = "0" | positive_digit;
+positive_digit     = "1-9";
+identifier         = letter, { letter | digit};
+class_identifier   = uppercase_letter, { letter | digit };
+constant           = integer_const | float_const;
+integer_const      = positive_digit, { digit };
+float_const        = positive_digit, { digit }, ".", { digit };
+cond_operator      = "==" | "!=" | "<" | "<=" | ">" | ">=";
+type               = "int" | "float";
+comment            = "//", { inline_char }, newline;
+inline_char        = letter | digit | special_character | inline_whitespace;
+inline_whitespace  = " " | "\t";
+whitespace         = inline_whitespace | newline;
+special_character  = "*" | "$" | "$" | "," | "." | ";" | ":" (* etc... *);
+newline            = "\n" | "\r\n" | "\r" | "\n\r";
+```
+
 ## Przykłady konstrukcji języka
 
 ### Komentarze
@@ -31,13 +76,11 @@ a = 2;
 a = 3.0; // dynamic type
 ```
 
-### Warunki: if, elif, else
+### Warunki: if, else
 
 ```js
 if(a == 4) {
     a++;
-} elif (a == 3) { 
-    a = a ** 2;
 } else {
     a = (a + 1 ) * 2;
 }
@@ -56,13 +99,7 @@ var isEq = (int)a == b;
 ```js
 var a = 5;
 while(a--) {
-    print("aa");
-}
-
-var b = 5;
-while(b--) {
-    if(b == 4) { continue; }
-    if(b == 2) { break; }
+    print(a);
 }
 ```
 
@@ -70,19 +107,22 @@ while(b--) {
 
 ```js
 def fun(x) {
-	if(x==0) return x;
-	return x * fun(x-1);
+    if(x==0) return x;
+    return x * fun(x-1);
 }
-
-var res1 = fun(5);
-var res2 = fun(a); // pass copy
 
 def fun2(ref x){
     x++;
 }
 
-var res3 = fun2(a); // pass reference
-var res4 = fun2(5); // error
+def main(){ // <- this is the entry point of an application
+    var res1 = fun(5);
+    var res2 = fun(a); // pass copy
+
+    var res3 = fun2(a); // pass reference
+    var res4 = fun2(5); // error
+}
+
 ```
 
 ### Listy
@@ -91,6 +131,7 @@ var res4 = fun2(5); // error
 var lst = list(1, 2, 3);
 var lst2 = list(1, 2.0, 3); // homogeneous list
 ```
+
 ### Pętla for-in
 
 ```js
@@ -128,7 +169,7 @@ for(el in lst){
 class Circle {
     var r;
 
-    Circle(radius){
+    def init(radius){
         r = radius;
     }
 

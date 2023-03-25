@@ -23,7 +23,7 @@ class_def          = "class", class_identifier, class_body;
 cond_stmt          = "if", "(", expr, ")", code_block, ["else", code_block];
 while_stmt         = "while", "(", expr, ")", code_block;
 for_stmt           = "for", "(", identifier, "in", (identifier | fun_call_stmt), ")", code_block;
-switch_stmt        = "switch", "(", (type | class_identifier), ")", ;
+switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_identifier), "->", code_block } ,"}";
 
 program            = { func_def | class_def | comment };
 code_block         = "{", { non_ret_stmt | ["return"], expr, ";" }, "}";

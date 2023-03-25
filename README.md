@@ -140,15 +140,6 @@ var lst = list(1, 2, 3);
 for(el in lst){
     print(el);
 }
-
-for(el in lst){
-    if (el % 2 == 0){
-        continue;
-    }
-    if (el % 2 == 0){
-        break;
-    }
-}
 ```
 
 ### Switch (pattern matching na typie)

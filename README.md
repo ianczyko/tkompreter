@@ -115,11 +115,11 @@ def fun(x) {
     return x * fun(x-1);
 }
 
-def fun2(ref x){
+def fun2(ref x) {
     x++;
 }
 
-def main(){ // <- this is the entry point of an application
+def main() { // <- this is the entry point of an application
     var res1 = fun(5);
     var res2 = fun(a); // pass copy
 
@@ -141,7 +141,7 @@ var lst2 = list(1, 2.0, 3); // homogeneous list
 ```js
 var lst = list(1, 2, 3);
 
-for(el in lst){
+for(el in lst) {
     print(el);
 }
 ```
@@ -150,7 +150,7 @@ for(el in lst){
 
 ```js
 var lst = list(1, 2.0, 3);
-for(el in lst){
+for(el in lst) {
     switch(el) {
         int -> { print("integer"); }
         float -> { print("float"); }
@@ -164,11 +164,11 @@ for(el in lst){
 class Circle {
     var r;
 
-    def init(radius){
+    def init(radius) {
         r = radius;
     }
 
-    def printRadius(){
+    def printRadius() {
         print(r);
     }
 

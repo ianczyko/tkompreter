@@ -19,11 +19,11 @@ Składnia:
 ```
 var_stmt           = "var", identifier, ["=", expr], ";";
 func_def           = "def", identifier, "(", [argument, {",", argument }], ")", code_block;
-class_def          = "class", class_identifier, class_body;
+class_def          = "class", class_id, class_body;
 cond_stmt          = "if", "(", expr, ")", code_block, ["else", code_block];
 while_stmt         = "while", "(", expr, ")", code_block;
 for_stmt           = "for", "(", identifier, "in", (identifier | fun_call_stmt), ")", code_block;
-switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_identifier), "->", code_block } ,"}";
+switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_id), "->", code_block } ,"}";
 
 program            = { func_def | class_def | comment };
 code_block         = "{", { non_ret_stmt | ["return"], expr, ";" }, "}";
@@ -36,7 +36,8 @@ assign_stmt        = identifier, "=", expr, ";";
 expr               = simple_expr | simple_expr, cond_operator, simple_expr;
 simple_expr        = term | {add_op, term};
 term               = factor | {mult_op, factor};
-factor             = ["(", type, ")"], "(", expr, ")" | constant | fun_call_stmt | obj_method | identifier;
+factor             = ["(", type, ")"], "(", expr, ")" | factor_inner;
+factor_inner       = constant | fun_call_stmt | obj_method | identifier
 ```
 
 Konwencje leksykalne:
@@ -47,7 +48,7 @@ uppercase_letter   = "A-Z";
 digit              = "0" | positive_digit;
 positive_digit     = "1-9";
 identifier         = letter, { letter | digit};
-class_identifier   = uppercase_letter, { letter | digit };
+class_id           = uppercase_letter, { letter | digit };
 constant           = integer_const | float_const;
 integer_const      = positive_digit, { digit };
 float_const        = positive_digit, { digit }, ".", { digit };

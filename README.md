@@ -30,12 +30,13 @@ code_block         = "{", { non_ret_stmt | ["return"], expr, ";" }, "}";
 argument           = ["ref"], identifier;
 non_ret_stmt       = var_stmt | assign_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
 class_body         = "{", { func_def | var_stmt }, "}";
-fun_call_stmt      = identifier, (", [expr, {",", expr }], ")";
+fun_call_stmt      = identifier, "(", [expr, {",", expr }], ")";
+obj_method         = identifier, { ".", fun_call_stmt }
 assign_stmt        = identifier, "=", expr, ";";
 expr               = simple_expr | simple_expr, cond_operator, simple_expr;
 simple_expr        = term | {add_op, term};
 term               = factor | {mult_op, factor};
-factor             = ["(", type, ")"], "(", expr, ")" | constant | fun_call_stmt | identifier | expr;
+factor             = ["(", type, ")"], "(", expr, ")" | constant | fun_call_stmt | obj_method | identifier;
 ```
 
 Konwencje leksykalne:
@@ -175,6 +176,5 @@ class Circle {
 }
 
 var circle = new Circle(5);
-print(circle.r);
 circle.printRadius();
 ```

@@ -17,19 +17,19 @@ Spis treści:
 Składnia:
 
 ```
-var_stmt           = "var", identifier, ["=", expr] ,";";
+var_stmt           = "var", identifier, ["=", expr], ";";
 func_def           = "def", identifier, "(", [argument, {",", argument }], ")", code_block;
 class_def          = "class", class_identifier, class_body;
 cond_stmt          = "if", "(", expr, ")", code_block, ["else", code_block];
 while_stmt         = "while", "(", expr, ")", code_block;
 for_stmt           = "for", "(", identifier, "in", (identifier | fun_call_stmt), ")", code_block;
-switch_stmt        = "switch", "(", (type | class_identifier) , ")", ;
+switch_stmt        = "switch", "(", (type | class_identifier), ")", ;
 
 program            = { func_def | class_def | comment };
 code_block         = "{", { non_ret_stmt | ["return"], expr, ";" }, "}";
 argument           = ["ref"], identifier;
 non_ret_stmt       = var_stmt | assign_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
-class_body         = "{", { func_def | var_stmt } , "}";
+class_body         = "{", { func_def | var_stmt }, "}";
 fun_call_stmt      = identifier, (", [expr, {",", expr }], ")";
 assign_stmt        = identifier, "=", expr, ";";
 expr               = simple_expr | (simple_expr, cond_operator, simple_expr);

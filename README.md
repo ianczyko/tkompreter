@@ -17,7 +17,7 @@ Spis treści:
 Składnia:
 
 ```
-var_stmt           = "var", identifier, ";";
+var_stmt           = "var", identifier, ["=", rval] ,";";
 func_def           = "def", identifier, "(", [argument, {",", argument }], ")", code_block;
 class_def          = "class", class_identifier, class_body;
 cond_stmt          = "if", "(", condition, ")", code_block, ["else", code_block];
@@ -30,7 +30,7 @@ code_block         = "{", { non_ret_stmt | ["return"], stmt, ";" }, "}";
 argument           = ["ref"], identifier;
 stmt               = fun_call_stmt | identifier | condition;
 non_ret_stmt       = var_stmt | assign_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
-class_body         = "{", { func_def | var_stmt, ";" } , "}";
+class_body         = "{", { func_def | var_stmt } , "}";
 fun_call_stmt      = identifier, (", [stmt, {",", stmt }], ")";
 condition          = rval, cond_operator, rval;
 assign_stmt        = identifier, "=", rval, ";";

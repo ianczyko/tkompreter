@@ -32,10 +32,10 @@ non_ret_stmt       = var_stmt | assign_stmt | cond_stmt | while_stmt | for_stmt 
 class_body         = "{", { func_def | var_stmt }, "}";
 fun_call_stmt      = identifier, (", [expr, {",", expr }], ")";
 assign_stmt        = identifier, "=", expr, ";";
-expr               = simple_expr | (simple_expr, cond_operator, simple_expr);
+expr               = simple_expr | simple_expr, cond_operator, simple_expr;
 simple_expr        = term | {add_op, term};
 term               = factor | {mult_op, factor};
-factor             = ["(", type, ")"], ("(", expr, ")" | constant | fun_call_stmt | identifier | expr);
+factor             = ["(", type, ")"], "(", expr, ")" | constant | fun_call_stmt | identifier | expr;
 ```
 
 Konwencje leksykalne:
@@ -83,7 +83,7 @@ a = 3.0; // dynamic type
 
 ```js
 if(a == 4) {
-    a++;
+    a = a + 1 * 2;
 } else {
     a = (a + 1 ) * 2;
 }
@@ -101,8 +101,9 @@ var isEq = (int)a == b;
 
 ```js
 var a = 5;
-while(a--) {
+while(a > 0) {
     print(a);
+    a = a -1;
 }
 ```
 

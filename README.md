@@ -33,9 +33,9 @@ class_body         = "{", { func_def | var_stmt }, "}";
 fun_call_stmt      = identifier, "(", [expr, {",", expr }], ")";
 obj_method         = identifier, { ".", fun_call_stmt }
 assign_stmt        = identifier, "=", expr, ";";
-expr               = simple_expr | simple_expr, cond_operator, simple_expr;
-simple_expr        = term | {add_op, term};
-term               = factor | {mult_op, factor};
+expr               = simple_expr, [cond_operator, simple_expr];
+simple_expr        = term, {add_op, term};
+term               = factor, {mult_op, factor};
 factor             = "(", expr, ")" | factor_inner, ["as", (type | class_id)];
 factor_inner       = constant | fun_call_stmt | obj_method | identifier
 ```

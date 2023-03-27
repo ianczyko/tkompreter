@@ -36,7 +36,7 @@ assign_stmt        = identifier, "=", expr, ";";
 expr               = simple_expr | simple_expr, cond_operator, simple_expr;
 simple_expr        = term | {add_op, term};
 term               = factor | {mult_op, factor};
-factor             = ["(", type, ")"], "(", expr, ")" | factor_inner;
+factor             = "(", expr, ")" | factor_inner, ["as", (type | class_id)];
 factor_inner       = constant | fun_call_stmt | obj_method | identifier
 ```
 

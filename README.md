@@ -34,7 +34,7 @@ fun_call_stmt      = identifier, "(", [args], ")";
 class_init         = "new", class_id, "(", [args], ")";
 args               = expr, {",", expr }
 obj_method         = identifier, { ".", fun_call_stmt }
-assign_stmt        = identifier, "=", expr, ";";
+assign_stmt        = expr, "=", expr, ";";
 expr               = simple_expr, [cond_operator, simple_expr];
 simple_expr        = term, {add_op, term};
 term               = factor, {mult_op, factor};

@@ -25,7 +25,7 @@ while_stmt         = "while", "(", expr, ")", code_block;
 for_stmt           = "for", "(", identifier, "in", (identifier | fun_call_stmt), ")", code_block;
 switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_id), "->", code_block } ,"}";
 
-program            = { func_def | class_def | comment };
+program            = { func_def | class_def };
 code_block         = "{", { non_ret_stmt | ["return"], expr, ";" }, "}";
 argument           = ["ref"], identifier;
 non_ret_stmt       = var_stmt | assign_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;

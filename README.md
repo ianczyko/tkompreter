@@ -137,7 +137,7 @@ def main() { // <- this is the entry point of an application
 
 ```js
 var lst = list(1, 2, 3);
-var lst2 = list(1, 2.0, 3); // homogeneous list
+var lst2 = list(1, 2.0, 3); // non-homogeneous list
 ```
 
 ### Pętla for-in

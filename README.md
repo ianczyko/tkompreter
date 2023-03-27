@@ -34,8 +34,10 @@ fun_call_stmt      = identifier, "(", [args], ")";
 class_init         = "new", class_id, "(", [args], ")";
 args               = expr, {",", expr }
 obj_method         = (identifier | fun_call_stmt), { ".", fun_call_stmt }
-expr               = simple_expr, [cond_operator, simple_expr];
-simple_expr        = term, {add_op, term};
+expr               = or_op_arg, { "or", or_op_arg };
+or_op_arg          = and_op_arg, { "and", and_op_arg };
+and_op_arg         = cond_op_arg, [cond_operator, cond_op_arg];
+cond_op_arg        = term, { add_op, term };
 term               = factor, {mult_op, factor};
 factor             = ["not"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
 factor_inner       = constant | fun_call_stmt | obj_method | identifier | class_init;
@@ -65,6 +67,20 @@ special_character  = "*" | "$" | "$" | "," | "." | ";" | ":" (* etc... *);
 newline            = "\n" | "\r\n" | "\r" | "\n\r";
 ```
 
+## Priorytety operatorów
+
+1. ()
+2. .
+3. not
+4. as
+5. \* /
+6. \+ \-
+7. < <= \> \>= == !=
+8. and
+9. or
+10. =
+
+
 ## Przykłady konstrukcji języka
 
 ### Komentarze
@@ -90,6 +106,24 @@ if(a == 4) {
 } else {
     a = (a + 1 ) * 2;
 }
+```
+
+### Operatory logiczne
+
+* a `and` b — prawda tylko dla a = b = 1. W pozostałych wypadkach fałsz.
+* a `or` b — fałsz tylko dla a = b = 0. W pozostałych wypadkach prawda.
+
+Operator `and` ma wyższy priorytet niż `or`. Oba te operatory są łączne.
+
+```js
+var t = true;
+var f = false;
+var res;
+res = t and f; // res == false
+res = t or f; // res == true
+res = t and t and t; // res == true
+res = t and f == f or f; // res == true
+res = t and t or t and f == (t and t) or (t and f) // res == true
 ```
 
 ### Rzutowanie typów

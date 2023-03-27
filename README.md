@@ -26,15 +26,14 @@ for_stmt           = "for", "(", identifier, "in", expr, ")", code_block;
 switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_id), "->", code_block } ,"}";
 
 program            = { func_def | class_def };
-code_block         = "{", { non_ret_stmt | ["return"], expr, ";" }, "}";
+code_block         = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
 parameters         = identifier, {",", identifier };
-non_ret_stmt       = var_stmt | assign_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
+non_ret_stmt       = var_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
 class_body         = "{", { func_def | var_stmt }, "}";
 fun_call_stmt      = identifier, "(", [args], ")";
 class_init         = "new", class_id, "(", [args], ")";
 args               = expr, {",", expr }
 obj_method         = (identifier | fun_call_stmt), { ".", fun_call_stmt }
-assign_stmt        = expr, "=", expr, ";";
 expr               = simple_expr, [cond_operator, simple_expr];
 simple_expr        = term, {add_op, term};
 term               = factor, {mult_op, factor};

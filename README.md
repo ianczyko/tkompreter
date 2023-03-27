@@ -33,7 +33,7 @@ class_body         = "{", { func_def | var_stmt }, "}";
 fun_call_stmt      = identifier, "(", [args], ")";
 class_init         = "new", class_id, "(", [args], ")";
 args               = expr, {",", expr }
-obj_method         = identifier, { ".", fun_call_stmt }
+obj_method         = (identifier | fun_call_stmt), { ".", fun_call_stmt }
 assign_stmt        = expr, "=", expr, ";";
 expr               = simple_expr, [cond_operator, simple_expr];
 simple_expr        = term, {add_op, term};

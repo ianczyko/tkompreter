@@ -18,7 +18,7 @@ Składnia:
 
 ```
 var_stmt           = "var", identifier, ["=", expr], ";";
-func_def           = "def", identifier, "(", [argument, {",", argument }], ")", code_block;
+func_def           = "def", identifier, "(", [parameters], ")", code_block;
 class_def          = "class", class_id, class_body;
 cond_stmt          = "if", "(", expr, ")", code_block, ["else", code_block];
 while_stmt         = "while", "(", expr, ")", code_block;
@@ -27,7 +27,7 @@ switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_id), "->",
 
 program            = { func_def | class_def };
 code_block         = "{", { non_ret_stmt | ["return"], expr, ";" }, "}";
-argument           = ["ref"], identifier;
+parameters         = identifier, {",", identifier };
 non_ret_stmt       = var_stmt | assign_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
 class_body         = "{", { func_def | var_stmt }, "}";
 fun_call_stmt      = identifier, "(", [expr, {",", expr }], ")";

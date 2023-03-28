@@ -148,21 +148,24 @@ while(a > 0) {
 ### Funkcje
 
 ```js
-def fun(x) {
-    if(x==0) return x;
-    return x * fun(x-1);
+def f1(x, y, z){
+    if(x == y) { return 1.0; }
+    if(x == z) { return 1; }
+    return z;
 }
 
-def fun2(ref x) {
-    x++;
+def fun(x) {
+    x = x + 1;
+    return x;
 }
 
 def main() { // <- this is the entry point of an application
-    var res1 = fun(5);
-    var res2 = fun(a); // pass copy
-
-    var res3 = fun2(a); // pass reference
-    var res4 = fun2(5); // error
+    var res;
+    var x = 5;
+    res = fun(5);     // res = 6, x = 5
+    res = fun(x);     // res = 6, x = 5
+    res = fun(ref x); // res = 6, x = 6
+    return 0;
 }
 
 ```

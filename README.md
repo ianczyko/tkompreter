@@ -40,7 +40,7 @@ and_op_arg         = cond_op_arg, [cond_operator, cond_op_arg];
 cond_op_arg        = term, { add_op, term };
 term               = factor, {mult_op, factor};
 factor             = ["not"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
-factor_inner       = constant | fun_call_stmt | obj_method | identifier | class_init;
+factor_inner       = constant | fun_call_stmt | obj_method | identifier | string | class_init;
 ```
 
 Konwencje leksykalne:
@@ -63,6 +63,7 @@ comment            = "//", { inline_char }, newline;
 inline_char        = letter | digit | special_character | inline_whitespace;
 inline_whitespace  = " " | "\t";
 whitespace         = inline_whitespace | newline;
+string             = """, { inline_char |  }, """;
 special_character  = "*" | "$" | "$" | "," | "." | ";" | ":" (* etc... *);
 newline            = "\n" | "\r\n" | "\r" | "\n\r";
 ```

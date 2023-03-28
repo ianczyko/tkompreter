@@ -81,7 +81,6 @@ newline            = "\n" | "\r\n" | "\r" | "\n\r";
 9. or
 10. =
 
-
 ## Przykładowe konstrukcje języka
 
 ### Komentarze
@@ -246,3 +245,16 @@ circleWrapper.newCircle(1).printRadius(); // 1
 circleWrapper.circle.printRadius(); // 2
 circleWrapper.circle = new Circle(6) // error, class properties are read only
 ```
+
+
+## Przykładowe komunikaty błędów
+
+TODO
+
+## Wymagania Funkcjonalne i Niefunkcjonalne
+
+TODO
+
+## Sposób testowania
+
+TODO

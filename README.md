@@ -82,7 +82,7 @@ newline            = "\n" | "\r\n" | "\r" | "\n\r";
 10. =
 
 
-## Przykłady konstrukcji języka
+## Przykładowe konstrukcje języka
 
 ### Komentarze
 

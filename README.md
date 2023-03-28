@@ -249,7 +249,86 @@ circleWrapper.circle = new Circle(6) // error, class properties are read only
 
 ## Przykładowe komunikaty błędów
 
-TODO
+### Brakujący średnik:
+
+```js
+// main.tkom
+def main(){
+    var x = 5;
+    var y = 4
+    var z = 3;
+}
+```
+
+Komunikat o błędzie:
+
+```
+main.tkom:3:13: error: expected ';':
+    var y = 4
+             ^--- ';'
+```
+
+### Ponowna deklaracja zmiennej
+
+```js
+// main.tkom
+def main(){
+    var counter = 1;
+    var counter = 2;
+}
+```
+
+Komunikat o błędzie:
+
+```
+main.tkom:3:5: error: redeclaration of variable 'counter':
+    var counter = 2;
+        ~~~~~~~ 'counter' previously declared in: main.tkom:2:5
+```
+
+### Nieprawidłowy ciąg słów kluczowych
+
+```js
+// main.tkom
+def main(){
+    var x = new new Circle(5);
+}
+```
+
+Komunikat o błędzie:
+
+```
+main.tkom:3:13: error: expected type identifier after 'new' keyword:
+    var x = new new Circle(5);
+                ~~~
+```
+
+### Wyjątek dzielenia przez 0
+
+```js
+// main.tkom
+def extremeDivision(){
+    var a = 1;
+    var b = 0;
+    var res = a / b;
+}
+
+def main(){
+    extremeDivision();
+}
+```
+
+Komunikat o błędzie:
+
+```
+main.tkom:4:13: runtime exception: Division by zero exception:
+    var res = a / b;
+              ~~~~~
+    Traceback:
+        main.tkom:6:1: main()
+        main.tkom:7:1: extremeDivision()
+        main.tkom:4:13: a / b
+```
 
 ## Wymagania Funkcjonalne i Niefunkcjonalne
 

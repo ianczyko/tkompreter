@@ -235,10 +235,14 @@ class CircleWrapper {
     def init(r){
         circle = new Circle(r);
     }
+    
+    def newCircle(r){
+        return new Circle(r);
+    }
 }
 
-var circleWrapper = new CircleWrapper(5);
-
-circleWrapper.circle.printRadius(); // 5
+var circleWrapper = new CircleWrapper(2);
+circleWrapper.newCircle(1).printRadius(); // 1
+circleWrapper.circle.printRadius(); // 2
 circleWrapper.circle = new Circle(6) // error, class properties are read only
 ```

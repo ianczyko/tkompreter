@@ -246,7 +246,6 @@ circleWrapper.circle.printRadius(); // 2
 circleWrapper.circle = new Circle(6) // error, class properties are read only
 ```
 
-
 ## Przykładowe komunikaty błędów
 
 ### Brakujący średnik:
@@ -332,7 +331,60 @@ main.tkom:4:13: runtime exception: Division by zero exception:
 
 ## Wymagania Funkcjonalne i Niefunkcjonalne
 
-TODO
+### Źródło
+
+Wymagania funkcjonalne:
+* Czytanie znaków ze źródła strumieniowego (STDIN / plik) znak po znaku
+* Obsługa UTF-8 (chińskie znaki, emoji)
+* Ujednolicanie znaków nowej linii
+    * zwracane jest zawsze '\n' a CRLF również jest akceptowane
+    * jeśli pierwsze zostanie wykryte CRLF, pojawienie się linii zakończonej np. LFCR jest błędem
+* Śledzenie aktualnej pozycji znaku (dla modułu obsługi błędów)
+* Buforowanie N ostatnich znaków (dla modułu obsługi błędów)
+
+Wymagania niefunkcjonalne:
+* Leniwe wczytywanie znaków
+* Interfejs
+  * `getCurrentCharacter()` - pobiera aktualny znak (ostatni pobrany)
+  * `fetchCharacter()` - pobiera nowy znak
+  * `isNotEOF()` - informuje czy wewnętrzny strumień się nie skończył
+* Źródło zawiera wewnętrznie reader strumienia (STDIN / plik)
+
+### Lexer
+
+Wymagania funkcjonalne:
+* Budowa tokenów na podstawie kolejnych znaków ze źródła
+* Limit długości tokenów (np. identyfikatorów)
+* Obsługa escape'owanych znaków wewnątrz stringów np. "abc \t \n \\" "
+* Budowanie faktycznych wartości liczbowych stałych liczbowych (nie reprezentacji znakowej)
+
+Wymagania niefunkcjonalne:
+* Leniwe tworzenie tokenów
+* Interfejs
+  * `getToken()` - pobiera aktualny token
+  * `getNextToken()` - pobiera następny token
+  * (pomocniczo) interfejs (leniwego) strumienia `lexer.stream().filter(...).forEach(out::printLn)`
+  * `Token` — zawiera typ tokenu i wartość
+    * większość tokenów nie zawiera wartości i jest identyfikowana za pomocą typu (np. '+' -> `Token(type=TokenType.PLUS, value=null)`)
+    * wartość posiadają tokeny jak: `IdentifierToken`, `StringToken`, `IntegerToken`, `FloatToken` (pochodne klasy bazowej Token z odpowiednim typem value). 
+
+### Moduł obsługi błędów
+
+Wymagania funkcjonalne:
+* Dodawanie błędów do listy błędów
+* Wyświetlanie błędów zawierające:
+  * (jeśli wejściem jest plik) nazwę pliku 
+  * linijkę i kolumnę, w której występuje błąd
+  * fragment kodu zawierający błąd
+  * wizualne podświetlenie miejsca, w którym występuje błąd
+  * w przypadku oczywistych błędów sugestię naprawienia błędu (np. dla braku średnika)
+
+Wymagania niefunkcjonalne:
+* Limit błędów, dla których kontynuowana jest praca interpretera
+* Interfejs
+  * `addError()`
+  * `printErrors()`
+* Moduł obsługi błędów potrzebuje dostępu do źródła (pobranie pozycji znaku i tekstu w okolicy błędu)
 
 ## Sposób testowania
 

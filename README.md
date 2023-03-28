@@ -217,4 +217,23 @@ class Circle {
 
 var circle = new Circle(5);
 circle.printRadius();
+
+def circle_builder(){
+    return new Circle(5);
+}
+
+circle_builder().printRadius();
+
+class CircleWrapper {
+    var circle;
+    
+    def init(r){
+        circle = new Circle(r);
+    }
+}
+
+var circleWrapper = new CircleWrapper(5);
+
+circleWrapper.circle.printRadius(); // 5
+circleWrapper.circle = new Circle(6) // error, class properties are read only
 ```

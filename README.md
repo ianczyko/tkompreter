@@ -185,6 +185,11 @@ var lst = list(1, 2, 3);
 for(el in lst) {
     print(el);
 }
+
+for(el in list(1, 2)) {
+    print(el);
+}
+
 ```
 
 ### Switch (pattern matching na typie)

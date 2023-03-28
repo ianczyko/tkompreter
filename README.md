@@ -382,9 +382,27 @@ Wymagania funkcjonalne:
 Wymagania niefunkcjonalne:
 * Limit błędów, dla których kontynuowana jest praca interpretera
 * Interfejs
-  * `addError()`
+  * `addError(Error)`
   * `printErrors()`
 * Moduł obsługi błędów potrzebuje dostępu do źródła (pobranie pozycji znaku i tekstu w okolicy błędu)
+
+### Analizator składniowy
+
+Przykład jak mogłaby wyglądać końcowa klasa realizująca while:
+
+```java
+class WhileExpression extends VoidNode {
+    Expression condition;
+    CodeBlock codeBlock;
+    
+    @Override
+    public Void execute(Context context) {
+        while(condition.execute(context)){
+            codeBlock.execute(context);
+        }
+    }
+}
+```
 
 ## Sposób testowania
 

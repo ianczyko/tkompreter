@@ -23,7 +23,7 @@ class_def          = "class", class_id, class_body;
 cond_stmt          = "if", "(", expr, ")", code_block, ["else", code_block];
 while_stmt         = "while", "(", expr, ")", code_block;
 for_stmt           = "for", "(", identifier, "in", expr, ")", code_block;
-switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_id), "->", code_block } ,"}";
+switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";
 
 program            = { func_def | class_def };
 code_block         = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
@@ -199,6 +199,7 @@ for(el in lst) {
     switch(el) {
         int -> { print("integer"); }
         float -> { print("float"); }
+        default -> { print("other type"); }
     }
 }
 ```

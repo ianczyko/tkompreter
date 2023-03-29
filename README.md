@@ -27,7 +27,7 @@ switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_id | "defa
 
 program            = { func_def | class_def };
 code_block         = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
-parameters         = identifier, {",", identifier };
+parameters         = identifier, { ",", identifier };
 non_ret_stmt       = var_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
 class_body         = "{", { func_def | var_stmt }, "}";
 ident_or_fun_call  = identifier, ["(", [args], ")"];

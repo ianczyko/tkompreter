@@ -156,6 +156,7 @@ def f1(x, y, z){
 def fun(x) {
     x = x + 1;
     return x;
+    x = 42; // will never be called
 }
 
 def main() { // <- this is the entry point of an application

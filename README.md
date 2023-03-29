@@ -228,7 +228,7 @@ var circle = new Circle(5);
 circle.printRadius();
 
 def circle_builder(){
-    return new Circle(5);
+    return new Circle(5); // reference is returned
 }
 
 circle_builder().printRadius();

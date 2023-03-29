@@ -123,8 +123,14 @@ var res;
 res = t and f; // res == false
 res = t or f; // res == true
 res = t and t and t; // res == true
-res = t and f == f or f; // res == true
-res = t and t or t and f == (t and t) or (t and f) // res == true
+
+t and f == f or f 
+// is same as: 
+t and (f == f) or f
+
+t and t or t and f 
+// is same as: 
+(t and t) or (t and f)
 ```
 
 ### Rzutowanie typów

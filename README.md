@@ -18,7 +18,7 @@ Składnia:
 
 ```
 var_stmt           = "var", identifier, ["=", expr], ";";
-func_def           = "def", identifier, "(", [parameters], ")", code_block;
+func_def           = identifier, "(", [parameters], ")", code_block;
 class_def          = "class", class_id, class_body;
 cond_stmt          = "if", "(", expr, ")", code_block, ["else", code_block];
 while_stmt         = "while", "(", expr, ")", code_block;
@@ -154,14 +154,14 @@ while(a > 0) {
 ### Funkcje
 
 ```js
-def f1(x, y, z){
+f1(x, y, z){
     if(x == y) { return 1.0; }
     if(x == z) { return 1; }
     return z;
     print("I will never be outputted (return above)");
 }
 
-def f2(){
+f2(){
     int x = 5;
     while(true){
         x = x - 1;
@@ -171,12 +171,12 @@ def f2(){
     }
 }
 
-def fun(x) {
+fun(x) {
     x = x + 1;
     return x;
 }
 
-def main() { // <- this is the entry point of an application
+main() { // <- this is the entry point of an application
     var res;
     var x = 5;
     res = fun(5);     // res = 6, x = 5
@@ -232,11 +232,11 @@ for(el in lst) {
 class Circle {
     var r;
 
-    def init(radius) {
+    init(radius) {
         r = radius;
     }
 
-    def printRadius() {
+    printRadius() {
         print(r);
     }
 
@@ -245,7 +245,7 @@ class Circle {
 var circle = new Circle(5);
 circle.printRadius();
 
-def circle_builder(){
+circle_builder(){
     return new Circle(5); // reference is returned
 }
 
@@ -254,11 +254,11 @@ circle_builder().printRadius();
 class CircleWrapper {
     var circle;
     
-    def init(r){
+    init(r){
         circle = new Circle(r);
     }
     
-    def newCircle(r){
+    newCircle(r){
         return new Circle(r);
     }
 }
@@ -275,7 +275,7 @@ circleWrapper.circle = new Circle(6) // error, class properties are read only
 
 ```js
 // main.tkom
-def main(){
+main(){
     var x = 5;
     var y = 4
     var z = 3;
@@ -294,7 +294,7 @@ main.tkom:3:13: error: expected ';':
 
 ```js
 // main.tkom
-def main(){
+main(){
     var counter = 1;
     var counter = 2;
 }
@@ -312,7 +312,7 @@ main.tkom:3:5: error: redeclaration of variable 'counter':
 
 ```js
 // main.tkom
-def main(){
+main(){
     var x = new new Circle(5);
 }
 ```
@@ -329,13 +329,13 @@ main.tkom:3:13: error: expected type identifier after 'new' keyword:
 
 ```js
 // main.tkom
-def extremeDivision(){
+extremeDivision(){
     var a = 1;
     var b = 0;
     var res = a / b;
 }
 
-def main(){
+main(){
     extremeDivision();
 }
 ```

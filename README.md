@@ -151,6 +151,7 @@ def f1(x, y, z){
     if(x == y) { return 1.0; }
     if(x == z) { return 1; }
     return z;
+    print("I will never be outputted (return above)");
 }
 
 def f2(){
@@ -166,7 +167,6 @@ def f2(){
 def fun(x) {
     x = x + 1;
     return x;
-    x = 42; // will never be called
 }
 
 def main() { // <- this is the entry point of an application

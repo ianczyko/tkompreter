@@ -30,17 +30,17 @@ code_block         = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" },
 parameters         = identifier, {",", identifier };
 non_ret_stmt       = var_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
 class_body         = "{", { func_def | var_stmt }, "}";
-fun_call_stmt      = identifier, "(", [args], ")";
+ident_or_fun_call  = identifier, ["(", [args], ")"];
 class_init         = "new", class_id, "(", [args], ")";
 args               = expr, {",", expr }
-obj_access         = (identifier | fun_call_stmt), { ".", (identifier | fun_call_stmt) };
+obj_access         = ident_or_fun_call, { ".",  ident_or_fun_call };
 expr               = or_op_arg, { "or", or_op_arg };
 or_op_arg          = and_op_arg, { "and", and_op_arg };
 and_op_arg         = cond_op_arg, [cond_operator, cond_op_arg];
 cond_op_arg        = term, { add_op, term };
 term               = factor, {mult_op, factor};
 factor             = ["not"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
-factor_inner       = constant | fun_call_stmt | obj_access | identifier | string | class_init;
+factor_inner       = constant | obj_access | string | class_init;
 ```
 
 Konwencje leksykalne:

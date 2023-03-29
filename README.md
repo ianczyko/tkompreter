@@ -401,7 +401,7 @@ class WhileExpression extends VoidNode {
     CodeBlock codeBlock;
     
     @Override
-    public Void execute(Context context) {
+    public void execute(Context context) {
         while(condition.execute(context)){
             codeBlock.execute(context);
         }

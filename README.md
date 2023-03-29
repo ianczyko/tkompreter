@@ -36,8 +36,8 @@ args               = expr, {",", expr }
 obj_access         = ident_or_fun_call, { ".",  ident_or_fun_call };
 expr               = or_op_arg, { "or", or_op_arg };
 or_op_arg          = and_op_arg, { "and", and_op_arg };
-and_op_arg         = cond_op_arg, [cond_operator, cond_op_arg];
-cond_op_arg        = term, { add_op, term };
+and_op_arg         = rel_op_arg, [rel_operator, rel_op_arg];
+rel_op_arg         = term, { add_op, term };
 term               = factor, {mult_op, factor};
 factor             = ["not"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
 factor_inner       = constant | obj_access | string | class_init;
@@ -55,7 +55,7 @@ class_id           = uppercase_letter, { letter | digit };
 constant           = integer_const | float_const;
 integer_const      = positive_digit, { digit };
 float_const        = positive_digit, { digit }, ".", { digit };
-cond_operator      = "==" | "!=" | "<" | "<=" | ">" | ">=";
+rel_operator       = "==" | "!=" | "<" | "<=" | ">" | ">=";
 add_op             = "+" | "-"
 mult_op            = "*" | "/"
 type               = "int" | "float";
@@ -234,7 +234,7 @@ def circle_builder(){
 circle_builder().printRadius();
 
 class CircleWrapper {
-    var circle;
+    var circle;~~~~
     
     def init(r){
         circle = new Circle(r);

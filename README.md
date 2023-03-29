@@ -421,7 +421,7 @@ Wymagania niefunkcjonalne:
 Przykład jak mogłaby wyglądać końcowa klasa realizująca while:
 
 ```java
-class WhileExpression extends VoidNode {
+class WhileStatement extends Node {
     Expression condition;
     CodeBlock codeBlock;
     

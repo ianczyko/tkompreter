@@ -153,6 +153,16 @@ def f1(x, y, z){
     return z;
 }
 
+def f2(){
+    int x = 5;
+    while(true){
+        x = x - 1;
+        if(x < 0) {
+            return; // this will return out of f2 block
+        }
+    }
+}
+
 def fun(x) {
     x = x + 1;
     return x;

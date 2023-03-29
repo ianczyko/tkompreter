@@ -450,6 +450,8 @@ Testy lexera będą polegały na sprawdzaniu, czy lexer wykrywa prawidłowe toke
 * Prawidłowe wykrywanie i odróżnianie symboli prostych (1 i 2 znakowych np. '+' '==')
 * Prawidłowe wykrywanie i tworzenie stałych liczbowych
 * Prawidłowe wykrywanie i tworzenie stałych znakowych
+  * Testy do escape'owanych znaków
+  * Testy do obsługi niedomkniętego nawiasu
 * Prawidłowe wykrywanie i tworzenie identyfikatorów
 * Czy pomocnicza funkcja stream() na pewno działa leniwie
 

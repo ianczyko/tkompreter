@@ -336,6 +336,12 @@ main.tkom:4:13: runtime exception: Division by zero exception:
 
 ## Wymagania Funkcjonalne i Niefunkcjonalne
 
+### Ogólne
+
+* Możliwość zatrzymania wykonania w przypadku, chociażby nieskończonego zapętlenia (Ctrl-C)
+* Monitorowanie przepełnienia stosu
+* Słownik funkcji w celu wykrycia redeklaracji funkcji
+
 ### Źródło
 
 Wymagania funkcjonalne:

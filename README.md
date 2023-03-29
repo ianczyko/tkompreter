@@ -33,14 +33,14 @@ class_body         = "{", { func_def | var_stmt }, "}";
 fun_call_stmt      = identifier, "(", [args], ")";
 class_init         = "new", class_id, "(", [args], ")";
 args               = expr, {",", expr }
-obj_method         = (identifier | fun_call_stmt), { ".", fun_call_stmt }
+obj_access         = (identifier | fun_call_stmt), { ".", (identifier | fun_call_stmt) };
 expr               = or_op_arg, { "or", or_op_arg };
 or_op_arg          = and_op_arg, { "and", and_op_arg };
 and_op_arg         = cond_op_arg, [cond_operator, cond_op_arg];
 cond_op_arg        = term, { add_op, term };
 term               = factor, {mult_op, factor};
 factor             = ["not"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
-factor_inner       = constant | fun_call_stmt | obj_method | identifier | string | class_init;
+factor_inner       = constant | fun_call_stmt | obj_access | identifier | string | class_init;
 ```
 
 Konwencje leksykalne:

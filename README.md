@@ -39,7 +39,7 @@ or_op_arg          = and_op_arg, { "and", and_op_arg };
 and_op_arg         = rel_op_arg, [rel_operator, rel_op_arg];
 rel_op_arg         = term, { add_op, term };
 term               = factor, { mult_op, factor };
-factor             = ["not"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
+factor             = ["not" | "-"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
 factor_inner       = constant | obj_access | string | class_init;
 ```
 

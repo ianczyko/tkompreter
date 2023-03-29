@@ -352,6 +352,7 @@ main.tkom:4:13: runtime exception: Division by zero exception:
 * Możliwość zatrzymania wykonania w przypadku, chociażby nieskończonego zapętlenia (Ctrl-C)
 * Monitorowanie przepełnienia stosu
 * Słownik funkcji w celu wykrycia redeklaracji funkcji
+* Moduł obsługi błędów powinien wyświetlać callstack, powinien on być łatwo dostępny (budowanie go osobno / przechodzenie AST)
 
 ### Źródło
 

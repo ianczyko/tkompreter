@@ -245,7 +245,7 @@ def circle_builder(){
 circle_builder().printRadius();
 
 class CircleWrapper {
-    var circle;~~~~
+    var circle;
     
     def init(r){
         circle = new Circle(r);

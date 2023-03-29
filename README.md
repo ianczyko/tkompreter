@@ -411,4 +411,34 @@ class WhileExpression extends VoidNode {
 
 ## Sposób testowania
 
-TODO
+### Źródło
+
+Testy źródła będą polegały na analizie strumienia na podstawie znanego stringa. Będą sprawdzały:
+* Prawidłowe śledzenie pozycji aktualnego znaku
+* Prawidłowe buforowanie tekstu dla modułu obsługi błędów
+* Prawidłową obsługę znaków UTF-8
+* Prawidłowe wykrywanie końca strumienia
+
+### Lexer
+
+Testy lexera będą polegały na sprawdzaniu, czy lexer wykrywa prawidłowe tokeny na podstawie znanego źródła. Będą one sprawdzały m. in.::
+* Prawidłowe wykrywanie i odróżnianie symboli prostych (1 i 2 znakowych np. '+' '==')
+* Prawidłowe wykrywanie i tworzenie stałych liczbowych
+* Prawidłowe wykrywanie i tworzenie stałych znakowych
+* Prawidłowe wykrywanie i tworzenie identyfikatorów
+* Czy pomocnicza funkcja stream() na pewno działa leniwie
+
+### Moduł obsługi błędów
+
+Testy modułu obsługi błędów będą sprawdzały:
+* Czy błędy są prawidłowo sformatowane w tym:
+  * Podkreślanie miejsca błędnego
+* Czy pozycja błędu jest prawidłowa
+* Czy błędy są wyświetlane w prawidłowej kolejności
+
+### Parser
+
+Testy parsera będą sprawdzały:
+* Czy ciąg prostych tokenów tworzy prawidłowy obiekt (np. "1+1" tworzy obiekt AdditionExpression z odpowiednimi polami)
+* Czy zachowane są priorytety operatorów (np. mnożenie i dodawanie)
+* Czy zachowana jest łączność operatorów

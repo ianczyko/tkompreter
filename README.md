@@ -194,14 +194,18 @@ for(el in list(1, 2)) {
 ### Switch (pattern matching na typie)
 
 ```js
-var lst = list(1, 2.0, 3);
+var lst = list(1, 2.0, new Circle(3), new Square(4));
 for(el in lst) {
     switch(el) {
         int -> { print("integer"); }
         float -> { print("float"); }
+        Circle -> { print("circle"); }
         default -> { print("other type"); }
     }
 }
+
+// prints: integer, float, circle, other type
+
 ```
 
 ### Klasy

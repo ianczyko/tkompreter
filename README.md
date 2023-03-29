@@ -46,11 +46,12 @@ factor_inner       = constant | obj_access | string | class_init;
 Konwencje leksykalne:
 
 ```
-letter             = "a-z" | uppercase_letter;
+letter             = lowercase_letter | uppercase_letter;
 uppercase_letter   = "A-Z";
+lowercase_letter   = "a-z";
 digit              = "0" | positive_digit;
 positive_digit     = "1-9";
-identifier         = letter, { letter | digit };
+identifier         = lowercase_letter, { letter | digit };
 class_id           = uppercase_letter, { letter | digit };
 constant           = integer_const | float_const;
 integer_const      = positive_digit, { digit };

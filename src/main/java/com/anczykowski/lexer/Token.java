@@ -10,8 +10,8 @@ public class Token {
 
     public String toString() {
         if(value == null){
-            return "Lexem(type=" + this.type + ")";
+            return "Token(type=" + this.type + ")";
         }
-        return "Lexem(type=" + this.type + ", value=[" + this.value + "])";
+        return "Token(type=" + this.type + ", value=[" + this.value + "])";
     }
 }

@@ -1,6 +1,6 @@
 bool xąx = 2;
 
-🚀 = 'moon';
+🚀 = 'moon'; // comment example
 
 1 < 11;
 2 <= 22;

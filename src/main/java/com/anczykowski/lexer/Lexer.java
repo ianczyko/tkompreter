@@ -25,12 +25,11 @@ public class Lexer implements Iterable<Token> {
 
     public Token getNextToken() {
 
-        // TODO: Trim whitespace?
+        trimWhitespace();
 
         if (tryBuildSimpleTokens()
             || tryBuildNumber()
             || tryBuildString()
-            || tryBuildWhitespace()
             || tryBuildIdentOrKeyword()
         ) {
             return currentToken;
@@ -56,6 +55,12 @@ public class Lexer implements Iterable<Token> {
                 return Lexer.this.getNextToken();
             }
         };
+    }
+
+    private void trimWhitespace() {
+        while (source.isNotEOF() && StringUtils.isWhitespace(source.getCurrentCharacter())){
+            source.fetchCharacter();
+        }
     }
 
     private Boolean tryBuildNumber() {

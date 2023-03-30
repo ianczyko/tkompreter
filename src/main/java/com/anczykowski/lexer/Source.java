@@ -11,10 +11,14 @@ public class Source implements AutoCloseable {
     // UTF8 characters might not fit into a single character, because of that string is used
     private String currentCharacter = null;
 
-    private boolean isEOF = false;
+    private boolean flagEOF = false;
 
     public boolean isNotEOF() {
-        return !isEOF;
+        return !flagEOF;
+    }
+
+    public boolean isEOF() {
+        return flagEOF;
     }
 
     public String getCurrentCharacter() {
@@ -24,11 +28,15 @@ public class Source implements AutoCloseable {
         return currentCharacter;
     }
 
+    public Character getCurrentCharacterSingle(){
+        return currentCharacter.charAt(0);
+    }
+
     public void fetchCharacter() {
         try {
             int highUnit = reader.read();
             if (highUnit < 0){
-                isEOF = true;
+                flagEOF = true;
                 return;
             }
             if (!Character.isHighSurrogate((char)highUnit))

@@ -21,7 +21,7 @@ public class Main {
         try (var src = new Source(inputReader)) {
             var lexer = new Lexer(src);
             lexer.stream()
-                .filter(TokenFilters.getWhitespaceFilter()) // komentarze
+                .filter(TokenFilters.getCommentFilter())
                 .forEach(outPrintStream::println);
         }
     }

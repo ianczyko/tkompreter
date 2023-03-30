@@ -4,7 +4,7 @@ import lombok.Getter;
 
 
 public enum TokenType {
-    WHITESPACE,
+    COMMENT,
     IDENTIFIER,
     KEYWORD,
     NUMBER,

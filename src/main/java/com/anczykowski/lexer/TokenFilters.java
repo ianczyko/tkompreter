@@ -4,7 +4,7 @@ import java.util.function.Predicate;
 
 public class TokenFilters {
 
-    public static Predicate<Token> getWhitespaceFilter() {
-        return token -> !token.type.equals(TokenType.WHITESPACE);
+    public static Predicate<Token> getCommentFilter() {
+        return token -> !token.type.equals(TokenType.COMMENT);
     }
 }

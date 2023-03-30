@@ -3,6 +3,7 @@ package com.anczykowski.lexer;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -27,7 +28,7 @@ public class Lexer implements Iterable<Token> {
 
         trimWhitespace();
 
-        if (tryBuildSimpleTokens()
+        if (tryBuildSimpleTokenOrComment()
             || tryBuildNumber()
             || tryBuildString()
             || tryBuildIdentOrKeyword()
@@ -122,45 +123,59 @@ public class Lexer implements Iterable<Token> {
         return true;
     }
 
-    // TODO: Remove this and replace with comments (and filter them out)
-    private Boolean tryBuildWhitespace() {
-        if (!StringUtils.isWhitespace(source.getCurrentCharacter())) {
-            return false;
+    private Boolean tryBuildSimpleTokenOrComment() {
+        var commentContent = new StringBuilder();
+        TokenType tokenType = switch (source.getCurrentCharacterSingle()) {
+            case '*' -> TokenType.ASTERISK;
+            case '+' -> TokenType.PLUS;
+            case '-' -> TokenType.MINUS;
+            case ',' -> TokenType.COMMA;
+            case '.' -> TokenType.PERIOD;
+            case '(' -> TokenType.LPAREN;
+            case ')' -> TokenType.RPAREN;
+            case '%' -> TokenType.PERCENT;
+            case ';' -> TokenType.SEMICOLON;
+            case '<' -> matchNextChar('=', TokenType.LE, TokenType.LT);
+            case '>' -> matchNextChar('=', TokenType.GE, TokenType.GT);
+            case '=' -> matchNextChar('=', TokenType.EQ, TokenType.ASSIGNMENT);
+            case '!' -> matchNextChar('=', TokenType.NE, TokenType.NEG);
+            case '/' -> handleSlashOrComment(commentContent);
+            default -> TokenType.UNKNOWN;
+        };
+        if (tokenType == TokenType.UNKNOWN) return false;
+        source.fetchCharacter();
+
+        var tokenBuilder = Token.builder().type(tokenType);
+        if(tokenType.equals(TokenType.COMMENT)){
+            tokenBuilder.value(commentContent.toString());
         }
-
-        var lexemValueBuilder = new StringBuilder();
-
-        do {
-            consume(lexemValueBuilder);
-        } while (source.isNotEOF() && StringUtils.isWhitespace(source.getCurrentCharacter()));
-
-
-        currentToken = Token.builder()
-            .value(lexemValueBuilder.toString())
-            .type(TokenType.WHITESPACE)
-            .build();
+        currentToken = tokenBuilder.build();
         return true;
     }
 
-    private Boolean tryBuildSimpleTokens() {
-        var lexemValueBuilder = new StringBuilder(); //TODO: remove StringBuilder
-        // TODO: inline matchSimpleTokenType
-        TokenType tokenType = TokenType.matchSimpleTokenType(lexemValueBuilder + source.getCurrentCharacter());
-        if (tokenType == TokenType.UNKNOWN) return false;
-        if (tokenType == TokenType.INDISTINGUISHABLE) {
-            consume(lexemValueBuilder);
-            tokenType = TokenType.matchSimpleTokenType(lexemValueBuilder + source.getCurrentCharacter());
-            if(tokenType.getArity() == 2){
-                consume(lexemValueBuilder);
-            }
+    private TokenType handleSlashOrComment(StringBuilder commentContent) {
+        var slashToken = matchNextChar('/', TokenType.COMMENT, TokenType.SLASH);
+        if (slashToken.equals(TokenType.COMMENT)){
+            buildComment(commentContent);
+            if(commentContent.isEmpty()) commentContent.setLength(0);
         }
-        else {
-            consume(lexemValueBuilder);
+        return slashToken;
+    }
+
+    private TokenType matchNextChar(Character nextChar, TokenType returnMatch, TokenType returnMismatch) {
+        source.fetchCharacter();
+        var secondChar = source.isEOF() ? null : source.getCurrentCharacterSingle();
+        if (Objects.equals(secondChar, nextChar)) {
+            source.fetchCharacter();
+            return returnMatch;
         }
-        currentToken = Token.builder()
-            .type(tokenType)
-            .build();
-        return true;
+        return returnMismatch;
+    }
+
+    private void buildComment(StringBuilder commentContent) {
+        while (source.isNotEOF() && !source.getCurrentCharacter().equals("\n")) {
+            consume(commentContent);
+        }
     }
 
     private void consume(StringBuilder lexemValueBuilder) {

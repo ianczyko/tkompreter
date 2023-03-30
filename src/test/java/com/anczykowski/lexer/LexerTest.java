@@ -97,7 +97,6 @@ class LexerTest {
             // when
             lexer.getNextToken();
             lexer.getNextToken();
-            lexer.getNextToken();
 
             // then
             assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
@@ -132,6 +131,38 @@ class LexerTest {
 
             // then
             assertEquals(TokenType.LE, lexer.getCurrentToken().type);
+        }
+    }
+
+    @Test
+    void getComment() {
+        // given
+        try (var src = SourceHelpers.thereIsSource("a //bcd")) {
+            var lexer = new Lexer(src);
+
+            // when
+            lexer.getNextToken();
+            lexer.getNextToken();
+
+            // then
+            assertEquals(TokenType.COMMENT, lexer.getCurrentToken().type);
+            assertEquals("bcd", lexer.getCurrentToken().value);
+        }
+    }
+
+    @Test
+    void getCommentEdge() {
+        // given
+        try (var src = SourceHelpers.thereIsSource("a //")) {
+            var lexer = new Lexer(src);
+
+            // when
+            lexer.getNextToken();
+            lexer.getNextToken();
+
+            // then
+            assertEquals(TokenType.COMMENT, lexer.getCurrentToken().type);
+            assertEquals("", lexer.getCurrentToken().value);
         }
     }
 }

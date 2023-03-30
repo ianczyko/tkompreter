@@ -35,14 +35,20 @@ public class Lexer implements Iterable<Token> {
         ) {
             return currentToken;
         } else {
-            // TODO: make this better
-            StringBuilder stringBuilder = new StringBuilder();
-            consume(stringBuilder);
-            return Token.builder()
-                .value(source.getCurrentCharacter())
-                .type(TokenType.UNKNOWN)
+            if(source.isEOF()) return Token.builder()
+                .type(TokenType.EOF)
                 .build();
+            return handleUnknown();
         }
+    }
+
+    private Token handleUnknown() {
+        StringBuilder stringBuilder = new StringBuilder();
+        consume(stringBuilder);
+        return Token.builder()
+            .value(source.getCurrentCharacter())
+            .type(TokenType.UNKNOWN)
+            .build();
     }
 
     @Override

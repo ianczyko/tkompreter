@@ -10,6 +10,7 @@ public enum TokenType {
     NUMBER,
     STRING,
     UNKNOWN,
+    EOF,
 
     // 1-character types
     PLUS, MINUS, ASSIGNMENT, ASTERISK, SLASH, PERCENT,

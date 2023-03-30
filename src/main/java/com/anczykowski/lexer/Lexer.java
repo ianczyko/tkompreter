@@ -157,7 +157,6 @@ public class Lexer implements Iterable<Token> {
         var slashToken = matchNextChar('/', TokenType.COMMENT, TokenType.SLASH);
         if (slashToken.equals(TokenType.COMMENT)){
             buildComment(commentContent);
-            if(commentContent.isEmpty()) commentContent.setLength(0);
         }
         return slashToken;
     }

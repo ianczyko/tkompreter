@@ -11,7 +11,7 @@ public class SourceHelpers {
     }
 
     public static String createUnicodeString(String str){
-        return new String(str.getBytes(), StandardCharsets.UTF_8);
+        return new String(str.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     }
 
 }

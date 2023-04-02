@@ -1,10 +1,21 @@
-bool xąx = 2;
 
-🚀 = 'moon'; // comment example
+var a = 4;
 
-1 < 11;
-2 <= 22;
-3 = 33;
-4 == 44;
+if(a == 4) {
+    a = a + 1 * 2;
+} else {
+    a = (a + 1) * 2; // comment here
+}
 
-'int zmienna = 5, "abc 5 abc", "str 2";'
+var lst = list(1, 2.0, new Circle(3), new Square(4));
+for(el in lst) {
+    switch(el) {
+        int -> { print("integer"); }
+        float -> { print("float"); }
+        Circle -> { print("circle"); }
+        default -> { print("other type"); }
+    }
+}
+
+var 🚀 = 'moon';
+print(🚀);

@@ -13,13 +13,14 @@ public enum TokenType {
     EOF,
 
     // 1-character types
-    PLUS, MINUS, ASSIGNMENT, ASTERISK, SLASH, PERCENT,
+    PLUS, MINUS, ASSIGNMENT, ASTERISK, SLASH,
     LPAREN, RPAREN,
+    LBRACE, RBRACE,
     SEMICOLON, COMMA, PERIOD,
     LT, GT, NEG,
 
-    // 2-character types
-    LE(2), GE(2), NE(2), EQ(2);
+    // 2-character operators
+    LE(2), GE(2), NE(2), EQ(2), ARROW(2);
 
     @Getter
     private int arity = 1;

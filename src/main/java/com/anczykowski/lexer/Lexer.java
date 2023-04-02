@@ -139,10 +139,12 @@ public class Lexer implements Iterable<Token> {
             case '.' -> TokenType.PERIOD;
             case '(' -> TokenType.LPAREN;
             case ')' -> TokenType.RPAREN;
-            case '%' -> TokenType.PERCENT;
+            case '{' -> TokenType.LBRACE;
+            case '}' -> TokenType.RBRACE;
             case ';' -> TokenType.SEMICOLON;
             case '<' -> matchNextChar('=', TokenType.LE, TokenType.LT);
             case '>' -> matchNextChar('=', TokenType.GE, TokenType.GT);
+            case '-' -> matchNextChar('>', TokenType.ARROW, TokenType.MINUS);
             case '=' -> matchNextChar('=', TokenType.EQ, TokenType.ASSIGNMENT);
             case '!' -> matchNextChar('=', TokenType.NE, TokenType.NEG);
             case '/' -> handleSlashOrComment(commentContent);

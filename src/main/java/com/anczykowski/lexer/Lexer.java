@@ -100,12 +100,36 @@ public class Lexer implements Iterable<Token> {
                     || EmojiManager.containsEmoji(source.getCurrentCharacter())
             )
         );
-        // TODO: keywords
+        TokenType foundKeyword = matchKeyword(lexemValueBuilder.toString());
+        if(foundKeyword != null){
+            currentToken = Token.builder()
+                .type(foundKeyword)
+                .build();
+            return true;
+        }
         currentToken = Token.builder()
             .value(lexemValueBuilder.toString())
             .type(TokenType.IDENTIFIER)
             .build();
         return true;
+    }
+
+    private TokenType matchKeyword(String string) {
+        return switch (string) {
+            case "var" -> TokenType.VAR_KEYWORD;
+            case "if" -> TokenType.IF_KEYWORD;
+            case "else" -> TokenType.ELSE_KEYWORD;
+            case "and" -> TokenType.AND_KEYWORD;
+            case "or" -> TokenType.OR_KEYWORD;
+            case "while" -> TokenType.WHILE_KEYWORD;
+            case "for" -> TokenType.FOR_KEYWORD;
+            case "return" -> TokenType.RETURN_KEYWORD;
+            case "switch" -> TokenType.SWITCH_KEYWORD;
+            case "def" -> TokenType.DEFAULT_KEYWORD;
+            case "class" -> TokenType.CLASS_KEYWORD;
+            case "new" -> TokenType.NEW_KEYWORD;
+            default -> null;
+        };
     }
 
     private Boolean tryBuildString() {
@@ -134,7 +158,6 @@ public class Lexer implements Iterable<Token> {
         TokenType tokenType = switch (source.getCurrentCharacterSingle()) {
             case '*' -> TokenType.ASTERISK;
             case '+' -> TokenType.PLUS;
-            case '-' -> TokenType.MINUS;
             case ',' -> TokenType.COMMA;
             case '.' -> TokenType.PERIOD;
             case '(' -> TokenType.LPAREN;

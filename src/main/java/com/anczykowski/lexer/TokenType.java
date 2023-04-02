@@ -6,13 +6,27 @@ import lombok.Getter;
 public enum TokenType {
     COMMENT,
     IDENTIFIER,
-    KEYWORD,
     NUMBER,
     STRING,
     UNKNOWN,
     EOF,
 
-    // 1-character types
+    // keywords
+
+    VAR_KEYWORD,
+    IF_KEYWORD,
+    ELSE_KEYWORD,
+    AND_KEYWORD,
+    OR_KEYWORD,
+    WHILE_KEYWORD,
+    FOR_KEYWORD,
+    RETURN_KEYWORD,
+    SWITCH_KEYWORD,
+    DEFAULT_KEYWORD,
+    CLASS_KEYWORD,
+    NEW_KEYWORD,
+
+    // 1-character operators
     PLUS, MINUS, ASSIGNMENT, ASTERISK, SLASH,
     LPAREN, RPAREN,
     LBRACE, RBRACE,

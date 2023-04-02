@@ -2,7 +2,12 @@ package com.anczykowski.lexer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import com.anczykowski.lexer.helpers.SourceHelpers;
 
@@ -163,6 +168,38 @@ class LexerTest {
             // then
             assertEquals(TokenType.COMMENT, lexer.getCurrentToken().type);
             assertEquals("", lexer.getCurrentToken().value);
+        }
+    }
+
+    private static Stream<Arguments> expectedKeywordTypes() {
+        return Stream.of(
+            Arguments.of("var", TokenType.VAR_KEYWORD),
+            Arguments.of("if", TokenType.IF_KEYWORD),
+            Arguments.of("else", TokenType.ELSE_KEYWORD),
+            Arguments.of("and", TokenType.AND_KEYWORD),
+            Arguments.of("or", TokenType.OR_KEYWORD),
+            Arguments.of("while", TokenType.WHILE_KEYWORD),
+            Arguments.of("for", TokenType.FOR_KEYWORD),
+            Arguments.of("return", TokenType.RETURN_KEYWORD),
+            Arguments.of("switch", TokenType.SWITCH_KEYWORD),
+            Arguments.of("def", TokenType.DEFAULT_KEYWORD),
+            Arguments.of("class", TokenType.CLASS_KEYWORD),
+            Arguments.of("new", TokenType.NEW_KEYWORD)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("expectedKeywordTypes")
+    void getKeyword(String keyword, TokenType tokenType) {
+        // given
+        try (var src = SourceHelpers.thereIsSource(keyword)) {
+            var lexer = new Lexer(src);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(tokenType, lexer.getCurrentToken().type);
         }
     }
 }

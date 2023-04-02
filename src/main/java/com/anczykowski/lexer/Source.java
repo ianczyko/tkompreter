@@ -6,6 +6,9 @@ import java.io.Reader;
 
 public class Source implements AutoCloseable {
 
+    // TODO: Tracing line/column
+    // TODO: Buffering N previous characters
+
     private final Reader reader;
 
     // UTF8 characters might not fit into a single character, because of that string is used

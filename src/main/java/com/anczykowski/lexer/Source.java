@@ -4,9 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 
+import lombok.Getter;
+
 public class Source implements AutoCloseable {
 
-    // TODO: Tracing line/column
     // TODO: Buffering N previous characters
 
     private final Reader reader;
@@ -19,6 +20,12 @@ public class Source implements AutoCloseable {
     private String notConsumedCharacter = null;
 
     private boolean flagEOF = false;
+
+    @Getter
+    private int currentLineNumber = 0;
+
+    @Getter
+    private int currentColumnNumber = 0;
 
     public boolean isNotEOF() {
         return !flagEOF;
@@ -41,6 +48,7 @@ public class Source implements AutoCloseable {
 
     public void fetchCharacter() {
         try {
+            ++currentColumnNumber;
             if(notConsumedCharacter != null){
                 currentCharacter = notConsumedCharacter;
                 notConsumedCharacter = null;
@@ -64,6 +72,8 @@ public class Source implements AutoCloseable {
             throw new RuntimeException("Inconsistent line endings"); // TODO: error module
         }
         currentCharacter = "\n";
+        currentColumnNumber = 0;
+        ++currentLineNumber;
     }
 
     private String matchNewlineOfOrder(String firstNewlineChar, String secondNewlineChar) throws IOException {

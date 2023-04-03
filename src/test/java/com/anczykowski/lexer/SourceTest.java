@@ -89,4 +89,53 @@ class SourceTest {
             assertTrue(src.isEOF());
         }
     }
+
+    @Test
+    void sourceCurrentPositionOneLine() {
+        // given
+        try (var src = SourceHelpers.thereIsSource("abc")) {
+            // when
+            src.fetchCharacter();
+            src.fetchCharacter();
+
+            // then
+            assertEquals(0, src.getCurrentLineNumber());
+            assertEquals(2, src.getCurrentColumnNumber());
+        }
+    }
+
+    @Test
+    void sourceCurrentPositionNewline() {
+        // given
+        try (var src = SourceHelpers.thereIsSource("ab\ncd")) {
+            // when
+            src.fetchCharacter();
+            src.fetchCharacter();
+            src.fetchCharacter();
+            src.fetchCharacter();
+            src.fetchCharacter();
+
+            // then
+            assertEquals(1, src.getCurrentLineNumber());
+            assertEquals(2, src.getCurrentColumnNumber());
+        }
+    }
+
+    @Test
+    void sourceCurrentPositionNewlineCRLF() {
+        // given
+        try (var src = SourceHelpers.thereIsSource("ab\r\ncd")) {
+            // when
+            src.fetchCharacter();
+            src.fetchCharacter();
+            src.fetchCharacter();
+            src.fetchCharacter();
+            src.fetchCharacter();
+
+            // then
+            assertEquals(1, src.getCurrentLineNumber());
+            assertEquals(2, src.getCurrentColumnNumber());
+        }
+    }
+
 }

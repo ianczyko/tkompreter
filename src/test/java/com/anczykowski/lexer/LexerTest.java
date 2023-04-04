@@ -96,7 +96,7 @@ class LexerTest {
     @Test
     void getBasicTokenLast() {
         // given
-        try (var src = SourceHelpers.thereIsSource("abc def")) {
+        try (var src = SourceHelpers.thereIsSource("abc cba")) {
             var lexer = new Lexer(src);
 
             // when
@@ -105,7 +105,7 @@ class LexerTest {
 
             // then
             assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
-            assertEquals("def", lexer.getCurrentToken().value);
+            assertEquals("cba", lexer.getCurrentToken().value);
         }
     }
 

@@ -8,10 +8,13 @@ public class Token {
 
     String value;
 
+    Location location;
+
     public String toString() {
+        var locationStr = location != null ? location + "\t" : "";
         if(value == null){
-            return "Token(type=" + this.type + ")";
+            return locationStr + "Token(type=" + this.type + ")";
         }
-        return "Token(type=" + this.type + ", value=[" + this.value + "])";
+        return locationStr + "Token(type=" + this.type + ", value=[" + this.value + "])";
     }
 }

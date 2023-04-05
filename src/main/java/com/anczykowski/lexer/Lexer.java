@@ -37,6 +37,7 @@ public class Lexer implements Iterable<Token> {
         } else {
             if(source.isEOF()) return Token.builder()
                 .type(TokenType.EOF)
+                .location(source.getCurrentLocation().clone())
                 .build();
             return handleUnknown();
         }
@@ -47,6 +48,7 @@ public class Lexer implements Iterable<Token> {
         consume(stringBuilder);
         return Token.builder()
             .value(source.getCurrentCharacter())
+            .location(source.getCurrentLocation().clone())
             .type(TokenType.UNKNOWN)
             .build();
     }
@@ -76,11 +78,13 @@ public class Lexer implements Iterable<Token> {
             return false;
         }
         var lexemValueBuilder = new StringBuilder();
+        var currentLocation = source.getCurrentLocation().clone();
         do {
             consume(lexemValueBuilder);
         } while (source.isNotEOF() && StringUtils.isNumeric(source.getCurrentCharacter()));
         currentToken = Token.builder()
             .value(lexemValueBuilder.toString())
+            .location(currentLocation)
             .type(TokenType.NUMBER)
             .build();
         return true;
@@ -91,6 +95,7 @@ public class Lexer implements Iterable<Token> {
             return false;
         }
         var lexemValueBuilder = new StringBuilder();
+        var startLocation = source.getCurrentLocation().clone();
         do {
             consume(lexemValueBuilder);
         } while (source.isNotEOF() &&
@@ -104,12 +109,14 @@ public class Lexer implements Iterable<Token> {
         if(foundKeyword != null){
             currentToken = Token.builder()
                 .type(foundKeyword)
+                .location(startLocation)
                 .build();
             return true;
         }
         currentToken = Token.builder()
             .value(lexemValueBuilder.toString())
             .type(TokenType.IDENTIFIER)
+            .location(startLocation)
             .build();
         return true;
     }
@@ -141,6 +148,7 @@ public class Lexer implements Iterable<Token> {
         }
 
         var lexemValueBuilder = new StringBuilder();
+        var currentLocation = source.getCurrentLocation().clone();
         var endCharacter = source.getCurrentCharacter();
         do { // TODO: while instead of do while
             consume(lexemValueBuilder);
@@ -149,12 +157,14 @@ public class Lexer implements Iterable<Token> {
         currentToken = Token.builder()
             .value(lexemValueBuilder.toString())
             .type(TokenType.STRING)
+            .location(currentLocation)
             .build();
         return true;
     }
 
     private Boolean tryBuildSimpleTokenOrComment() {
         var commentContent = new StringBuilder();
+        var currentLocation = source.getCurrentLocation().clone();
         TokenType tokenType = switch (source.getCurrentCharacterSingle()) {
             case '*' -> TokenType.ASTERISK;
             case '+' -> TokenType.PLUS;
@@ -176,7 +186,7 @@ public class Lexer implements Iterable<Token> {
         if (tokenType == TokenType.UNKNOWN) return false;
         source.fetchCharacter();
 
-        var tokenBuilder = Token.builder().type(tokenType);
+        var tokenBuilder = Token.builder().type(tokenType).location(currentLocation);
         if(tokenType.equals(TokenType.COMMENT)){
             tokenBuilder.value(commentContent.toString());
         }

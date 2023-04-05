@@ -22,10 +22,7 @@ public class Source implements AutoCloseable {
     private boolean flagEOF = false;
 
     @Getter
-    private int currentLineNumber = 0;
-
-    @Getter
-    private int currentColumnNumber = 0;
+    private Location currentLocation = new Location();
 
     public boolean isNotEOF() {
         return !flagEOF;
@@ -48,7 +45,7 @@ public class Source implements AutoCloseable {
 
     public void fetchCharacter() {
         try {
-            ++currentColumnNumber;
+            currentLocation.incrementColumnNumber();
             if(notConsumedCharacter != null){
                 currentCharacter = notConsumedCharacter;
                 notConsumedCharacter = null;
@@ -72,8 +69,8 @@ public class Source implements AutoCloseable {
             throw new RuntimeException("Inconsistent line endings"); // TODO: error module
         }
         currentCharacter = "\n";
-        currentColumnNumber = 0;
-        ++currentLineNumber;
+        currentLocation.resetColumnNumber();
+        currentLocation.incrementLineNumber();
     }
 
     private String matchNewlineOfOrder(String firstNewlineChar, String secondNewlineChar) throws IOException {
@@ -110,6 +107,11 @@ public class Source implements AutoCloseable {
     }
 
     public Source(Reader inputReader) {
+        reader = new BufferedReader(inputReader);
+    }
+
+    public Source(Reader inputReader, String path) {
+        currentLocation = new Location(path);
         reader = new BufferedReader(inputReader);
     }
 

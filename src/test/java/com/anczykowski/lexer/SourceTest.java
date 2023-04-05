@@ -99,8 +99,8 @@ class SourceTest {
             src.fetchCharacter();
 
             // then
-            assertEquals(0, src.getCurrentLineNumber());
-            assertEquals(2, src.getCurrentColumnNumber());
+            assertEquals(1, src.getCurrentLocation().getLineNumber());
+            assertEquals(2, src.getCurrentLocation().getColumnNumber());
         }
     }
 
@@ -116,8 +116,8 @@ class SourceTest {
             src.fetchCharacter();
 
             // then
-            assertEquals(1, src.getCurrentLineNumber());
-            assertEquals(2, src.getCurrentColumnNumber());
+            assertEquals(2, src.getCurrentLocation().getLineNumber());
+            assertEquals(2, src.getCurrentLocation().getColumnNumber());
         }
     }
 
@@ -133,8 +133,8 @@ class SourceTest {
             src.fetchCharacter();
 
             // then
-            assertEquals(1, src.getCurrentLineNumber());
-            assertEquals(2, src.getCurrentColumnNumber());
+            assertEquals(2, src.getCurrentLocation().getLineNumber());
+            assertEquals(2, src.getCurrentLocation().getColumnNumber());
         }
     }
 

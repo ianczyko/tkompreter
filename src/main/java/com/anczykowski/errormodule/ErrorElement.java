@@ -31,10 +31,11 @@ public class ErrorElement {
             case TOKEN_TOO_LONG -> "error: too long token";
             case INCONSISTENT_LINE_ENDINGS -> "error: inconsistent line endings";
             case UNKNOWN_CHARACTER -> "error: unknown character";
+            case UNCLOSED_STRING -> "error: string not closed";
             default -> "unknownError";
         };
 
-        return "%s: %s%s\n%s%s".formatted(location.toString(), msg, explanationText, codeLineBuffer, underline);
+        return "%s: %s%s\n%s%s\n".formatted(location.toString(), msg, explanationText, codeLineBuffer, underline);
 
     }
 

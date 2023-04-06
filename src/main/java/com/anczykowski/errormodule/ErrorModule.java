@@ -1,15 +1,16 @@
 package com.anczykowski.errormodule;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedList;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class ErrorModule {
 
-    private final List<ErrorElement> errors = new ArrayList<>();
+    @Getter
+    private final LinkedList<ErrorElement> errors = new LinkedList<>();
 
     public void addError(ErrorElement error) {
         errors.add(error);
@@ -19,7 +20,9 @@ public class ErrorModule {
         if (errors.isEmpty()) return;
         out.println("\n===== Error Module =====");
         out.printf("%d Errors, most recent errors first:%n", errors.size());
-        errors.forEach(out::print);
-        out.println();
+        var it = errors.descendingIterator();
+        while(it.hasNext()) {
+            out.println(it.next());
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.anczykowski.lexer;
 
+import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Iterator;
@@ -145,9 +147,6 @@ public class Lexer implements Iterable<Token> {
     }
 
     private Boolean tryBuildString() {
-        // TODO: handle escaped \"
-        // TODO: handle escaped characters like \t
-        // TODO: handle empty string ""
         if (!source.getCurrentCharacter().equals("\"") && !source.getCurrentCharacter().equals("'")) {
             return false;
         }
@@ -155,16 +154,39 @@ public class Lexer implements Iterable<Token> {
         var lexemValueBuilder = new StringBuilder();
         var currentLocation = source.getCurrentLocation().clone();
         var endCharacter = source.getCurrentCharacter();
-        do { // TODO: while instead of do while
+        source.fetchCharacter();
+        while (insideString(lexemValueBuilder, endCharacter))
+        {
             consume(lexemValueBuilder);
-        } while (source.isNotEOF() && !source.getCurrentCharacter().equals(endCharacter));
-        consume(lexemValueBuilder);
+        }
+
+        if(source.getCurrentCharacter().equals("\n")){
+            errorModule.addError(
+                ErrorElement.builder()
+                    .errorType(ErrorType.UNCLOSED_STRING)
+                    .location(currentLocation)
+                    .codeLineBuffer(source.getPreviousLine())
+                    .underlineFragment(lexemValueBuilder.toString())
+                    .build()
+            );
+        }
+
+        var unescapedString = unescapeJava(lexemValueBuilder.toString());
+
+        source.fetchCharacter();
         currentToken = Token.builder()
-            .value(lexemValueBuilder.toString())
+            .value(unescapedString)
             .type(TokenType.STRING)
             .location(currentLocation)
             .build();
         return true;
+    }
+
+    private boolean insideString(StringBuilder sb, String endCharacter) {
+        var isEscaped = !sb.isEmpty() && sb.charAt(sb.length() - 1) == '\\';
+        var isEndQuote = source.getCurrentCharacter().equals(endCharacter);
+        var isNewline = source.getCurrentCharacter().equals("\n");
+        return source.isNotEOF() && !(isEndQuote && !isEscaped) && !isNewline;
     }
 
     private Boolean tryBuildSimpleTokenOrComment() {

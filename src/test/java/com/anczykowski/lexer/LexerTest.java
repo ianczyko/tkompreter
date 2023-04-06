@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import com.anczykowski.errormodule.ErrorModule;
+import com.anczykowski.errormodule.ErrorType;
 import com.anczykowski.lexer.helpers.SourceHelpers;
 
 // TODO: Edge cases
@@ -212,6 +213,70 @@ class LexerTest {
 
             // then
             assertEquals(tokenType, lexer.getCurrentToken().type);
+        }
+    }
+
+    @Test
+    void getStringSimple() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("'aa'", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(TokenType.STRING, lexer.getCurrentToken().type);
+            assertEquals("aa", lexer.getCurrentToken().value);
+        }
+    }
+
+    @Test
+    void getStringEscapedCharacter() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("'aa\\taa'", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(TokenType.STRING, lexer.getCurrentToken().type);
+            assertEquals("aa\taa", lexer.getCurrentToken().value);
+        }
+    }
+
+    @Test
+    void getStringEscapedQuote() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("'aa\\'aa", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(TokenType.STRING, lexer.getCurrentToken().type);
+            assertEquals("aa'aa", lexer.getCurrentToken().value);
+        }
+    }
+
+    @Test
+    void getStringUnclosedQuote() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("'aa\nvar", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(1, errorModule.getErrors().size());
+            assertEquals(ErrorType.UNCLOSED_STRING, errorModule.getErrors().getFirst().getErrorType());
         }
     }
 }

@@ -33,6 +33,9 @@ public class Source implements AutoCloseable {
     @Getter
     private final Stack<String> characterBuffer = new FixedCharacterStack(LINE_BUFFER_LIMIT);
 
+    @Getter
+    private String previousLine;
+
 
     public boolean isNotEOF() {
         return !flagEOF;
@@ -87,6 +90,10 @@ public class Source implements AutoCloseable {
         }
         currentCharacter = "\n";
         currentLocation.resetColumnNumber();
+        if(!characterBuffer.isEmpty()) {
+            characterBuffer.pop();
+        }
+        previousLine = characterBuffer.toString();
         characterBuffer.clear();
         currentLocation.incrementLineNumber();
     }

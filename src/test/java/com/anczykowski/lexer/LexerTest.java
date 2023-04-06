@@ -14,9 +14,6 @@ import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.errormodule.ErrorType;
 import com.anczykowski.lexer.helpers.SourceHelpers;
 
-// TODO: Edge cases
-// TODO: Cases for each token
-
 class LexerTest {
 
     @Test

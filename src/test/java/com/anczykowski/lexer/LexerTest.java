@@ -122,34 +122,25 @@ class LexerTest {
     }
 
     @Test
-    void getLT() {
+    void getTokenStreamAndCheckLaziness() {
         // given
         var errorModule = new ErrorModule();
-        try (var src = SourceHelpers.thereIsSource("a<b", errorModule)) {
+        try (var src = SourceHelpers.thereIsSource("aaa bbb ccc", errorModule)) {
             var lexer = new Lexer(src, errorModule);
 
             // when
-            lexer.getNextToken();
-            lexer.getNextToken();
+            lexer.stream().findFirst().ifPresent(token -> {
 
-            // then
-            assertEquals(TokenType.LT, lexer.getCurrentToken().getType());
-        }
-    }
+                // then
+                assertEquals(TokenType.IDENTIFIER, token.getType());
+                assertTrue(token instanceof StringToken);
+                assertEquals("aaa", ((StringToken)token).getValue());
+            });
 
-    @Test
-    void getLE() {
-        // given
-        var errorModule = new ErrorModule();
-        try (var src = SourceHelpers.thereIsSource("a<=b", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
 
-            // when
-            lexer.getNextToken();
-            lexer.getNextToken();
-
-            // then
-            assertEquals(TokenType.LE, lexer.getCurrentToken().getType());
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals("aaa", ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 

@@ -34,6 +34,22 @@ class LexerTest {
     }
 
     @Test
+    void getEOF() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("abc", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+            lexer.getNextToken();
+
+            // then
+            assertEquals(lexer.getCurrentToken().getType(), TokenType.EOF);
+        }
+    }
+
+    @Test
     void getBasicTokenUnicodePolish() {
         // given
         var errorModule = new ErrorModule();
@@ -141,6 +157,21 @@ class LexerTest {
             assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().getType());
             assertTrue(lexer.getCurrentToken() instanceof StringToken);
             assertEquals("aaa", ((StringToken)lexer.getCurrentToken()).getValue());
+        }
+    }
+
+    @Test
+    void getTokenStreamEOF() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("aaa", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            var count = lexer.stream().count();
+
+            assertEquals(2, count);
+            assertEquals(TokenType.EOF, lexer.getCurrentToken().getType());
         }
     }
 

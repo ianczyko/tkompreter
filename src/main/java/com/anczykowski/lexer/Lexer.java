@@ -24,6 +24,8 @@ public class Lexer implements Iterable<Token> {
 
     private static final int TOKEN_MAX_SIZE = 64;
 
+    private boolean consumedEOF = false;
+
     @Getter
     private Token currentToken;
 
@@ -35,6 +37,10 @@ public class Lexer implements Iterable<Token> {
 
         trimWhitespace();
 
+        if (source.isEOF()) {
+            return currentToken = new Token(TokenType.EOF, source.getCurrentLocation().clone());
+        }
+
         if (tryBuildSimpleTokenOrComment()
             || tryBuildNumber()
             || tryBuildString()
@@ -42,19 +48,25 @@ public class Lexer implements Iterable<Token> {
         ) {
             return currentToken;
         } else {
-            if (source.isEOF()) {
-                return new Token(TokenType.EOF, source.getCurrentLocation().clone());
-            }
             source.fetchCharacter();
-            return new Token(TokenType.UNKNOWN, source.getCurrentLocation().clone());
+            return currentToken = new Token(TokenType.UNKNOWN, source.getCurrentLocation().clone());
         }
+    }
+
+    public boolean notConsumedEOF() {
+        if(consumedEOF) return false;
+        if(source.isEOF()){
+            consumedEOF = true;
+            return true;
+        }
+        return true;
     }
 
     @Override
     public Iterator<Token> iterator() {
         return new Iterator<>() {
             public boolean hasNext() {
-                return source.isNotEOF();
+                return notConsumedEOF();
             }
 
             public Token next() {

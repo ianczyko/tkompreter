@@ -407,4 +407,20 @@ class LexerTest {
         }
     }
 
+    @Test
+    void getIdentifierTooLong() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("a".repeat(68), errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(1, errorModule.getErrors().size());
+            assertEquals(ErrorType.TOKEN_TOO_LONG, errorModule.getErrors().getFirst().getErrorType());
+        }
+    }
+
 }

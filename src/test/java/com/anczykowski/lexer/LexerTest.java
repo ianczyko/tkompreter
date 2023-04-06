@@ -213,6 +213,49 @@ class LexerTest {
         }
     }
 
+    private static Stream<Arguments> expectedOperatorTypes() {
+        return Stream.of(
+            Arguments.of("*", TokenType.ASTERISK),
+            Arguments.of("+", TokenType.PLUS),
+            Arguments.of(",", TokenType.COMMA),
+            Arguments.of(".", TokenType.PERIOD),
+            Arguments.of("(", TokenType.LPAREN),
+            Arguments.of(")", TokenType.RPAREN),
+            Arguments.of("{", TokenType.LBRACE),
+            Arguments.of("}", TokenType.RBRACE),
+            Arguments.of(";", TokenType.SEMICOLON),
+
+            Arguments.of("<", TokenType.LT),
+            Arguments.of(">", TokenType.GT),
+            Arguments.of("-", TokenType.MINUS),
+            Arguments.of("=", TokenType.ASSIGNMENT),
+            Arguments.of("!", TokenType.NEG),
+            Arguments.of("/", TokenType.SLASH),
+
+            Arguments.of("<=", TokenType.LE),
+            Arguments.of(">=", TokenType.GE),
+            Arguments.of("->", TokenType.ARROW),
+            Arguments.of("==", TokenType.EQ),
+            Arguments.of("!=", TokenType.NE)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("expectedOperatorTypes")
+    void getOperator(String keyword, TokenType tokenType) {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource(keyword, errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(tokenType, lexer.getCurrentToken().getType());
+        }
+    }
+
     @Test
     void getStringSimple() {
         // given

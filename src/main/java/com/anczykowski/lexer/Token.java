@@ -1,20 +1,19 @@
 package com.anczykowski.lexer;
 
-import lombok.Builder;
 
-@Builder
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@RequiredArgsConstructor
 public class Token {
-    TokenType type;
+    @Getter
+    protected final TokenType type;
 
-    String value;
-
-    Location location;
+    @Getter
+    protected final Location location;
 
     public String toString() {
-        var locationStr = location != null ? location + "\t" : "";
-        if(value == null){
-            return locationStr + "Token(type=" + this.type + ")";
-        }
-        return locationStr + "Token(type=" + this.type + ", value=[" + this.value + "])";
+        var locationStr = location + "\t";
+        return locationStr + "Token(type=" + this.type + ")";
     }
 }

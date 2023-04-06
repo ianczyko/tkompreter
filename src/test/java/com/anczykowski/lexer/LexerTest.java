@@ -29,8 +29,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(lexer.getCurrentToken().type, TokenType.IDENTIFIER);
-            assertEquals("abc", lexer.getCurrentToken().value);
+            assertEquals(lexer.getCurrentToken().getType(), TokenType.IDENTIFIER);
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals("abc", ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 
@@ -45,8 +46,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
-            assertEquals(SourceHelpers.createUnicodeString("ząb"), lexer.getCurrentToken().value);
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals(SourceHelpers.createUnicodeString("ząb"), ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 
@@ -61,8 +63,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
-            assertEquals(SourceHelpers.createUnicodeString("中国"), lexer.getCurrentToken().value);
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals(SourceHelpers.createUnicodeString("中国"), ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 
@@ -77,8 +80,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
-            assertEquals(SourceHelpers.createUnicodeString("你好"), lexer.getCurrentToken().value);
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals(SourceHelpers.createUnicodeString("你好"), ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 
@@ -95,8 +99,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
-            assertEquals(SourceHelpers.createUnicodeString("a🚀b"), lexer.getCurrentToken().value);
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals(SourceHelpers.createUnicodeString("a🚀b"), ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 
@@ -112,8 +117,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().type);
-            assertEquals("cba", lexer.getCurrentToken().value);
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals("cba", ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 
@@ -129,7 +135,7 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.LT, lexer.getCurrentToken().type);
+            assertEquals(TokenType.LT, lexer.getCurrentToken().getType());
         }
     }
 
@@ -145,7 +151,7 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.LE, lexer.getCurrentToken().type);
+            assertEquals(TokenType.LE, lexer.getCurrentToken().getType());
         }
     }
 
@@ -161,8 +167,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.COMMENT, lexer.getCurrentToken().type);
-            assertEquals("bcd", lexer.getCurrentToken().value);
+            assertEquals(TokenType.COMMENT, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals("bcd", ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 
@@ -178,8 +185,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.COMMENT, lexer.getCurrentToken().type);
-            assertEquals("", lexer.getCurrentToken().value);
+            assertEquals(TokenType.COMMENT, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals("", ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 
@@ -212,7 +220,7 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(tokenType, lexer.getCurrentToken().type);
+            assertEquals(tokenType, lexer.getCurrentToken().getType());
         }
     }
 
@@ -227,8 +235,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.STRING, lexer.getCurrentToken().type);
-            assertEquals("aa", lexer.getCurrentToken().value);
+            assertEquals(TokenType.STRING, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals("aa", ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 
@@ -243,8 +252,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.STRING, lexer.getCurrentToken().type);
-            assertEquals("aa\taa", lexer.getCurrentToken().value);
+            assertEquals(TokenType.STRING, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals("aa\taa", ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 
@@ -259,8 +269,9 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.STRING, lexer.getCurrentToken().type);
-            assertEquals("aa'aa", lexer.getCurrentToken().value);
+            assertEquals(TokenType.STRING, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals("aa'aa", ((StringToken)lexer.getCurrentToken()).getValue());
         }
     }
 

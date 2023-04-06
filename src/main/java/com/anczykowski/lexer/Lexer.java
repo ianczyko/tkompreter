@@ -42,22 +42,12 @@ public class Lexer implements Iterable<Token> {
         ) {
             return currentToken;
         } else {
-            if(source.isEOF()) return Token.builder()
-                .type(TokenType.EOF)
-                .location(source.getCurrentLocation().clone())
-                .build();
-            return handleUnknown();
+            if (source.isEOF()) {
+                return new Token(TokenType.EOF, source.getCurrentLocation().clone());
+            }
+            source.fetchCharacter();
+            return new Token(TokenType.UNKNOWN, source.getCurrentLocation().clone());
         }
-    }
-
-    private Token handleUnknown() {
-        StringBuilder stringBuilder = new StringBuilder();
-        consume(stringBuilder);
-        return Token.builder()
-            .value(source.getCurrentCharacter())
-            .location(source.getCurrentLocation().clone())
-            .type(TokenType.UNKNOWN)
-            .build();
     }
 
     @Override
@@ -89,11 +79,8 @@ public class Lexer implements Iterable<Token> {
         do {
             consume(lexemValueBuilder);
         } while (source.isNotEOF() && StringUtils.isNumeric(source.getCurrentCharacter()));
-        currentToken = Token.builder()
-            .value(lexemValueBuilder.toString())
-            .location(currentLocation)
-            .type(TokenType.NUMBER)
-            .build();
+
+        currentToken = new StringToken(TokenType.NUMBER, currentLocation, lexemValueBuilder.toString());
         return true;
     }
 
@@ -114,17 +101,10 @@ public class Lexer implements Iterable<Token> {
         );
         TokenType foundKeyword = matchKeyword(lexemValueBuilder.toString());
         if(foundKeyword != null){
-            currentToken = Token.builder()
-                .type(foundKeyword)
-                .location(startLocation)
-                .build();
+            currentToken = new Token(foundKeyword, startLocation);
             return true;
         }
-        currentToken = Token.builder()
-            .value(lexemValueBuilder.toString())
-            .type(TokenType.IDENTIFIER)
-            .location(startLocation)
-            .build();
+        currentToken = new StringToken(TokenType.IDENTIFIER, startLocation, lexemValueBuilder.toString());
         return true;
     }
 
@@ -174,11 +154,7 @@ public class Lexer implements Iterable<Token> {
         var unescapedString = unescapeJava(lexemValueBuilder.toString());
 
         source.fetchCharacter();
-        currentToken = Token.builder()
-            .value(unescapedString)
-            .type(TokenType.STRING)
-            .location(currentLocation)
-            .build();
+        currentToken = new StringToken(TokenType.STRING, currentLocation, unescapedString);
         return true;
     }
 
@@ -213,11 +189,11 @@ public class Lexer implements Iterable<Token> {
         if (tokenType == TokenType.UNKNOWN) return false;
         source.fetchCharacter();
 
-        var tokenBuilder = Token.builder().type(tokenType).location(currentLocation);
         if(tokenType.equals(TokenType.COMMENT)){
-            tokenBuilder.value(commentContent.toString());
+            currentToken = new StringToken(tokenType, currentLocation, commentContent.toString());
+        } else {
+            currentToken = new Token(tokenType, currentLocation);
         }
-        currentToken = tokenBuilder.build();
         return true;
     }
 

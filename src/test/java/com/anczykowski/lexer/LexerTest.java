@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.errormodule.ErrorType;
@@ -290,4 +291,89 @@ class LexerTest {
             assertEquals(ErrorType.UNCLOSED_STRING, errorModule.getErrors().getFirst().getErrorType());
         }
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 10, 100, 123, 321, 1234567})
+    void getInteger(Integer value) {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource(value.toString(), errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(TokenType.INTEGER_NUMBER, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof IntegerToken);
+            assertEquals(value, ((IntegerToken)lexer.getCurrentToken()).getValue());
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(floats = {0f, 1f, 10f, 100f, 10.0f, 10.1f, 10.01f, 123.456f})
+    void getFloat(Float value) {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource(value.toString(), errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(TokenType.FLOAT_NUMBER, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof FloatToken);
+            assertEquals(value, ((FloatToken)lexer.getCurrentToken()).getValue(), 0.000001f);
+        }
+    }
+
+    @Test
+    void getIntegerTooBig() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("100000000000000000", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(1, errorModule.getErrors().size());
+            assertEquals(ErrorType.CONSTANT_TOO_BIG, errorModule.getErrors().getFirst().getErrorType());
+        }
+    }
+
+    @Test
+    void getFloatTooBig() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("1.11111111111111111", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(1, errorModule.getErrors().size());
+            assertEquals(ErrorType.CONSTANT_TOO_BIG, errorModule.getErrors().getFirst().getErrorType());
+        }
+    }
+
+    @Test
+    void getFloatMalformed() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("100. xxx", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(1, errorModule.getErrors().size());
+            assertEquals(ErrorType.MALFORMED_NUMBER, errorModule.getErrors().getFirst().getErrorType());
+        }
+    }
+
 }

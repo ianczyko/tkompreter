@@ -3,7 +3,8 @@ package com.anczykowski.lexer;
 public enum TokenType {
     COMMENT,
     IDENTIFIER,
-    NUMBER,
+    INTEGER_NUMBER,
+    FLOAT_NUMBER,
     STRING,
     UNKNOWN,
     EOF,
@@ -31,5 +32,5 @@ public enum TokenType {
     LT, GT, NEG,
 
     // 2-character operators
-    LE, GE, NE, EQ, ARROW;
+    LE, GE, NE, EQ, ARROW
 }

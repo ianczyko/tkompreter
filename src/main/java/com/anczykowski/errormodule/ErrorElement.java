@@ -32,6 +32,8 @@ public class ErrorElement {
             case INCONSISTENT_LINE_ENDINGS -> "error: inconsistent line endings";
             case UNKNOWN_CHARACTER -> "error: unknown character";
             case UNCLOSED_STRING -> "error: string not closed";
+            case CONSTANT_TOO_BIG -> "error: constant exceeded max size";
+            case MALFORMED_NUMBER -> "error: malformed number";
             default -> "unknownError";
         };
 

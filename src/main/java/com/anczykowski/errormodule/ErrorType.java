@@ -5,4 +5,6 @@ public enum ErrorType {
     TOKEN_TOO_LONG,
     UNKNOWN_CHARACTER,
     UNCLOSED_STRING,
+    CONSTANT_TOO_BIG,
+    MALFORMED_NUMBER,
 }

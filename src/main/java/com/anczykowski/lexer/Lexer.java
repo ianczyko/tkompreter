@@ -2,12 +2,12 @@ package com.anczykowski.lexer;
 
 import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Iterator;
 import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.anczykowski.errormodule.ErrorElement;
 import com.anczykowski.errormodule.ErrorModule;
@@ -70,17 +70,76 @@ public class Lexer implements Iterable<Token> {
     }
 
     private Boolean tryBuildNumber() {
-        // TODO: number value as number not as string
         if (!StringUtils.isNumeric(source.getCurrentCharacter())) {
             return false;
         }
-        var lexemValueBuilder = new StringBuilder();
         var currentLocation = source.getCurrentLocation().clone();
-        do {
-            consume(lexemValueBuilder);
-        } while (source.isNotEOF() && StringUtils.isNumeric(source.getCurrentCharacter()));
+        int nominator = source.getCurrentCharacterSingle() - '0';
+        if (!source.getCurrentCharacter().equals("0")){
+            source.fetchCharacter();
+            while(source.isNotEOF() && StringUtils.isNumeric(source.getCurrentCharacter())){
+                int decimal = source.getCurrentCharacterSingle() - '0';
+                if (willNotOverflow(currentLocation, nominator, decimal)) {
+                    nominator = nominator * 10 + decimal;
+                } else {
+                    // ignore the rest of the number
+                    while(source.isNotEOF() && StringUtils.isNumeric(source.getCurrentCharacter())){
+                        source.fetchCharacter();
+                    }
+                }
+                source.fetchCharacter();
+            }
+        } else {
+            source.fetchCharacter();
+        }
+        if (source.getCurrentCharacter().equals(".")){
+            source.fetchCharacter();
+            if(!StringUtils.isNumeric(source.getCurrentCharacter())){
+                errorModule.addError(
+                    ErrorElement.builder()
+                        .errorType(ErrorType.MALFORMED_NUMBER)
+                        .location(currentLocation)
+                        .codeLineBuffer(source.getCharacterBuffer().toString())
+                        .underlineFragment(nominator + ".")
+                        .build()
+                );
+            }
+            int denominator = source.getCurrentCharacterSingle() - '0';
+            int decimalCount = 1;
+            source.fetchCharacter();
+            while(source.isNotEOF() && StringUtils.isNumeric(source.getCurrentCharacter())){
+                int decimal = source.getCurrentCharacterSingle() - '0';
+                if (willNotOverflow(currentLocation, denominator, decimal)) {
+                    denominator = denominator * 10 + decimal;
+                } else {
+                    // ignore the rest of the number
+                    while(source.isNotEOF() && StringUtils.isNumeric(source.getCurrentCharacter())){
+                        source.fetchCharacter();
+                    }
+                }
+                ++decimalCount;
+                source.fetchCharacter();
+            }
+            var floatValue = nominator + denominator * Math.pow(10, -decimalCount);
+            currentToken = new FloatToken(TokenType.FLOAT_NUMBER, currentLocation, (float) floatValue);
+        } else {
+            currentToken = new IntegerToken(TokenType.INTEGER_NUMBER, currentLocation, nominator);
+        }
+        return true;
+    }
 
-        currentToken = new StringToken(TokenType.NUMBER, currentLocation, lexemValueBuilder.toString());
+    private boolean willNotOverflow(Location currentLocation, int currentValue, int decimal) {
+        if ((Integer.MAX_VALUE - decimal) / 10 <= currentValue) {
+            errorModule.addError(
+                ErrorElement.builder()
+                    .errorType(ErrorType.CONSTANT_TOO_BIG)
+                    .location(currentLocation)
+                    .codeLineBuffer(source.getCharacterBuffer().toString())
+                    .underlineFragment(String.valueOf(currentValue))
+                    .build()
+            );
+            return false;
+        }
         return true;
     }
 

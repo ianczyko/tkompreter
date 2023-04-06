@@ -9,6 +9,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.lexer.helpers.SourceHelpers;
 
 // TODO: Edge cases
@@ -19,8 +20,9 @@ class LexerTest {
     @Test
     void getBasicToken() {
         // given
-        try (var src = SourceHelpers.thereIsSource("abc def")) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("abc def", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -34,8 +36,9 @@ class LexerTest {
     @Test
     void getBasicTokenUnicodePolish() {
         // given
-        try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("ząb mądrości"))) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("ząb mądrości"), errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -49,8 +52,9 @@ class LexerTest {
     @Test
     void getBasicTokenUnicodeChinese2Bytes() {
         // given
-        try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("中国 token"))) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("中国 token"), errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -64,8 +68,9 @@ class LexerTest {
     @Test
     void getBasicTokenUnicodeChinese3Bytes() {
         // given
-        try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("你好 token"))) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("你好 token"), errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -81,8 +86,9 @@ class LexerTest {
     @Test
     void getBasicTokenUnicodeEmoji() {
         // given
-        try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("a🚀b token"))) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("a🚀b token"), errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -96,8 +102,9 @@ class LexerTest {
     @Test
     void getBasicTokenLast() {
         // given
-        try (var src = SourceHelpers.thereIsSource("abc cba")) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("abc cba", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -112,8 +119,9 @@ class LexerTest {
     @Test
     void getLT() {
         // given
-        try (var src = SourceHelpers.thereIsSource("a<b")) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("a<b", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -127,8 +135,9 @@ class LexerTest {
     @Test
     void getLE() {
         // given
-        try (var src = SourceHelpers.thereIsSource("a<=b")) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("a<=b", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -142,8 +151,9 @@ class LexerTest {
     @Test
     void getComment() {
         // given
-        try (var src = SourceHelpers.thereIsSource("a //bcd")) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("a //bcd", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -158,8 +168,9 @@ class LexerTest {
     @Test
     void getCommentEdge() {
         // given
-        try (var src = SourceHelpers.thereIsSource("a //")) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("a //", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -192,8 +203,9 @@ class LexerTest {
     @MethodSource("expectedKeywordTypes")
     void getKeyword(String keyword, TokenType tokenType) {
         // given
-        try (var src = SourceHelpers.thereIsSource(keyword)) {
-            var lexer = new Lexer(src);
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource(keyword, errorModule)) {
+            var lexer = new Lexer(src, errorModule);
 
             // when
             lexer.getNextToken();

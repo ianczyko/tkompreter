@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.lexer.helpers.SourceHelpers;
 
 class SourceTest {
@@ -17,7 +18,8 @@ class SourceTest {
     @Test
     void sourceGetFirstCharacter() {
         // given
-        try (var src = SourceHelpers.thereIsSource("abc")) {
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("abc", errorModule)) {
             // when
             src.fetchCharacter();
 
@@ -29,7 +31,8 @@ class SourceTest {
     @Test
     void sourceGetSecondCharacter() {
         // given
-        try (var src = SourceHelpers.thereIsSource("abc")) {
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("abc", errorModule)) {
             // when
             src.fetchCharacter();
             src.fetchCharacter();
@@ -43,8 +46,9 @@ class SourceTest {
     @ValueSource(strings = {"\n", "\r", "\n\r", "\r\n"})
     void handleNewLines(String newline) {
         // given
+        var errorModule = new ErrorModule();
         var str = MessageFormat.format("a{0}b{0}c", newline);
-        try (var src = SourceHelpers.thereIsSource(str)) {
+        try (var src = SourceHelpers.thereIsSource(str, errorModule)) {
             // when
             src.fetchCharacter();
             src.fetchCharacter();
@@ -58,8 +62,9 @@ class SourceTest {
     @ValueSource(strings = {"\n", "\r", "\n\r", "\r\n"})
     void handleNewLinesSecond(String newline) {
         // given
+        var errorModule = new ErrorModule();
         var str = MessageFormat.format("a{0}b{0}c", newline);
-        try (var src = SourceHelpers.thereIsSource(str)) {
+        try (var src = SourceHelpers.thereIsSource(str, errorModule)) {
             // when
             src.fetchCharacter();
             src.fetchCharacter();
@@ -75,8 +80,9 @@ class SourceTest {
     @ValueSource(strings = {"\n", "\r", "\n\r", "\r\n"})
     void handleNewLinesEnd(String newline) {
         // given
+        var errorModule = new ErrorModule();
         var str = MessageFormat.format("a{0}b{0}c", newline);
-        try (var src = SourceHelpers.thereIsSource(str)) {
+        try (var src = SourceHelpers.thereIsSource(str, errorModule)) {
             // when
             src.fetchCharacter();
             src.fetchCharacter();
@@ -93,7 +99,8 @@ class SourceTest {
     @Test
     void sourceCurrentPositionOneLine() {
         // given
-        try (var src = SourceHelpers.thereIsSource("abc")) {
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("abc", errorModule)) {
             // when
             src.fetchCharacter();
             src.fetchCharacter();
@@ -107,7 +114,8 @@ class SourceTest {
     @Test
     void sourceCurrentPositionNewline() {
         // given
-        try (var src = SourceHelpers.thereIsSource("ab\ncd")) {
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("ab\ncd", errorModule)) {
             // when
             src.fetchCharacter();
             src.fetchCharacter();
@@ -124,7 +132,8 @@ class SourceTest {
     @Test
     void sourceCurrentPositionNewlineCRLF() {
         // given
-        try (var src = SourceHelpers.thereIsSource("ab\r\ncd")) {
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("ab\r\ncd", errorModule)) {
             // when
             src.fetchCharacter();
             src.fetchCharacter();

@@ -3,14 +3,20 @@ package com.anczykowski.lexer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Stack;
 
+import com.anczykowski.errormodule.ErrorElement;
+import com.anczykowski.errormodule.ErrorModule;
+import com.anczykowski.errormodule.ErrorType;
 import lombok.Getter;
 
 public class Source implements AutoCloseable {
 
-    // TODO: Buffering N previous characters
+    private static final int LINE_BUFFER_LIMIT = 80;
 
     private final Reader reader;
+
+    private final ErrorModule errorModule;
 
     // UTF8 characters might not fit into a single character, because of that string is used
     private String currentCharacter = null;
@@ -23,6 +29,10 @@ public class Source implements AutoCloseable {
 
     @Getter
     private Location currentLocation = new Location();
+
+    @Getter
+    private final Stack<String> characterBuffer = new FixedCharacterStack(LINE_BUFFER_LIMIT);
+
 
     public boolean isNotEOF() {
         return !flagEOF;
@@ -47,6 +57,7 @@ public class Source implements AutoCloseable {
         try {
             currentLocation.incrementColumnNumber();
             if(notConsumedCharacter != null){
+                characterBuffer.push(notConsumedCharacter);
                 currentCharacter = notConsumedCharacter;
                 notConsumedCharacter = null;
                 return;
@@ -66,10 +77,17 @@ public class Source implements AutoCloseable {
             firstLineEnding = currentNewline;
         }
         else if (!currentNewline.equals(firstLineEnding) && isNotEOF()){
-            throw new RuntimeException("Inconsistent line endings"); // TODO: error module
+            errorModule.addError(
+                ErrorElement.builder()
+                    .errorType(ErrorType.INCONSISTENT_LINE_ENDINGS)
+                    .location(getCurrentLocation().clone())
+                    .codeLineBuffer(getCharacterBuffer().toString())
+                    .build()
+            );
         }
         currentCharacter = "\n";
         currentLocation.resetColumnNumber();
+        characterBuffer.clear();
         currentLocation.incrementLineNumber();
     }
 
@@ -96,23 +114,34 @@ public class Source implements AutoCloseable {
         if (!Character.isHighSurrogate((char)highUnit))
         {
             currentCharacter = Character.toString(highUnit);
+            characterBuffer.push(currentCharacter);
             return;
         }
 
         int lowUnit = reader.read();
-        if (!Character.isLowSurrogate((char)lowUnit))
-            throw new RuntimeException("Unmatched utf8 surrogate pair");
+        if (!Character.isLowSurrogate((char)lowUnit)){
+            errorModule.addError(
+                ErrorElement.builder()
+                    .errorType(ErrorType.UNKNOWN_CHARACTER)
+                    .location(getCurrentLocation().clone())
+                    .codeLineBuffer(getCharacterBuffer().toString())
+                    .build());
+            return;
+        }
 
         currentCharacter = Character.toString(Character.toCodePoint((char)highUnit, (char)lowUnit));
+        characterBuffer.push(currentCharacter);
     }
 
-    public Source(Reader inputReader) {
-        reader = new BufferedReader(inputReader);
+    public Source(ErrorModule errorModule, Reader inputReader) {
+        this.errorModule = errorModule;
+        this.reader = new BufferedReader(inputReader);
     }
 
-    public Source(Reader inputReader, String path) {
-        currentLocation = new Location(path);
-        reader = new BufferedReader(inputReader);
+    public Source(ErrorModule errorModule, Reader inputReader, String path) {
+        this.errorModule = errorModule;
+        this.currentLocation = new Location(path);
+        this.reader = new BufferedReader(inputReader);
     }
 
     @Override

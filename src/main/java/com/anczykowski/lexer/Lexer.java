@@ -7,6 +7,9 @@ import java.util.Objects;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import com.anczykowski.errormodule.ErrorElement;
+import com.anczykowski.errormodule.ErrorModule;
+import com.anczykowski.errormodule.ErrorType;
 import com.vdurmont.emoji.EmojiManager;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +18,9 @@ import lombok.RequiredArgsConstructor;
 public class Lexer implements Iterable<Token> {
     private final Source source;
 
-    private static final int LEXEM_MAX_SIZE = 256;
+    private final ErrorModule errorModule;
+
+    private static final int TOKEN_MAX_SIZE = 64;
 
     @Getter
     private Token currentToken;
@@ -220,8 +225,17 @@ public class Lexer implements Iterable<Token> {
 
     private void consume(StringBuilder lexemValueBuilder) {
         lexemValueBuilder.append(source.getCurrentCharacter());
-        if (lexemValueBuilder.length() >= LEXEM_MAX_SIZE) {
-            throw new RuntimeException(); // TODO: error module instead of those throws
+        if (lexemValueBuilder.length() >= TOKEN_MAX_SIZE) {
+            errorModule.addError(
+                ErrorElement.builder()
+                    .errorType(ErrorType.TOKEN_TOO_LONG)
+                    .location(source.getCurrentLocation().clone())
+                    .codeLineBuffer(source.getCharacterBuffer().toString())
+                    .underlineFragment(lexemValueBuilder.toString())
+                    .explanation("%d character limit exceeded".formatted(TOKEN_MAX_SIZE))
+                    .build()
+            );
+            lexemValueBuilder.setLength(0);
         }
         source.fetchCharacter();
     }

@@ -1,7 +1,4 @@
-
 var a = 4;
-
-var aaaaaaaaaaaaaaaaaaaaa;
 
 if(a == 4) {
     a = a + 1 * 2;

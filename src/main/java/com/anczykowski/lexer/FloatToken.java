@@ -14,6 +14,6 @@ public class FloatToken extends Token {
     @Override
     public String toString() {
         var locationStr = super.location + "\t";
-        return locationStr + "Token(type=" + this.type + ", value=[" + this.value + "])";
+        return locationStr + "FloatToken(type=" + this.type + ", value=[" + this.value + "])";
     }
 }

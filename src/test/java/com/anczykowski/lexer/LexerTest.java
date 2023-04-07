@@ -50,6 +50,54 @@ class LexerTest {
     }
 
     @Test
+    void getEOFNewline() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("abc\n", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+            lexer.getNextToken();
+
+            // then
+            assertEquals(TokenType.EOF, lexer.getCurrentToken().getType());
+        }
+    }
+
+    @Test
+    void getEOFStreamWith() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("abc", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            var tokenCount = lexer.stream().count();
+
+            // then
+            assertEquals(2, tokenCount);
+            assertEquals(TokenType.EOF, lexer.getCurrentToken().getType());
+        }
+    }
+
+    @Test
+    void getEOFStreamWithNewline() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("abc\n", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            var tokenCount = lexer.stream().count();
+
+            // then
+            assertEquals(2, tokenCount);
+            assertEquals(TokenType.EOF, lexer.getCurrentToken().getType());
+        }
+    }
+
+    @Test
     void getBasicTokenUnicodePolish() {
         // given
         var errorModule = new ErrorModule();

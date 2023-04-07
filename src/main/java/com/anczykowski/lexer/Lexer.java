@@ -38,6 +38,7 @@ public class Lexer implements Iterable<Token> {
         trimWhitespace();
 
         if (source.isEOF()) {
+            consumedEOF = true;
             return currentToken = new Token(TokenType.EOF, source.getCurrentLocation().clone());
         }
 
@@ -53,20 +54,11 @@ public class Lexer implements Iterable<Token> {
         }
     }
 
-    public boolean notConsumedEOF() {
-        if(consumedEOF) return false;
-        if(source.isEOF()){
-            consumedEOF = true;
-            return true;
-        }
-        return true;
-    }
-
     @Override
     public Iterator<Token> iterator() {
         return new Iterator<>() {
             public boolean hasNext() {
-                return notConsumedEOF();
+                return !consumedEOF;
             }
 
             public Token next() {

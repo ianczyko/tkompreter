@@ -305,6 +305,23 @@ class LexerTest {
     }
 
     @Test
+    void getStringEmpty() {
+        // given
+        var errorModule = new ErrorModule();
+        try (var src = SourceHelpers.thereIsSource("''", errorModule)) {
+            var lexer = new Lexer(src, errorModule);
+
+            // when
+            lexer.getNextToken();
+
+            // then
+            assertEquals(TokenType.STRING, lexer.getCurrentToken().getType());
+            assertTrue(lexer.getCurrentToken() instanceof StringToken);
+            assertEquals("", ((StringToken)lexer.getCurrentToken()).getValue());
+        }
+    }
+
+    @Test
     void getStringEscapedCharacter() {
         // given
         var errorModule = new ErrorModule();

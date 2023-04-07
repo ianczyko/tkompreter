@@ -27,7 +27,7 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(lexer.getCurrentToken().getType(), TokenType.IDENTIFIER);
+            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().getType());
             assertTrue(lexer.getCurrentToken() instanceof StringToken);
             assertEquals("abc", ((StringToken)lexer.getCurrentToken()).getValue());
         }
@@ -45,7 +45,7 @@ class LexerTest {
             lexer.getNextToken();
 
             // then
-            assertEquals(lexer.getCurrentToken().getType(), TokenType.EOF);
+            assertEquals(TokenType.EOF, lexer.getCurrentToken().getType());
         }
     }
 

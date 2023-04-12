@@ -8,9 +8,11 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 import com.anczykowski.errormodule.ErrorModule;
-import com.anczykowski.lexer.Lexer;
+import com.anczykowski.lexer.LexerFiltered;
+import com.anczykowski.lexer.LexerImpl;
 import com.anczykowski.lexer.Source;
 import com.anczykowski.lexer.TokenFilters;
+import com.anczykowski.lexer.TokenType;
 
 public class Main {
 
@@ -20,11 +22,11 @@ public class Main {
         var errorModule = new ErrorModule();
 
         try (var src = getSource(args, errorModule)) {
-            var lexer = new Lexer(src, errorModule);
-            lexer.stream()
-                .filter(TokenFilters.getCommentFilter())
-                .forEach(outPrintStream::println);
-            errorModule.printErrors(outPrintStream);
+            var lexer = new LexerImpl(src, errorModule);
+            var lexerFiltered = new LexerFiltered(lexer, TokenFilters.getCommentFilter());
+            while(lexerFiltered.getNextToken().getType() != TokenType.EOF){
+                outPrintStream.println(lexerFiltered.getCurrentToken());
+            }
         }
     }
 

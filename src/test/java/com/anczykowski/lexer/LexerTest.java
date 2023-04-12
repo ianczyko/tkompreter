@@ -21,7 +21,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("abc def", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -38,7 +38,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("abc", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -54,45 +54,13 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("abc\n", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
             lexer.getNextToken();
 
             // then
-            assertEquals(TokenType.EOF, lexer.getCurrentToken().getType());
-        }
-    }
-
-    @Test
-    void getEOFStreamWith() {
-        // given
-        var errorModule = new ErrorModule();
-        try (var src = SourceHelpers.thereIsSource("abc", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
-
-            // when
-            var tokenCount = lexer.stream().count();
-
-            // then
-            assertEquals(2, tokenCount);
-            assertEquals(TokenType.EOF, lexer.getCurrentToken().getType());
-        }
-    }
-
-    @Test
-    void getEOFStreamWithNewline() {
-        // given
-        var errorModule = new ErrorModule();
-        try (var src = SourceHelpers.thereIsSource("abc\n", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
-
-            // when
-            var tokenCount = lexer.stream().count();
-
-            // then
-            assertEquals(2, tokenCount);
             assertEquals(TokenType.EOF, lexer.getCurrentToken().getType());
         }
     }
@@ -102,7 +70,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("ząb mądrości"), errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -119,7 +87,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("中国 token"), errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -136,7 +104,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("你好 token"), errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -155,7 +123,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource(SourceHelpers.createUnicodeString("a🚀b token"), errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -172,7 +140,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("abc cba", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -186,40 +154,18 @@ class LexerTest {
     }
 
     @Test
-    void getTokenStreamAndCheckLaziness() {
+    void filterOutComments(){
         // given
         var errorModule = new ErrorModule();
-        try (var src = SourceHelpers.thereIsSource("aaa bbb ccc", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+        try (var src = SourceHelpers.thereIsSource("//abc", errorModule)) {
+            var lexer = new LexerImpl(src, errorModule);
+            var lexerFiltered = new LexerFiltered(lexer, TokenFilters.getCommentFilter());
 
             // when
-            lexer.stream().findFirst().ifPresent(token -> {
+            lexerFiltered.getNextToken();
 
-                // then
-                assertEquals(TokenType.IDENTIFIER, token.getType());
-                assertTrue(token instanceof StringToken);
-                assertEquals("aaa", ((StringToken)token).getValue());
-            });
-
-
-            assertEquals(TokenType.IDENTIFIER, lexer.getCurrentToken().getType());
-            assertTrue(lexer.getCurrentToken() instanceof StringToken);
-            assertEquals("aaa", ((StringToken)lexer.getCurrentToken()).getValue());
-        }
-    }
-
-    @Test
-    void getTokenStreamEOF() {
-        // given
-        var errorModule = new ErrorModule();
-        try (var src = SourceHelpers.thereIsSource("aaa", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
-
-            // when
-            var count = lexer.stream().count();
-
-            assertEquals(2, count);
-            assertEquals(TokenType.EOF, lexer.getCurrentToken().getType());
+            // then
+            assertEquals(TokenType.EOF, lexerFiltered.getCurrentToken().getType());
         }
     }
 
@@ -228,7 +174,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("a //bcd", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -246,7 +192,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("a //", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -282,7 +228,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource(keyword, errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -325,7 +271,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource(keyword, errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -340,7 +286,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("'aa'", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -357,7 +303,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("''", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -374,7 +320,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("'aa\\taa'", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -391,7 +337,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("'aa\\'aa", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -408,7 +354,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("'aa\nvar", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -425,7 +371,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource(value.toString(), errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -443,7 +389,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource(value.toString(), errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -460,7 +406,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("100000000000000000", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -476,7 +422,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("1.11111111111111111", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -492,7 +438,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("100. xxx", errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();
@@ -508,7 +454,7 @@ class LexerTest {
         // given
         var errorModule = new ErrorModule();
         try (var src = SourceHelpers.thereIsSource("a".repeat(68), errorModule)) {
-            var lexer = new Lexer(src, errorModule);
+            var lexer = new LexerImpl(src, errorModule);
 
             // when
             lexer.getNextToken();

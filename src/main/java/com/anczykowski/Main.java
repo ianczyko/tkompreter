@@ -12,7 +12,8 @@ import com.anczykowski.lexer.LexerFiltered;
 import com.anczykowski.lexer.LexerImpl;
 import com.anczykowski.lexer.Source;
 import com.anczykowski.lexer.TokenFilters;
-import com.anczykowski.lexer.TokenType;
+import com.anczykowski.parser.Parser;
+import com.anczykowski.parser.visitors.PrinterVisitor;
 
 public class Main {
 
@@ -24,9 +25,15 @@ public class Main {
         try (var src = getSource(args, errorModule)) {
             var lexer = new LexerImpl(src, errorModule);
             var lexerFiltered = new LexerFiltered(lexer, TokenFilters.getCommentFilter());
-            while(lexerFiltered.getNextToken().getType() != TokenType.EOF){
-                outPrintStream.println(lexerFiltered.getCurrentToken());
-            }
+
+            var parser = new Parser(lexerFiltered, errorModule);
+
+            var program = parser.parse();
+            var printer = new PrinterVisitor(outPrintStream);
+
+            program.accept(printer);
+
+            errorModule.printErrors(outPrintStream);
         }
     }
 

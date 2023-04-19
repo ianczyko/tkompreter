@@ -11,6 +11,16 @@ public class LexerFiltered implements Lexer {
     final Predicate<Token> tokenFilter;
 
     @Override
+    public Location getCurrentLocation() {
+        return lexer.getCurrentLocation();
+    }
+
+    @Override
+    public String getCharacterBuffer() {
+        return lexer.getCharacterBuffer();
+    }
+
+    @Override
     public Token getNextToken() {
         var nextToken = lexer.getNextToken();
         while(tokenFilter.negate().test(nextToken)) {

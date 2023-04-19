@@ -23,6 +23,16 @@ public class LexerImpl implements Lexer {
     private Token currentToken;
 
     @Override
+    public Location getCurrentLocation() {
+        return source.getCurrentLocation();
+    }
+
+    @Override
+    public String getCharacterBuffer() {
+        return source.getCharacterBuffer().toString();
+    }
+
+    @Override
     public Token getNextToken() {
 
         trimWhitespace();

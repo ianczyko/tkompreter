@@ -23,6 +23,7 @@ public enum TokenType {
     DEFAULT_KEYWORD,
     CLASS_KEYWORD,
     NEW_KEYWORD,
+    NOT_KEYWORD,
 
     // 1-character operators
     PLUS, MINUS, ASSIGNMENT, ASTERISK, SLASH,

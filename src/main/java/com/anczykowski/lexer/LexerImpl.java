@@ -2,7 +2,10 @@ package com.anczykowski.lexer;
 
 import static org.apache.commons.text.StringEscapeUtils.unescapeJava;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -172,6 +175,7 @@ public class LexerImpl implements Lexer {
             case "def" -> TokenType.DEFAULT_KEYWORD;
             case "class" -> TokenType.CLASS_KEYWORD;
             case "new" -> TokenType.NEW_KEYWORD;
+            case "not" -> TokenType.NOT_KEYWORD;
             default -> null;
         };
     }
@@ -214,6 +218,15 @@ public class LexerImpl implements Lexer {
         return source.isNotEOF() && !(isEndQuote && !isEscaped) && !isNewline;
     }
 
+    private static final Set<TokenType> typesThatPeeked = new HashSet<>(Arrays.asList(
+        TokenType.LT,
+        TokenType.GT,
+        TokenType.MINUS,
+        TokenType.ASSIGNMENT,
+        TokenType.NEG,
+        TokenType.SLASH
+    ));
+
     private Boolean tryBuildSimpleTokenOrComment() {
         var commentContent = new StringBuilder();
         var currentLocation = source.getCurrentLocation().clone();
@@ -236,7 +249,10 @@ public class LexerImpl implements Lexer {
             default -> TokenType.UNKNOWN;
         };
         if (tokenType == TokenType.UNKNOWN) return false;
-        source.fetchCharacter();
+
+        if(!typesThatPeeked.contains(tokenType)){
+            source.fetchCharacter();
+        }
 
         if (tokenType.equals(TokenType.COMMENT)) {
             currentToken = new StringToken(tokenType, currentLocation, commentContent.toString());

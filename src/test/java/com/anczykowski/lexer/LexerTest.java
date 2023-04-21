@@ -218,7 +218,8 @@ class LexerTest {
             Arguments.of("switch", TokenType.SWITCH_KEYWORD),
             Arguments.of("def", TokenType.DEFAULT_KEYWORD),
             Arguments.of("class", TokenType.CLASS_KEYWORD),
-            Arguments.of("new", TokenType.NEW_KEYWORD)
+            Arguments.of("new", TokenType.NEW_KEYWORD),
+            Arguments.of("not", TokenType.NOT_KEYWORD)
         );
     }
 

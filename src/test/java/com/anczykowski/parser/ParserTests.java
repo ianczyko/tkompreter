@@ -3,6 +3,7 @@ package com.anczykowski.parser;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +20,7 @@ import com.anczykowski.lexer.TokenType;
 import com.anczykowski.parser.helpers.ParserHelpers;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
+import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
@@ -380,6 +382,27 @@ class ParserTests {
         assertTrue(variables.containsKey("variable"));
         assertEquals("variable", varStmt.getName());
         assertEquals(2, ((IntegerConstantExpr) varStmt.getInitial()).getValue());
+    }
+
+    @Test
+    void parseExprWithReturn() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.RETURN_KEYWORD, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var statementsAndExpressions = new ArrayList<Expression>();
+        parser.parseExprInsideCodeBlock(statementsAndExpressions);
+
+        // then
+        var expr = statementsAndExpressions.get(0);
+        assertTrue(expr.isReturn());
     }
 
 }

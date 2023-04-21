@@ -39,6 +39,10 @@ public class PrinterVisitor implements Visitor {
         out.printf("%s ", "-".repeat(level));
     }
 
+    private void printIsReturnable(Expression expr){
+        if(expr.isReturn()) out.print("(with return) ");
+    }
+
     @Override
     public void visit(Program program) {
         printIndentation();
@@ -115,12 +119,14 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(Expression expression) {
         printIndentation();
+        printIsReturnable(expression);
         out.println("expression: ");
     }
 
     @Override
     public void visit(OrOpArg orOpArg) {
         printIndentation();
+        printIsReturnable(orOpArg);
         out.println("orOpArg");
         level++;
         orOpArg.getLeft().accept(this);
@@ -129,18 +135,20 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(OrExpression orOpArg) {
+    public void visit(OrExpression orExpression) {
         printIndentation();
+        printIsReturnable(orExpression);
         out.println("orOpArg");
         level++;
-        orOpArg.getLeft().accept(this);
-        orOpArg.getRight().accept(this);
+        orExpression.getLeft().accept(this);
+        orExpression.getRight().accept(this);
         level--;
     }
 
     @Override
     public void visit(AndOpArg andOpArg) {
         printIndentation();
+        printIsReturnable(andOpArg);
         out.println("andOpArg");
         level++;
         andOpArg.getLeft().accept(this);
@@ -151,6 +159,7 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(EqRelOpArg eqRelOpArg) {
         printIndentation();
+        printIsReturnable(eqRelOpArg);
         out.println("eqRelOpArg");
         level++;
         eqRelOpArg.getLeft().accept(this);
@@ -161,6 +170,7 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(GeRelOpArg geRelOpArg) {
         printIndentation();
+        printIsReturnable(geRelOpArg);
         out.println("geRelOpArg");
         level++;
         geRelOpArg.getLeft().accept(this);
@@ -171,6 +181,7 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(GtRelOpArg gtRelOpArg) {
         printIndentation();
+        printIsReturnable(gtRelOpArg);
         out.println("gtRelOpArg");
         level++;
         gtRelOpArg.getLeft().accept(this);
@@ -181,6 +192,7 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(LtRelOpArg ltRelOpArg) {
         printIndentation();
+        printIsReturnable(ltRelOpArg);
         out.println("ltRelOpArg");
         level++;
         ltRelOpArg.getLeft().accept(this);
@@ -191,6 +203,7 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(NeRelOpArg neRelOpArg) {
         printIndentation();
+        printIsReturnable(neRelOpArg);
         out.println("neRelOpArg");
         level++;
         neRelOpArg.getLeft().accept(this);
@@ -201,6 +214,7 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(LeRelOpArg leRelOpArg) {
         printIndentation();
+        printIsReturnable(leRelOpArg);
         out.println("leRelOpArg");
         level++;
         leRelOpArg.getLeft().accept(this);
@@ -211,6 +225,7 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(AdditionTerm additionTerm) {
         printIndentation();
+        printIsReturnable(additionTerm);
         out.println("additionTerm");
         level++;
         additionTerm.getLeft().accept(this);
@@ -221,6 +236,7 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(SubtractionTerm subtractionTerm) {
         printIndentation();
+        printIsReturnable(subtractionTerm);
         out.println("subtractionTerm");
         level++;
         subtractionTerm.getLeft().accept(this);
@@ -231,6 +247,7 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(MultiplicationFactor multiplicationFactor) {
         printIndentation();
+        printIsReturnable(multiplicationFactor);
         out.println("multiplicationFactor");
         level++;
         multiplicationFactor.getLeft().accept(this);
@@ -241,6 +258,7 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(DivisionFactor divisionFactor) {
         printIndentation();
+        printIsReturnable(divisionFactor);
         out.println("divisionFactor");
         level++;
         divisionFactor.getLeft().accept(this);
@@ -251,12 +269,14 @@ public class PrinterVisitor implements Visitor {
     @Override
     public void visit(IntegerConstantExpr integerConstantExpr) {
         printIndentation();
+        printIsReturnable(integerConstantExpr);
         out.println("integerConstantExpr: " + integerConstantExpr.getValue());
     }
 
     @Override
     public void visit(FloatConstantExpr floatConstantExpr) {
         printIndentation();
+        printIsReturnable(floatConstantExpr);
         out.println("floatConstantExpr: " + floatConstantExpr.getValue());
     }
 }

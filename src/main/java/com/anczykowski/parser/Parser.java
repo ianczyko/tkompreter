@@ -194,15 +194,11 @@ public class Parser {
 
     // code_block = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
     protected CodeBLock parseCodeBlock() {
-        // TODO: CodeBLock parsing
-
         if (!lexer.getCurrentToken().getType().equals(TokenType.LBRACE)) {
             // TODO: Underlining for missing LBRACE?
             reportUnexpectedToken();
         }
         lexer.getNextToken();
-
-        // TODO: { non_ret_stmt | ["return"], expr, ["=", expr], ";" }
 
         ArrayList<Expression> statementsAndExpressions = new ArrayList<>();
 
@@ -224,14 +220,19 @@ public class Parser {
 
     // ["return"], expr, ["=", expr], ";"
     protected boolean parseExprInsideCodeBlock(ArrayList<Expression> statementsAndExpressions) {
-        // TODO: ["return"] part
+        var isReturn = false;
 
-        // TODO: add expr to statements
+        if(lexer.getCurrentToken().getType().equals(TokenType.RETURN_KEYWORD)){
+            isReturn = true;
+            lexer.getNextToken();
+        }
 
         var expression = parseExpr();
         if (expression == null) {
             return false;
         }
+
+        expression.setReturn(isReturn);
 
         // TODO: ["=", expr] part
         statementsAndExpressions.add(expression);

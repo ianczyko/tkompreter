@@ -17,8 +17,8 @@ import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
-import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
+import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
@@ -83,6 +83,12 @@ public class PrinterVisitor implements Visitor {
     public void visit(VarStmt varStmt) {
         printIndentation();
         out.println("varStmt: " + varStmt.getName());
+        if (varStmt.getInitial() != null) {
+            level++;
+            varStmt.getInitial().accept(this);
+            level--;
+        }
+
     }
 
     @Override

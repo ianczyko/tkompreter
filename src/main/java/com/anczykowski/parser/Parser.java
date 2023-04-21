@@ -125,11 +125,20 @@ public class Parser {
         }
 
         var varStmt = new VarStmt(varIdentifier);
-        variables.put(varIdentifier, varStmt);
 
         lexer.getNextToken();
 
-        // TODO: ["=", expr] part
+        if(lexer.getCurrentToken().getType().equals(TokenType.ASSIGNMENT)){
+            lexer.getNextToken();
+            var expr = parseExpr();
+            if(expr == null){
+                reportUnexpectedToken("=", "= operator without expression");
+            } else {
+                varStmt = new VarStmt(varIdentifier, expr);
+            }
+        }
+
+        variables.put(varIdentifier, varStmt);
 
         if (!lexer.getCurrentToken().getType().equals(TokenType.SEMICOLON)) {
             errorModule.addError(ErrorElement.builder()
@@ -495,6 +504,16 @@ public class Parser {
                                  .location(lexer.getCurrentLocation())
                                  .underlineFragment(underline)
                                  .explanation(explanation)
+                                 .codeLineBuffer(lexer.getCharacterBuffer())
+                                 .build());
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void reportUnexpectedToken(String underline) {
+        errorModule.addError(ErrorElement.builder()
+                                 .errorType(ErrorType.UNEXPECTED_TOKEN)
+                                 .location(lexer.getCurrentLocation())
+                                 .underlineFragment(underline)
                                  .codeLineBuffer(lexer.getCharacterBuffer())
                                  .build());
     }

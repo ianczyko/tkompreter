@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
+import com.anczykowski.parser.structures.statements.VarStmt;
 
 class ParserTests {
     @Test
@@ -354,6 +356,30 @@ class ParserTests {
         var right = (IntegerConstantExpr) expr.getRight();
         assertEquals(1, left.getValue());
         assertEquals(2, right.getValue());
+    }
+
+    @Test
+    void parseVarWithAssignment() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.VAR_KEYWORD, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "variable"),
+            new Token(TokenType.ASSIGNMENT, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var variables = new HashMap<String, VarStmt>();
+        var varStmt = parser.parseVarStmt(variables);
+
+        // then
+        assertTrue(variables.containsKey("variable"));
+        assertEquals("variable", varStmt.getName());
+        assertEquals(2, ((IntegerConstantExpr) varStmt.getInitial()).getValue());
     }
 
 }

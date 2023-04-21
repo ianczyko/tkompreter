@@ -10,6 +10,7 @@ import com.anczykowski.parser.structures.Parameter;
 import com.anczykowski.parser.structures.Program;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AndOpArg;
+import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
@@ -291,5 +292,15 @@ public class PrinterVisitor implements Visitor {
             negatedExpression.getInner().accept(this);
             level--;
         }
+    }
+    @Override
+    public void visit(AssignmentExpression assignmentExpression) {
+        printIndentation();
+        printIsReturnable(assignmentExpression);
+        out.println("assignmentExpression: (lval/rval)");
+        level++;
+        assignmentExpression.getLval().accept(this);
+        assignmentExpression.getRval().accept(this);
+        level--;
     }
 }

@@ -8,6 +8,7 @@ import com.anczykowski.parser.structures.Parameter;
 import com.anczykowski.parser.structures.Program;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AndOpArg;
+import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
@@ -76,4 +77,6 @@ public interface Visitor {
     void visit(DivisionFactor orOpArg);
 
     void visit(NegatedExpression orOpArg);
+
+    void visit(AssignmentExpression orOpArg);
 }

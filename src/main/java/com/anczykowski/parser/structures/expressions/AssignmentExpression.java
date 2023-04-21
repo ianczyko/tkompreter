@@ -5,10 +5,13 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class NegatedExpression extends Expression {
+public class AssignmentExpression extends Expression {
 
     @Getter
-    private final Expression inner;
+    private final Expression lval;
+
+    @Getter
+    private final Expression rval;
 
     @Override
     public void accept(Visitor visitor) {

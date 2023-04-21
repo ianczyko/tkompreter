@@ -19,6 +19,7 @@ import com.anczykowski.lexer.Token;
 import com.anczykowski.lexer.TokenType;
 import com.anczykowski.parser.helpers.ParserHelpers;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
+import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
@@ -424,6 +425,29 @@ class ParserTests {
         var negatedExpr = (NegatedExpression) expr;
         var inner = (IntegerConstantExpr) negatedExpr.getInner();
         assertEquals(1, inner.getValue());
+    }
+    @Test
+    void parseAssignmentExpression() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.ASSIGNMENT, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var statementsAndExpressions = new ArrayList<Expression>();
+        parser.parseExprInsideCodeBlock(statementsAndExpressions);
+
+        // then
+        var expr = (AssignmentExpression) statementsAndExpressions.get(0);
+        var lval = (IntegerConstantExpr) expr.getLval();
+        var rval = (IntegerConstantExpr) expr.getRval();
+        assertEquals(1, lval.getValue());
+        assertEquals(2, rval.getValue());
     }
 
 }

@@ -21,6 +21,7 @@ import com.anczykowski.parser.structures.FuncDef;
 import com.anczykowski.parser.structures.Parameter;
 import com.anczykowski.parser.structures.Program;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
+import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
@@ -233,9 +234,18 @@ public class Parser {
             return false;
         }
 
+        if (lexer.getCurrentToken().getType().equals(TokenType.ASSIGNMENT)) {
+            lexer.getNextToken();
+            var assignExpr = parseExpr();
+            if(assignExpr == null){
+                reportUnexpectedToken();
+            } else {
+                expression = new AssignmentExpression(expression, assignExpr);
+            }
+        }
+
         expression.setReturn(isReturn);
 
-        // TODO: ["=", expr] part
         statementsAndExpressions.add(expression);
 
         if (!lexer.getCurrentToken().getType().equals(TokenType.SEMICOLON)) {

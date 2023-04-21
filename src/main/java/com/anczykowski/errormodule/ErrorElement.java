@@ -37,6 +37,7 @@ public class ErrorElement {
             case MALFORMED_NUMBER -> "error: malformed number";
             case ALREADY_DECLARED -> "error: already declared";
             case MISSING_SEMICOLON -> "error: missing semicolon";
+            case UNSUPPORTED_CHAINING -> "error: unsupported chaining";
             default -> "unknownError";
         };
 

@@ -1,9 +1,10 @@
-package com.anczykowski.parser.structures.expressions;
+package com.anczykowski.parser.structures.expressions.relops;
 
+import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.visitors.Visitor;
 import lombok.Getter;
 
-public class RelOpArg extends Expression {
+public class GeRelOpArg extends Expression {
 
     @Getter
     private final Expression left;
@@ -11,7 +12,7 @@ public class RelOpArg extends Expression {
     @Getter
     private final Expression right;
 
-    public RelOpArg(Expression left, Expression right) {
+    public GeRelOpArg(Expression left, Expression right) {
         this.left = left;
         this.right = right;
     }

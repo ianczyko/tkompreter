@@ -21,6 +21,12 @@ import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
+import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 
 class ParserTests {
     @Test
@@ -216,6 +222,138 @@ class ParserTests {
         assertEquals(1, left.getValue());
         assertEquals(2, rightLeft.getValue());
         assertEquals(3, rightRight.getValue());
+    }
+
+    @Test
+    void parseEq() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.EQ, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (EqRelOpArg) parser.parseAndOpArg();
+
+        // then
+        var left = (IntegerConstantExpr) expr.getLeft();
+        var right = (IntegerConstantExpr) expr.getRight();
+        assertEquals(1, left.getValue());
+        assertEquals(2, right.getValue());
+    }
+
+    @Test
+    void parseNe() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.NE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (NeRelOpArg) parser.parseAndOpArg();
+
+        // then
+        var left = (IntegerConstantExpr) expr.getLeft();
+        var right = (IntegerConstantExpr) expr.getRight();
+        assertEquals(1, left.getValue());
+        assertEquals(2, right.getValue());
+    }
+
+    @Test
+    void parseLt() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.LT, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (LtRelOpArg) parser.parseAndOpArg();
+
+        // then
+        var left = (IntegerConstantExpr) expr.getLeft();
+        var right = (IntegerConstantExpr) expr.getRight();
+        assertEquals(1, left.getValue());
+        assertEquals(2, right.getValue());
+    }
+
+    @Test
+    void parseLe() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.LE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (LeRelOpArg) parser.parseAndOpArg();
+
+        // then
+        var left = (IntegerConstantExpr) expr.getLeft();
+        var right = (IntegerConstantExpr) expr.getRight();
+        assertEquals(1, left.getValue());
+        assertEquals(2, right.getValue());
+    }
+
+    @Test
+    void parseGt() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.GT, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (GtRelOpArg) parser.parseAndOpArg();
+
+        // then
+        var left = (IntegerConstantExpr) expr.getLeft();
+        var right = (IntegerConstantExpr) expr.getRight();
+        assertEquals(1, left.getValue());
+        assertEquals(2, right.getValue());
+    }
+
+    @Test
+    void parseGe() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.GE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (GeRelOpArg) parser.parseAndOpArg();
+
+        // then
+        var left = (IntegerConstantExpr) expr.getLeft();
+        var right = (IntegerConstantExpr) expr.getRight();
+        assertEquals(1, left.getValue());
+        assertEquals(2, right.getValue());
     }
 
 }

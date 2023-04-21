@@ -28,8 +28,13 @@ import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
-import com.anczykowski.parser.structures.expressions.RelOpArg;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
+import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import lombok.RequiredArgsConstructor;
 
@@ -264,28 +269,48 @@ public class Parser {
         return left;
     }
 
+    private static final Set<TokenType> relOp = new HashSet<>(
+        Arrays.asList(TokenType.EQ, TokenType.NE, TokenType.LT, TokenType.LE, TokenType.GT, TokenType.GE));
+
     // and_op_arg = rel_op_arg, [rel_operator, rel_op_arg];
     protected Expression parseAndOpArg() {
         var left = parseRelOpArg();
         if (left == null) return null;
 
-        // TODO: rel operators
-        if (lexer.getCurrentToken().getType().equals(TokenType.OR_KEYWORD)) {
+        if (relOp.contains(lexer.getCurrentToken().getType())) {
+            var operatorToken = lexer.getCurrentToken().getType();
             lexer.getNextToken();
             var right = parseRelOpArg();
             if (right == null) {
                 reportUnexpectedToken();
                 return left;
             }
-            left = new RelOpArg(left, right);
+            left = switch (operatorToken) {
+                case EQ -> new EqRelOpArg(left, right);
+                case NE -> new NeRelOpArg(left, right);
+                case LT -> new LtRelOpArg(left, right);
+                case LE -> new LeRelOpArg(left, right);
+                case GT -> new GtRelOpArg(left, right);
+                case GE -> new GeRelOpArg(left, right);
+                default -> throw new IllegalStateException(operatorToken.toString());
+            };
         }
+
+        if (relOp.contains(lexer.getCurrentToken().getType())) {
+            reportUnsupportedChaining();
+            // consume all unsupported chains (e.g.: a > b > c)
+            while (relOp.contains(lexer.getCurrentToken().getType()) || parseRelOpArg() != null) {
+                if (relOp.contains(lexer.getCurrentToken().getType())) {
+                    lexer.getNextToken();
+                }
+            }
+            return left;
+        }
+
         return left;
     }
 
-    private static final Set<TokenType> addOp = new HashSet<>(Arrays.asList(
-        TokenType.PLUS,
-        TokenType.MINUS
-    ));
+    private static final Set<TokenType> addOp = new HashSet<>(Arrays.asList(TokenType.PLUS, TokenType.MINUS));
 
     // rel_op_arg = term, { add_op, term };
     protected Expression parseRelOpArg() {
@@ -309,10 +334,7 @@ public class Parser {
         return left;
     }
 
-    private static final Set<TokenType> multOp = new HashSet<>(Arrays.asList(
-        TokenType.ASTERISK,
-        TokenType.SLASH
-    ));
+    private static final Set<TokenType> multOp = new HashSet<>(Arrays.asList(TokenType.ASTERISK, TokenType.SLASH));
 
     // term = factor, { mult_op, factor };
     protected Expression parseTerm() {
@@ -480,6 +502,14 @@ public class Parser {
     private void reportUnexpectedToken() {
         errorModule.addError(ErrorElement.builder()
                                  .errorType(ErrorType.UNEXPECTED_TOKEN)
+                                 .location(lexer.getCurrentLocation())
+                                 .codeLineBuffer(lexer.getCharacterBuffer())
+                                 .build());
+    }
+
+    private void reportUnsupportedChaining() {
+        errorModule.addError(ErrorElement.builder()
+                                 .errorType(ErrorType.UNSUPPORTED_CHAINING)
                                  .location(lexer.getCurrentLocation())
                                  .codeLineBuffer(lexer.getCharacterBuffer())
                                  .build());

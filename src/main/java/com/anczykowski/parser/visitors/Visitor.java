@@ -15,8 +15,13 @@ import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
-import com.anczykowski.parser.structures.expressions.RelOpArg;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
+import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.Statement;
 import com.anczykowski.parser.structures.statements.VarStmt;
 
@@ -45,7 +50,17 @@ public interface Visitor {
 
     void visit(AndOpArg andOpArg);
 
-    void visit(RelOpArg orOpArg);
+    void visit(EqRelOpArg orOpArg);
+
+    void visit(NeRelOpArg orOpArg);
+
+    void visit(GtRelOpArg orOpArg);
+
+    void visit(GeRelOpArg orOpArg);
+
+    void visit(LtRelOpArg orOpArg);
+
+    void visit(LeRelOpArg orOpArg);
 
     void visit(AdditionTerm orOpArg);
 

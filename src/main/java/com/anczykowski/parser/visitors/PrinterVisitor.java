@@ -17,8 +17,13 @@ import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
-import com.anczykowski.parser.structures.expressions.RelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
+import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.Statement;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import lombok.RequiredArgsConstructor;
@@ -138,12 +143,62 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(RelOpArg relOpArg) {
+    public void visit(EqRelOpArg eqRelOpArg) {
         printIndentation();
-        out.println("relOpArg");
+        out.println("eqRelOpArg");
         level++;
-        relOpArg.getLeft().accept(this);
-        relOpArg.getRight().accept(this);
+        eqRelOpArg.getLeft().accept(this);
+        eqRelOpArg.getRight().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(GeRelOpArg geRelOpArg) {
+        printIndentation();
+        out.println("geRelOpArg");
+        level++;
+        geRelOpArg.getLeft().accept(this);
+        geRelOpArg.getRight().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(GtRelOpArg gtRelOpArg) {
+        printIndentation();
+        out.println("gtRelOpArg");
+        level++;
+        gtRelOpArg.getLeft().accept(this);
+        gtRelOpArg.getRight().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(LtRelOpArg ltRelOpArg) {
+        printIndentation();
+        out.println("ltRelOpArg");
+        level++;
+        ltRelOpArg.getLeft().accept(this);
+        ltRelOpArg.getRight().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(NeRelOpArg neRelOpArg) {
+        printIndentation();
+        out.println("neRelOpArg");
+        level++;
+        neRelOpArg.getLeft().accept(this);
+        neRelOpArg.getRight().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(LeRelOpArg leRelOpArg) {
+        printIndentation();
+        out.println("leRelOpArg");
+        level++;
+        leRelOpArg.getLeft().accept(this);
+        leRelOpArg.getRight().accept(this);
         level--;
     }
 

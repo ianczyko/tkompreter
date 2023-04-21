@@ -6,8 +6,19 @@ import com.anczykowski.parser.structures.CodeBLock;
 import com.anczykowski.parser.structures.FuncDef;
 import com.anczykowski.parser.structures.Parameter;
 import com.anczykowski.parser.structures.Program;
-import com.anczykowski.parser.structures.Statement;
-import com.anczykowski.parser.structures.VarStmt;
+import com.anczykowski.parser.structures.expressions.AdditionTerm;
+import com.anczykowski.parser.structures.expressions.AndOpArg;
+import com.anczykowski.parser.structures.expressions.DivisionFactor;
+import com.anczykowski.parser.structures.expressions.Expression;
+import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
+import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
+import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
+import com.anczykowski.parser.structures.expressions.OrExpression;
+import com.anczykowski.parser.structures.expressions.OrOpArg;
+import com.anczykowski.parser.structures.expressions.RelOpArg;
+import com.anczykowski.parser.structures.expressions.SubtractionTerm;
+import com.anczykowski.parser.structures.statements.Statement;
+import com.anczykowski.parser.structures.statements.VarStmt;
 
 public interface Visitor {
     void visit(Program program);
@@ -25,4 +36,26 @@ public interface Visitor {
     void visit(CodeBLock codeBLock);
 
     void visit(Statement statement);
+
+    void visit(Expression expression);
+
+    void visit(OrOpArg orOpArg);
+
+    void visit(OrExpression orExpression);
+
+    void visit(AndOpArg andOpArg);
+
+    void visit(RelOpArg orOpArg);
+
+    void visit(AdditionTerm orOpArg);
+
+    void visit(SubtractionTerm orOpArg);
+
+    void visit(MultiplicationFactor orOpArg);
+
+    void visit(IntegerConstantExpr orOpArg);
+
+    void visit(FloatConstantExpr orOpArg);
+
+    void visit(DivisionFactor orOpArg);
 }

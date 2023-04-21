@@ -2,6 +2,7 @@ package com.anczykowski.parser.structures;
 
 import java.util.HashMap;
 
+import com.anczykowski.parser.structures.statements.VarStmt;
 import com.anczykowski.parser.visitors.Visitable;
 import com.anczykowski.parser.visitors.Visitor;
 import lombok.Getter;

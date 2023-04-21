@@ -1,7 +1,6 @@
 package com.anczykowski.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -10,11 +9,18 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.anczykowski.errormodule.ErrorModule;
+import com.anczykowski.lexer.FloatToken;
+import com.anczykowski.lexer.IntegerToken;
 import com.anczykowski.lexer.Location;
 import com.anczykowski.lexer.StringToken;
 import com.anczykowski.lexer.Token;
 import com.anczykowski.lexer.TokenType;
 import com.anczykowski.parser.helpers.ParserHelpers;
+import com.anczykowski.parser.structures.expressions.AdditionTerm;
+import com.anczykowski.parser.structures.expressions.DivisionFactor;
+import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
+import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
+import com.anczykowski.parser.structures.expressions.SubtractionTerm;
 
 class ParserTests {
     @Test
@@ -48,7 +54,7 @@ class ParserTests {
         var codeBLock = parser.parseCodeBlock();
 
         // then
-        assertTrue(true); // TODO: code block attributes
+        assertTrue(codeBLock.getStatementsAndExpressions().isEmpty());
     }
 
     // TODO: non empty code block
@@ -58,9 +64,8 @@ class ParserTests {
         // given
         var errorModule = new ErrorModule();
 
-        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
-            new StringToken(TokenType.IDENTIFIER, new Location(), "par1"),
-            new Token(TokenType.RBRACE, new Location())
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new StringToken(TokenType.IDENTIFIER, new Location(), "par1")
         ));
         var parser = new Parser(lexer, errorModule);
 
@@ -71,4 +76,146 @@ class ParserTests {
         assertEquals(1, params.size());
         assertEquals("par1", params.get(0).getName());
     }
+
+    @Test
+    void parseFloatConstant() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new FloatToken(TokenType.FLOAT_NUMBER, new Location(), 2.5f)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var floatConstant = parser.parseFloatConstant();
+
+        // then
+        assertEquals(2.5f, floatConstant.getValue(), 0.000001f);
+    }
+
+    @Test
+    void parseIntegerConstant() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 123)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var integerConstant = parser.parseIntegerConstant();
+
+        // then
+        assertEquals(123, integerConstant.getValue());
+    }
+
+    @Test
+    void parseAddition() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.PLUS, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (AdditionTerm) parser.parseRelOpArg();
+
+        // then
+        assertEquals(1, ((IntegerConstantExpr) expr.getLeft()).getValue());
+        assertEquals(2, ((IntegerConstantExpr) expr.getRight()).getValue());
+    }
+
+    @Test
+    void parseSubtraction() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.MINUS, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (SubtractionTerm) parser.parseRelOpArg();
+
+        // then
+        assertEquals(1, ((IntegerConstantExpr) expr.getLeft()).getValue());
+        assertEquals(2, ((IntegerConstantExpr) expr.getRight()).getValue());
+    }
+
+    @Test
+    void parseMultiplication() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.ASTERISK, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (MultiplicationFactor) parser.parseTerm();
+
+        // then
+        assertEquals(1, ((IntegerConstantExpr) expr.getLeft()).getValue());
+        assertEquals(2, ((IntegerConstantExpr) expr.getRight()).getValue());
+    }
+
+    @Test
+    void parseDivision() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.SLASH, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (DivisionFactor) parser.parseTerm();
+
+        // then
+        assertEquals(1, ((IntegerConstantExpr) expr.getLeft()).getValue());
+        assertEquals(2, ((IntegerConstantExpr) expr.getRight()).getValue());
+    }
+
+    @Test
+    void testAdditionMultiplicationOrder() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.PLUS, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.ASTERISK, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 3)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (AdditionTerm) parser.parseRelOpArg();
+
+        // then
+        var left = (IntegerConstantExpr) expr.getLeft();
+        var right = (MultiplicationFactor) expr.getRight();
+        var rightLeft = (IntegerConstantExpr) right.getLeft();
+        var rightRight = (IntegerConstantExpr) right.getRight();
+        assertEquals(1, left.getValue());
+        assertEquals(2, rightLeft.getValue());
+        assertEquals(3, rightRight.getValue());
+    }
+
 }

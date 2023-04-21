@@ -1,12 +1,11 @@
-package com.anczykowski.parser.structures;
+package com.anczykowski.parser.structures.statements;
 
-import com.anczykowski.parser.visitors.Visitable;
 import com.anczykowski.parser.visitors.Visitor;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-public class Statement implements Visitable {
+@AllArgsConstructor
+public class VarStmt extends Statement {
     @Getter
     private final String name;
 

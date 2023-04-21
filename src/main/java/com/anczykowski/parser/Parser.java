@@ -1,11 +1,16 @@
 package com.anczykowski.parser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import com.anczykowski.errormodule.ErrorElement;
 import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.errormodule.ErrorType;
+import com.anczykowski.lexer.FloatToken;
+import com.anczykowski.lexer.IntegerToken;
 import com.anczykowski.lexer.Lexer;
 import com.anczykowski.lexer.StringToken;
 import com.anczykowski.lexer.TokenType;
@@ -15,8 +20,17 @@ import com.anczykowski.parser.structures.CodeBLock;
 import com.anczykowski.parser.structures.FuncDef;
 import com.anczykowski.parser.structures.Parameter;
 import com.anczykowski.parser.structures.Program;
-import com.anczykowski.parser.structures.Statement;
-import com.anczykowski.parser.structures.VarStmt;
+import com.anczykowski.parser.structures.expressions.AdditionTerm;
+import com.anczykowski.parser.structures.expressions.DivisionFactor;
+import com.anczykowski.parser.structures.expressions.Expression;
+import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
+import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
+import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
+import com.anczykowski.parser.structures.expressions.OrExpression;
+import com.anczykowski.parser.structures.expressions.OrOpArg;
+import com.anczykowski.parser.structures.expressions.RelOpArg;
+import com.anczykowski.parser.structures.expressions.SubtractionTerm;
+import com.anczykowski.parser.structures.statements.VarStmt;
 import lombok.RequiredArgsConstructor;
 
 @SuppressWarnings("StatementWithEmptyBody")
@@ -79,52 +93,51 @@ public class Parser {
         HashMap<String, FuncDef> methods = new HashMap<>();
         HashMap<String, VarStmt> attributes = new HashMap<>();
 
-        while (parseFunDef(methods) || parseVarStmt(attributes)) {
+        while (parseFunDef(methods) || parseVarStmt(attributes) != null) {
         }
 
         return new ClassBody(methods, attributes);
     }
 
     // var_stmt = "var", identifier, ["=", expr], ";";
-    protected boolean parseVarStmt(HashMap<String, VarStmt> attributes) {
+    protected VarStmt parseVarStmt(HashMap<String, VarStmt> variables) {
         if (!lexer.getCurrentToken().getType().equals(TokenType.VAR_KEYWORD)) {
-            return false;
+            return null;
         }
 
         lexer.getNextToken();
 
         if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
             reportUnexpectedToken("var", "var keyword must be followed by identifier");
-            return false;
+            return null;
         }
 
         var varIdentifier = ((StringToken) lexer.getCurrentToken()).getValue();
 
-        if (attributes.containsKey(varIdentifier)) {
+        if (variables.containsKey(varIdentifier)) {
             reportAlreadyDeclared(varIdentifier);
-            return false;
+            return null;
         }
 
-        attributes.put(varIdentifier, new VarStmt(varIdentifier));
+        var varStmt = new VarStmt(varIdentifier);
+        variables.put(varIdentifier, varStmt);
 
         lexer.getNextToken();
 
         // TODO: ["=", expr] part
 
         if (!lexer.getCurrentToken().getType().equals(TokenType.SEMICOLON)) {
-            errorModule.addError(
-                ErrorElement.builder()
-                    .errorType(ErrorType.MISSING_SEMICOLON)
-                    .location(lexer.getCurrentLocation())
-                    .codeLineBuffer(lexer.getCharacterBuffer())
-                    .underlineFragment(varIdentifier)
-                    .build()
-            );
-            return false;
+            errorModule.addError(ErrorElement.builder()
+                                     .errorType(ErrorType.MISSING_SEMICOLON)
+                                     .location(lexer.getCurrentLocation())
+                                     .codeLineBuffer(lexer.getCharacterBuffer())
+                                     .underlineFragment(varIdentifier)
+                                     .build());
+            return null;
         }
         lexer.getNextToken();
 
-        return true;
+        return varStmt;
     }
 
     // func_def = identifier, "(", [parameters], ")", code_block;
@@ -177,9 +190,12 @@ public class Parser {
 
         // TODO: { non_ret_stmt | ["return"], expr, ["=", expr], ";" }
 
-        ArrayList<Statement> statements = new ArrayList<>();
+        ArrayList<Expression> statementsAndExpressions = new ArrayList<>();
 
-        while (parseNonRetStmt(statements) || parseExprInsideCodeBlock(statements)) {
+        HashMap<String, VarStmt> variables = new HashMap<>();
+
+        while (parseNonRetStmt(variables, statementsAndExpressions) || parseExprInsideCodeBlock(
+            statementsAndExpressions)) {
         }
 
 
@@ -189,17 +205,236 @@ public class Parser {
         }
         lexer.getNextToken();
 
-        return new CodeBLock();
+        return new CodeBLock(statementsAndExpressions);
     }
 
-    protected boolean parseExprInsideCodeBlock(ArrayList<Statement> statements) {
-        // TODO: parseExprInsideCodeBlock
-        return false;
+    // ["return"], expr, ["=", expr], ";"
+    protected boolean parseExprInsideCodeBlock(ArrayList<Expression> statementsAndExpressions) {
+        // TODO: ["return"] part
+
+        // TODO: add expr to statements
+
+        var expression = parseExpr();
+        if (expression == null) {
+            return false;
+        }
+
+        // TODO: ["=", expr] part
+        statementsAndExpressions.add(expression);
+
+        if (!lexer.getCurrentToken().getType().equals(TokenType.SEMICOLON)) {
+            reportUnexpectedToken();
+        }
+        lexer.getNextToken();
+
+        return true;
     }
 
-    protected boolean parseNonRetStmt(ArrayList<Statement> statements) {
-        // TODO: parseNonRetStmt
-        return false;
+    // expr = or_op_arg, { "or", or_op_arg };
+    protected Expression parseExpr() {
+        var left = parseOrOpArg();
+        if (left == null) return null;
+
+        while (lexer.getCurrentToken().getType().equals(TokenType.OR_KEYWORD)) {
+            lexer.getNextToken();
+            var right = parseOrOpArg();
+            if (right == null) {
+                reportUnexpectedToken();
+                continue;
+            }
+            left = new OrExpression(left, right);
+        }
+        return left;
+    }
+
+    // or_op_arg = and_op_arg, { "and", and_op_arg };
+    protected Expression parseOrOpArg() {
+        var left = parseAndOpArg();
+        if (left == null) return null;
+
+        while (lexer.getCurrentToken().getType().equals(TokenType.AND_KEYWORD)) {
+            lexer.getNextToken();
+            var right = parseAndOpArg();
+            if (right == null) {
+                reportUnexpectedToken();
+                continue;
+            }
+            left = new OrOpArg(left, right);
+        }
+        return left;
+    }
+
+    // and_op_arg = rel_op_arg, [rel_operator, rel_op_arg];
+    protected Expression parseAndOpArg() {
+        var left = parseRelOpArg();
+        if (left == null) return null;
+
+        // TODO: rel operators
+        if (lexer.getCurrentToken().getType().equals(TokenType.OR_KEYWORD)) {
+            lexer.getNextToken();
+            var right = parseRelOpArg();
+            if (right == null) {
+                reportUnexpectedToken();
+                return left;
+            }
+            left = new RelOpArg(left, right);
+        }
+        return left;
+    }
+
+    private static final Set<TokenType> addOp = new HashSet<>(Arrays.asList(
+        TokenType.PLUS,
+        TokenType.MINUS
+    ));
+
+    // rel_op_arg = term, { add_op, term };
+    protected Expression parseRelOpArg() {
+        var left = parseTerm();
+        if (left == null) return null;
+
+        while (addOp.contains(lexer.getCurrentToken().getType())) {
+            var operatorToken = lexer.getCurrentToken().getType();
+            lexer.getNextToken();
+            var right = parseTerm();
+            if (right == null) {
+                reportUnexpectedToken();
+                continue;
+            }
+            left = switch (operatorToken) {
+                case PLUS -> new AdditionTerm(left, right);
+                case MINUS -> new SubtractionTerm(left, right);
+                default -> throw new IllegalStateException(operatorToken.toString());
+            };
+        }
+        return left;
+    }
+
+    private static final Set<TokenType> multOp = new HashSet<>(Arrays.asList(
+        TokenType.ASTERISK,
+        TokenType.SLASH
+    ));
+
+    // term = factor, { mult_op, factor };
+    protected Expression parseTerm() {
+        var left = parseFactor();
+        if (left == null) return null;
+
+        while (multOp.contains(lexer.getCurrentToken().getType())) {
+            var operatorToken = lexer.getCurrentToken().getType();
+            lexer.getNextToken();
+            var right = parseFactor();
+            if (right == null) {
+                reportUnexpectedToken();
+                continue;
+            }
+            left = switch (operatorToken) {
+                case ASTERISK -> new MultiplicationFactor(left, right);
+                case SLASH -> new DivisionFactor(left, right);
+                default -> throw new IllegalStateException(operatorToken.toString());
+            };
+        }
+        return left;
+    }
+
+    // factor = ["not" | "-"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
+    protected Expression parseFactor() {
+        // TODO: ["not" | "-"]
+
+        var factorMiddlePart = parseFactorInner();
+        if (factorMiddlePart == null) {
+            factorMiddlePart = parseExprParenthesized();
+        }
+
+        // TODO: ["as", (type | class_id)]
+
+
+        return factorMiddlePart;
+    }
+
+    // factor_inner = constant | obj_access | string | class_init;
+    protected Expression parseFactorInner() {
+        var inner = parseConstant();
+        if (inner == null) {
+            inner = parseObjAccess();
+        }
+        if (inner == null) {
+            inner = parseString();
+        }
+        if (inner == null) {
+            inner = parseClassInit();
+        }
+        return inner;
+    }
+
+    protected Expression parseConstant() {
+        Expression constant = parseFloatConstant();
+        if (constant == null) {
+            constant = parseIntegerConstant();
+        }
+        return constant;
+    }
+
+    protected FloatConstantExpr parseFloatConstant() {
+        if (lexer.getCurrentToken().getType().equals(TokenType.FLOAT_NUMBER)) {
+            var floatToken = (FloatToken) lexer.getCurrentToken();
+            lexer.getNextToken();
+            return new FloatConstantExpr(floatToken.getValue());
+        }
+        return null;
+    }
+
+    protected IntegerConstantExpr parseIntegerConstant() {
+        if (lexer.getCurrentToken().getType().equals(TokenType.INTEGER_NUMBER)) {
+            var integerToken = (IntegerToken) lexer.getCurrentToken();
+            lexer.getNextToken();
+            return new IntegerConstantExpr(integerToken.getValue());
+        }
+        return null;
+    }
+
+
+    protected Expression parseObjAccess() {
+        return null;
+    }
+
+    protected Expression parseString() {
+        return null;
+    }
+
+    protected Expression parseClassInit() {
+        return null;
+    }
+
+    // "(", expr, ")"
+    protected Expression parseExprParenthesized() {
+        if (!lexer.getCurrentToken().getType().equals(TokenType.LBRACE)) {
+            return null;
+        }
+        lexer.getNextToken();
+        var expr = parseExpr();
+        if (expr == null) {
+            reportUnexpectedToken();
+            return null;
+        }
+        lexer.getNextToken();
+        if (!lexer.getCurrentToken().getType().equals(TokenType.RBRACE)) {
+            reportUnexpectedToken();
+        }
+        return expr;
+    }
+
+    // non_ret_stmt = var_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
+    protected boolean parseNonRetStmt(
+        HashMap<String, VarStmt> variables, ArrayList<Expression> statementsAndExpressions
+    ) {
+        // TODO: cond_stmt | while_stmt | for_stmt | switch_stmt
+        var nonRetStmt = parseVarStmt(variables);
+        if (nonRetStmt == null) {
+            return false;
+        } else {
+            statementsAndExpressions.add(nonRetStmt);
+        }
+        return true;
     }
 
     // parameters = identifier, { ",", identifier };
@@ -223,36 +458,30 @@ public class Parser {
     }
 
     private void reportAlreadyDeclared(String identifier) {
-        errorModule.addError(
-            ErrorElement.builder()
-                .errorType(ErrorType.ALREADY_DECLARED)
-                .location(lexer.getCurrentLocation())
-                .codeLineBuffer(lexer.getCharacterBuffer())
-                .underlineFragment(identifier)
-                .build()
-        );
+        errorModule.addError(ErrorElement.builder()
+                                 .errorType(ErrorType.ALREADY_DECLARED)
+                                 .location(lexer.getCurrentLocation())
+                                 .codeLineBuffer(lexer.getCharacterBuffer())
+                                 .underlineFragment(identifier)
+                                 .build());
     }
 
     @SuppressWarnings("SameParameterValue")
     private void reportUnexpectedToken(String underline, String explanation) {
-        errorModule.addError(
-            ErrorElement.builder()
-                .errorType(ErrorType.UNEXPECTED_TOKEN)
-                .location(lexer.getCurrentLocation())
-                .underlineFragment(underline)
-                .explanation(explanation)
-                .codeLineBuffer(lexer.getCharacterBuffer())
-                .build()
-        );
+        errorModule.addError(ErrorElement.builder()
+                                 .errorType(ErrorType.UNEXPECTED_TOKEN)
+                                 .location(lexer.getCurrentLocation())
+                                 .underlineFragment(underline)
+                                 .explanation(explanation)
+                                 .codeLineBuffer(lexer.getCharacterBuffer())
+                                 .build());
     }
 
     private void reportUnexpectedToken() {
-        errorModule.addError(
-            ErrorElement.builder()
-                .errorType(ErrorType.UNEXPECTED_TOKEN)
-                .location(lexer.getCurrentLocation())
-                .codeLineBuffer(lexer.getCharacterBuffer())
-                .build()
-        );
+        errorModule.addError(ErrorElement.builder()
+                                 .errorType(ErrorType.UNEXPECTED_TOKEN)
+                                 .location(lexer.getCurrentLocation())
+                                 .codeLineBuffer(lexer.getCharacterBuffer())
+                                 .build());
     }
 }

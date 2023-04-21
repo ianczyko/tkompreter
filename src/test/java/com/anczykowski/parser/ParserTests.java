@@ -23,6 +23,7 @@ import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
+import com.anczykowski.parser.structures.expressions.NegatedExpression;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
 import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
@@ -403,6 +404,26 @@ class ParserTests {
         // then
         var expr = statementsAndExpressions.get(0);
         assertTrue(expr.isReturn());
+    }
+
+    @Test
+    void parseNegatedFactor() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.MINUS, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = parser.parseFactor();
+
+        // then
+        var negatedExpr = (NegatedExpression) expr;
+        var inner = (IntegerConstantExpr) negatedExpr.getInner();
+        assertEquals(1, inner.getValue());
     }
 
 }

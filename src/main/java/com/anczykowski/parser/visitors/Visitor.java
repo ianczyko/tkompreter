@@ -13,6 +13,7 @@ import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
+import com.anczykowski.parser.structures.expressions.NegatedExpression;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
@@ -73,4 +74,6 @@ public interface Visitor {
     void visit(FloatConstantExpr orOpArg);
 
     void visit(DivisionFactor orOpArg);
+
+    void visit(NegatedExpression orOpArg);
 }

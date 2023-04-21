@@ -26,6 +26,7 @@ import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
+import com.anczykowski.parser.structures.expressions.NegatedExpression;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
@@ -128,10 +129,10 @@ public class Parser {
 
         lexer.getNextToken();
 
-        if(lexer.getCurrentToken().getType().equals(TokenType.ASSIGNMENT)){
+        if (lexer.getCurrentToken().getType().equals(TokenType.ASSIGNMENT)) {
             lexer.getNextToken();
             var expr = parseExpr();
-            if(expr == null){
+            if (expr == null) {
                 reportUnexpectedToken("=", "= operator without expression");
             } else {
                 varStmt = new VarStmt(varIdentifier, expr);
@@ -222,7 +223,7 @@ public class Parser {
     protected boolean parseExprInsideCodeBlock(ArrayList<Expression> statementsAndExpressions) {
         var isReturn = false;
 
-        if(lexer.getCurrentToken().getType().equals(TokenType.RETURN_KEYWORD)){
+        if (lexer.getCurrentToken().getType().equals(TokenType.RETURN_KEYWORD)) {
             isReturn = true;
             lexer.getNextToken();
         }
@@ -370,17 +371,25 @@ public class Parser {
 
     // factor = ["not" | "-"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
     protected Expression parseFactor() {
-        // TODO: ["not" | "-"]
+        boolean isNegated = false;
+        if (lexer.getCurrentToken().getType().equals(TokenType.MINUS) ||
+            lexer.getCurrentToken().getType().equals(TokenType.NOT_KEYWORD)) {
+            isNegated = true;
+            lexer.getNextToken();
+        }
 
-        var factorMiddlePart = parseFactorInner();
-        if (factorMiddlePart == null) {
-            factorMiddlePart = parseExprParenthesized();
+        var factor = parseFactorInner();
+        if (factor == null) {
+            factor = parseExprParenthesized();
         }
 
         // TODO: ["as", (type | class_id)]
 
+        if (isNegated) {
+            factor = new NegatedExpression(factor);
+        }
 
-        return factorMiddlePart;
+        return factor;
     }
 
     // factor_inner = constant | obj_access | string | class_init;
@@ -509,7 +518,7 @@ public class Parser {
                                  .build());
     }
 
-    @SuppressWarnings("SameParameterValue")
+    @SuppressWarnings({"SameParameterValue", "unused"})
     private void reportUnexpectedToken(String underline) {
         errorModule.addError(ErrorElement.builder()
                                  .errorType(ErrorType.UNEXPECTED_TOKEN)

@@ -15,6 +15,7 @@ import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
+import com.anczykowski.parser.structures.expressions.NegatedExpression;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
@@ -39,8 +40,8 @@ public class PrinterVisitor implements Visitor {
         out.printf("%s ", "-".repeat(level));
     }
 
-    private void printIsReturnable(Expression expr){
-        if(expr.isReturn()) out.print("(with return) ");
+    private void printIsReturnable(Expression expr) {
+        if (expr.isReturn()) out.print("(with return) ");
     }
 
     @Override
@@ -278,5 +279,17 @@ public class PrinterVisitor implements Visitor {
         printIndentation();
         printIsReturnable(floatConstantExpr);
         out.println("floatConstantExpr: " + floatConstantExpr.getValue());
+    }
+
+    @Override
+    public void visit(NegatedExpression negatedExpression) {
+        printIndentation();
+        printIsReturnable(negatedExpression);
+        out.println("negatedExpression: ");
+        if (negatedExpression.getInner() != null) {
+            level++;
+            negatedExpression.getInner().accept(this);
+            level--;
+        }
     }
 }

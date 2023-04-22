@@ -237,7 +237,7 @@ public class Parser {
         if (lexer.getCurrentToken().getType().equals(TokenType.ASSIGNMENT)) {
             lexer.getNextToken();
             var assignExpr = parseExpr();
-            if(assignExpr == null){
+            if (assignExpr == null) {
                 reportUnexpectedToken();
             } else {
                 expression = new AssignmentExpression(expression, assignExpr);
@@ -445,14 +445,17 @@ public class Parser {
 
 
     protected Expression parseObjAccess() {
+        // TODO: parseObjAccess
         return null;
     }
 
     protected Expression parseString() {
+        // TODO: parseString
         return null;
     }
 
     protected Expression parseClassInit() {
+        // TODO: parseClassInit
         return null;
     }
 
@@ -478,15 +481,51 @@ public class Parser {
     protected boolean parseNonRetStmt(
         HashMap<String, VarStmt> variables, ArrayList<Expression> statementsAndExpressions
     ) {
-        // TODO: cond_stmt | while_stmt | for_stmt | switch_stmt
-        var nonRetStmt = parseVarStmt(variables);
+        Expression nonRetStmt = parseVarStmt(variables);
+        if (nonRetStmt == null) {
+            nonRetStmt = parseConditionalStmt();
+        }
+        if (nonRetStmt == null) {
+            nonRetStmt = parseWhileStmt();
+        }
+        if (nonRetStmt == null) {
+            nonRetStmt = parseForStmt();
+        }
+        if (nonRetStmt == null) {
+            nonRetStmt = parseSwitchStmt();
+        }
         if (nonRetStmt == null) {
             return false;
-        } else {
-            statementsAndExpressions.add(nonRetStmt);
         }
+
+        statementsAndExpressions.add(nonRetStmt);
         return true;
     }
+
+    // cond_stmt = "if", "(", expr, ")", code_block, ["else", code_block];
+    protected Expression parseConditionalStmt(){
+        // TODO: parseConditionalStmt
+        return null;
+    }
+
+    // while_stmt = "while", "(", expr, ")", code_block;
+    protected Expression parseWhileStmt(){
+        // TODO: parseWhileStmt
+        return null;
+    }
+
+    // for_stmt = "for", "(", identifier, "in", expr, ")", code_block;
+    protected Expression parseForStmt(){
+        // TODO: parseForStmt
+        return null;
+    }
+
+    // switch_stmt = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";
+    protected Expression parseSwitchStmt(){
+        // TODO: parseSwitchStmt
+        return null;
+    }
+
 
     // parameters = identifier, { ",", identifier };
     protected ArrayList<Parameter> parseParams() {

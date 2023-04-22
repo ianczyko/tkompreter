@@ -27,6 +27,7 @@ import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.CondStmt;
+import com.anczykowski.parser.structures.statements.ForStmt;
 import com.anczykowski.parser.structures.statements.Statement;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import com.anczykowski.parser.structures.statements.WhileStmt;
@@ -329,6 +330,18 @@ public class PrinterVisitor implements Visitor {
         level++;
         whileStmt.getCondition().accept(this);
         whileStmt.getCodeBLock().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(ForStmt forStmt) {
+        printIndentation();
+        printIsReturnable(forStmt);
+        out.println("forStmt: (iterator/iterable/block)");
+        level++;
+        forStmt.getIterator().accept(this);
+        forStmt.getIterable().accept(this);
+        forStmt.getCodeBLock().accept(this);
         level--;
     }
 }

@@ -25,6 +25,7 @@ import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.CondStmt;
+import com.anczykowski.parser.structures.statements.ForStmt;
 import com.anczykowski.parser.structures.statements.Statement;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import com.anczykowski.parser.structures.statements.WhileStmt;
@@ -85,4 +86,6 @@ public interface Visitor {
     void visit(CondStmt condStmt);
 
     void visit(WhileStmt whileStmt);
+
+    void visit(ForStmt forStmt);
 }

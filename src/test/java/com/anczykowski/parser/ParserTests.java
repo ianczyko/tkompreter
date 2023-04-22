@@ -35,6 +35,7 @@ import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.CondStmt;
+import com.anczykowski.parser.structures.statements.ForStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import com.anczykowski.parser.structures.statements.WhileStmt;
 
@@ -547,6 +548,38 @@ class ParserTests {
         var trueBlockFirstStmt = (IntegerConstantExpr) trueBLock.getStatementsAndExpressions().get(0);
         assertEquals(1, cond.getValue());
         assertEquals(2, trueBlockFirstStmt.getValue());
+    }
+
+    @Test
+    void parseForStmt() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.FOR_KEYWORD, new Location()),
+            new Token(TokenType.LPAREN, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "iter"),
+            new Token(TokenType.IN_KEYWORD, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.RPAREN, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.SEMICOLON, new Location()),
+            new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var forStmt = (ForStmt) parser.parseForStmt();
+
+        // then
+        var iterator = (VarStmt) forStmt.getIterator();
+        var iterable = (IntegerConstantExpr) forStmt.getIterable();
+        var codeBLock = (CodeBLock) forStmt.getCodeBLock();
+        var codeBlockFirstStmt = (IntegerConstantExpr) codeBLock.getStatementsAndExpressions().get(0);
+        assertEquals("iter", iterator.getName());
+        assertEquals(1, iterable.getValue());
+        assertEquals(2, codeBlockFirstStmt.getValue());
     }
 
 }

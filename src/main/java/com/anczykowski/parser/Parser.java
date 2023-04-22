@@ -38,6 +38,7 @@ import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.CondStmt;
+import com.anczykowski.parser.structures.statements.ForStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import com.anczykowski.parser.structures.statements.WhileStmt;
 import lombok.RequiredArgsConstructor;
@@ -552,8 +553,47 @@ public class Parser {
 
     // for_stmt = "for", "(", identifier, "in", expr, ")", code_block;
     protected Expression parseForStmt() {
-        // TODO: parseForStmt
-        return null;
+        if (!consumeIf(TokenType.FOR_KEYWORD)) {
+            return null;
+        }
+
+        if (!consumeIf(TokenType.LPAREN)) {
+            reportUnexpectedToken();
+        }
+
+        if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
+            reportUnexpectedToken();
+            return null;
+        }
+
+        // TODO: check if not already declared
+        var iteratorIdentifier = ((StringToken) lexer.getCurrentToken()).getValue();
+        var iteratorVar = new VarStmt(iteratorIdentifier);
+
+        lexer.getNextToken();
+
+        if (!consumeIf(TokenType.IN_KEYWORD)) {
+            reportUnexpectedToken();
+        }
+
+        var iterable = parseExpr();
+
+        if (iterable == null) {
+            reportUnexpectedToken("(", "expression expected after '(' in for statement");
+            return null;
+        }
+
+        if (!consumeIf(TokenType.RPAREN)) {
+            reportUnexpectedToken();
+        }
+
+        var codeBlock = parseCodeBlock();
+        if (codeBlock == null) {
+            reportUnexpectedToken(")", "code block expected after ')' in for statement");
+            return null;
+        }
+
+        return new ForStmt(iteratorVar, iterable , codeBlock);
     }
 
     // switch_stmt = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";

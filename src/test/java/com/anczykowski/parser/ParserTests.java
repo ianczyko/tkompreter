@@ -554,6 +554,7 @@ class ParserTests {
     void parseForStmt() {
         // given
         var errorModule = new ErrorModule();
+        var variables = new HashMap<String, VarStmt>();
 
         var lexer = ParserHelpers.thereIsLexer(List.of(
             new Token(TokenType.FOR_KEYWORD, new Location()),
@@ -570,7 +571,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var forStmt = (ForStmt) parser.parseForStmt();
+        var forStmt = (ForStmt) parser.parseForStmt(variables);
 
         // then
         var iterator = (VarStmt) forStmt.getIterator();

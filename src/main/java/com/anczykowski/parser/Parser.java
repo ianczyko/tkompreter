@@ -468,7 +468,7 @@ public class Parser {
             nonRetStmt = parseWhileStmt();
         }
         if (nonRetStmt == null) {
-            nonRetStmt = parseForStmt();
+            nonRetStmt = parseForStmt(variables);
         }
         if (nonRetStmt == null) {
             nonRetStmt = parseSwitchStmt();
@@ -552,7 +552,7 @@ public class Parser {
     }
 
     // for_stmt = "for", "(", identifier, "in", expr, ")", code_block;
-    protected Expression parseForStmt() {
+    protected Expression parseForStmt(HashMap<String, VarStmt> variables) {
         if (!consumeIf(TokenType.FOR_KEYWORD)) {
             return null;
         }
@@ -566,9 +566,12 @@ public class Parser {
             return null;
         }
 
-        // TODO: check if not already declared
         var iteratorIdentifier = ((StringToken) lexer.getCurrentToken()).getValue();
+        if (variables.containsKey(iteratorIdentifier)) {
+            reportAlreadyDeclared(iteratorIdentifier);
+        }
         var iteratorVar = new VarStmt(iteratorIdentifier);
+        variables.put(iteratorIdentifier, iteratorVar);
 
         lexer.getNextToken();
 

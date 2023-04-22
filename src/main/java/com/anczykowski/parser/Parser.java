@@ -490,9 +490,9 @@ public class Parser {
             reportUnexpectedToken();
         }
 
-        var expr = parseExpr();
+        var condition = parseExpr();
 
-        if (expr == null) {
+        if (condition == null) {
             reportUnexpectedToken("(", "expression expected after '(' in if statement");
             return null;
         }
@@ -517,7 +517,7 @@ public class Parser {
             }
         }
 
-        return new CondStmt(expr, codeBlock, elseCodeBlock);
+        return new CondStmt(condition, codeBlock, elseCodeBlock);
     }
 
     // while_stmt = "while", "(", expr, ")", code_block;
@@ -530,9 +530,9 @@ public class Parser {
             reportUnexpectedToken();
         }
 
-        var expr = parseExpr();
+        var condition = parseExpr();
 
-        if (expr == null) {
+        if (condition == null) {
             reportUnexpectedToken("(", "expression expected after '(' in while statement");
             return null;
         }
@@ -547,7 +547,7 @@ public class Parser {
             return null;
         }
 
-        return new WhileStmt(expr, codeBlock);
+        return new WhileStmt(condition, codeBlock);
     }
 
     // for_stmt = "for", "(", identifier, "in", expr, ")", code_block;

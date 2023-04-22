@@ -24,6 +24,7 @@ import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
+import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.Statement;
 import com.anczykowski.parser.structures.statements.VarStmt;
 
@@ -79,4 +80,6 @@ public interface Visitor {
     void visit(NegatedExpression orOpArg);
 
     void visit(AssignmentExpression orOpArg);
+
+    void visit(CondStmt orOpArg);
 }

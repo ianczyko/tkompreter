@@ -37,6 +37,7 @@ import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
+import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import lombok.RequiredArgsConstructor;
 
@@ -503,9 +504,47 @@ public class Parser {
     }
 
     // cond_stmt = "if", "(", expr, ")", code_block, ["else", code_block];
-    protected Expression parseConditionalStmt(){
-        // TODO: parseConditionalStmt
-        return null;
+    protected Expression parseConditionalStmt() {
+        if (!lexer.getCurrentToken().getType().equals(TokenType.IF_KEYWORD)) {
+            return null;
+        }
+        lexer.getNextToken();
+
+        if (!lexer.getCurrentToken().getType().equals(TokenType.LPAREN)) {
+            reportUnexpectedToken();
+        }
+        lexer.getNextToken();
+
+        var expr = parseExpr();
+
+        if (expr == null) {
+            reportUnexpectedToken("(", "expression expected after '(' in if statement");
+            return null;
+        }
+
+        if (!lexer.getCurrentToken().getType().equals(TokenType.RPAREN)) {
+            reportUnexpectedToken();
+        }
+        lexer.getNextToken();
+
+        var codeBlock = parseCodeBlock();
+        if (codeBlock == null) {
+            reportUnexpectedToken(")", "code block expected after ')' in if statement");
+            return null;
+        }
+
+        CodeBLock elseCodeBlock = null;
+
+        if (lexer.getCurrentToken().getType().equals(TokenType.ELSE_KEYWORD)) {
+            lexer.getNextToken();
+            elseCodeBlock = parseCodeBlock();
+            if (elseCodeBlock == null) {
+                reportUnexpectedToken("else", "code block expected after else in if statement");
+                return null;
+            }
+        }
+
+        return new CondStmt(expr, codeBlock, elseCodeBlock);
     }
 
     // while_stmt = "while", "(", expr, ")", code_block;

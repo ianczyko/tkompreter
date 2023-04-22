@@ -15,7 +15,9 @@ public class VarStmt extends Statement {
         this.name = name;
         this.initial = null;
 
-    }public VarStmt(String name, Expression initial) {
+    }
+
+    public VarStmt(String name, Expression initial) {
         this.name = name;
         this.initial = initial;
     }

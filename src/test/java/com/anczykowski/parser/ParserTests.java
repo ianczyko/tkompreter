@@ -1,6 +1,7 @@
 package com.anczykowski.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import com.anczykowski.lexer.StringToken;
 import com.anczykowski.lexer.Token;
 import com.anczykowski.lexer.TokenType;
 import com.anczykowski.parser.helpers.ParserHelpers;
+import com.anczykowski.parser.structures.CodeBLock;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
@@ -32,6 +34,7 @@ import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
+import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
 
 class ParserTests {
@@ -426,6 +429,7 @@ class ParserTests {
         var inner = (IntegerConstantExpr) negatedExpr.getInner();
         assertEquals(1, inner.getValue());
     }
+
     @Test
     void parseAssignmentExpression() {
         // given
@@ -448,6 +452,72 @@ class ParserTests {
         var rval = (IntegerConstantExpr) expr.getRval();
         assertEquals(1, lval.getValue());
         assertEquals(2, rval.getValue());
+    }
+
+    @Test
+    void parseConditionalStatement() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.IF_KEYWORD, new Location()),
+            new Token(TokenType.LPAREN, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.RPAREN, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.SEMICOLON, new Location()),
+            new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var condExpr = (CondStmt) parser.parseConditionalStmt();
+
+        // then
+        var cond = (IntegerConstantExpr) condExpr.getCondition();
+        var trueBLock = (CodeBLock) condExpr.getTrueBlock();
+        var trueBlockFirstStmt = (IntegerConstantExpr) trueBLock.getStatementsAndExpressions().get(0);
+        var elseBlock = condExpr.getElseBlock();
+        assertEquals(1, cond.getValue());
+        assertEquals(2, trueBlockFirstStmt.getValue());
+        assertNull(elseBlock);
+    }
+
+    @Test
+    void parseConditionalStatementWithElseBlock() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.IF_KEYWORD, new Location()),
+            new Token(TokenType.LPAREN, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.RPAREN, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.SEMICOLON, new Location()),
+            new Token(TokenType.RBRACE, new Location()),
+            new Token(TokenType.ELSE_KEYWORD, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 3),
+            new Token(TokenType.SEMICOLON, new Location()),
+            new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var condExpr = (CondStmt) parser.parseConditionalStmt();
+
+        // then
+        var cond = (IntegerConstantExpr) condExpr.getCondition();
+        var trueBLock = (CodeBLock) condExpr.getTrueBlock();
+        var trueBlockFirstStmt = (IntegerConstantExpr) trueBLock.getStatementsAndExpressions().get(0);
+        var elseBlock = condExpr.getElseBlock();
+        var elseBlockFirstStmt = (IntegerConstantExpr) elseBlock.getStatementsAndExpressions().get(0);
+        assertEquals(1, cond.getValue());
+        assertEquals(2, trueBlockFirstStmt.getValue());
+        assertEquals(3, elseBlockFirstStmt.getValue());
     }
 
 }

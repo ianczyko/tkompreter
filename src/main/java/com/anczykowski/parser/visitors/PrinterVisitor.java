@@ -26,6 +26,7 @@ import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
+import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.Statement;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import lombok.RequiredArgsConstructor;
@@ -293,6 +294,7 @@ public class PrinterVisitor implements Visitor {
             level--;
         }
     }
+
     @Override
     public void visit(AssignmentExpression assignmentExpression) {
         printIndentation();
@@ -301,6 +303,20 @@ public class PrinterVisitor implements Visitor {
         level++;
         assignmentExpression.getLval().accept(this);
         assignmentExpression.getRval().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(CondStmt condStmt) {
+        printIndentation();
+        printIsReturnable(condStmt);
+        out.println("condStmt: (cond/block/elseBlock)");
+        level++;
+        condStmt.getCondition().accept(this);
+        condStmt.getTrueBlock().accept(this);
+        if (condStmt.getElseBlock() != null) {
+            condStmt.getElseBlock().accept(this);
+        }
         level--;
     }
 }

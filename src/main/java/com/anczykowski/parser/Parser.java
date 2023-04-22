@@ -71,7 +71,7 @@ public class Parser {
             return false;
         }
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
+        if (!peekIf(TokenType.IDENTIFIER)) {
             reportUnexpectedToken("class", "class keyword must be followed by class identifier");
             return false; // TODO: what to do in case of error (all returns)
         }
@@ -116,7 +116,7 @@ public class Parser {
         }
 
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
+        if (!peekIf(TokenType.IDENTIFIER)) {
             reportUnexpectedToken("var", "var keyword must be followed by identifier");
             return null;
         }
@@ -158,7 +158,7 @@ public class Parser {
 
     // func_def = identifier, "(", [parameters], ")", code_block;
     protected boolean parseFunDef(HashMap<String, FuncDef> functions) {
-        if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
+        if (!peekIf(TokenType.IDENTIFIER)) {
             return false;
         }
 
@@ -408,7 +408,7 @@ public class Parser {
     }
 
     protected FloatConstantExpr parseFloatConstant() {
-        if (lexer.getCurrentToken().getType().equals(TokenType.FLOAT_NUMBER)) {
+        if (peekIf(TokenType.FLOAT_NUMBER)) {
             var floatToken = (FloatToken) lexer.getCurrentToken();
             lexer.getNextToken();
             return new FloatConstantExpr(floatToken.getValue());
@@ -417,7 +417,7 @@ public class Parser {
     }
 
     protected IntegerConstantExpr parseIntegerConstant() {
-        if (lexer.getCurrentToken().getType().equals(TokenType.INTEGER_NUMBER)) {
+        if (peekIf(TokenType.INTEGER_NUMBER)) {
             var integerToken = (IntegerToken) lexer.getCurrentToken();
             lexer.getNextToken();
             return new IntegerConstantExpr(integerToken.getValue());
@@ -562,7 +562,7 @@ public class Parser {
             reportUnexpectedToken();
         }
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
+        if (!peekIf(TokenType.IDENTIFIER)) {
             reportUnexpectedToken();
             return null;
         }
@@ -597,7 +597,7 @@ public class Parser {
             return null;
         }
 
-        return new ForStmt(iteratorVar, iterable , codeBlock);
+        return new ForStmt(iteratorVar, iterable, codeBlock);
     }
 
     // switch_stmt = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";
@@ -627,9 +627,9 @@ public class Parser {
 
         Map<String, CodeBLock> switchElements = new HashMap<>();
 
-        while(peekIf(TokenType.IDENTIFIER) || peekIf(TokenType.DEFAULT_KEYWORD)){
+        while (peekIf(TokenType.IDENTIFIER) || peekIf(TokenType.DEFAULT_KEYWORD)) {
             String label = "default";
-            if(peekIf(TokenType.IDENTIFIER)){
+            if (peekIf(TokenType.IDENTIFIER)) {
                 label = ((StringToken) lexer.getCurrentToken()).getValue();
             }
 
@@ -658,14 +658,14 @@ public class Parser {
 
     // parameters = identifier, { ",", identifier };
     protected ArrayList<Parameter> parseParams() {
-        if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
+        if (!peekIf(TokenType.IDENTIFIER)) {
             return new ArrayList<>();
         }
         ArrayList<Parameter> params = new ArrayList<>();
         params.add(new Parameter(((StringToken) lexer.getCurrentToken()).getValue()));
         lexer.getNextToken();
         while (consumeIf(TokenType.COMMA)) {
-            if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
+            if (!peekIf(TokenType.IDENTIFIER)) {
                 reportUnexpectedToken();
                 continue;
             }
@@ -676,14 +676,13 @@ public class Parser {
     }
 
     private boolean consumeIf(TokenType tokenType) {
-        if (!lexer.getCurrentToken().getType().equals(tokenType)) {
+        if (!peekIf(tokenType)) {
             return false;
         }
         lexer.getNextToken();
         return true;
     }
 
-    // TODO: refactor: use this where possible
     private boolean peekIf(TokenType tokenType) {
         return lexer.getCurrentToken().getType().equals(tokenType);
     }

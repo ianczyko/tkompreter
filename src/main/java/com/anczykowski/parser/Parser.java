@@ -441,8 +441,7 @@ public class Parser {
 
     // "(", expr, ")"
     protected Expression parseExprParenthesized() {
-        // TODO: test this
-        if (!consumeIf(TokenType.LBRACE)) {
+        if (!consumeIf(TokenType.LPAREN)) {
             return null;
         }
         var expr = parseExpr();
@@ -450,7 +449,7 @@ public class Parser {
             reportUnexpectedToken();
             return null;
         }
-        if (!consumeIf(TokenType.RBRACE)) {
+        if (!consumeIf(TokenType.RPAREN)) {
             reportUnexpectedToken();
         }
         return expr;

@@ -236,6 +236,35 @@ class ParserTests {
     }
 
     @Test
+    void testAdditionMultiplicationOrderParenthesized() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.LPAREN, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.PLUS, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.RPAREN, new Location()),
+            new Token(TokenType.ASTERISK, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 3)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = (MultiplicationFactor) parser.parseRelOpArg();
+
+        // then
+        var left = (AdditionTerm) expr.getLeft();
+        var right = (IntegerConstantExpr) expr.getRight();
+        var leftLeft = (IntegerConstantExpr) left.getLeft();
+        var leftRight = (IntegerConstantExpr) left.getRight();
+        assertEquals(1, leftLeft.getValue());
+        assertEquals(2, leftRight.getValue());
+        assertEquals(3, right.getValue());
+    }
+
+    @Test
     void parseEq() {
         // given
         var errorModule = new ErrorModule();

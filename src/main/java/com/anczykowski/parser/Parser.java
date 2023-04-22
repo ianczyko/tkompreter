@@ -581,7 +581,7 @@ public class Parser {
         var iterable = parseExpr();
 
         if (iterable == null) {
-            reportUnexpectedToken("(", "expression expected after '(' in for statement");
+            reportUnexpectedToken("in", "expression expected after 'in' in for statement");
             return null;
         }
 

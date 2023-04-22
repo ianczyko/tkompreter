@@ -49,8 +49,6 @@ public class Parser {
 
     final ErrorModule errorModule;
 
-    // TODO: consumeIf refactor
-
     // program = { func_def | class_def };
     public Program parse() {
         HashMap<String, FuncDef> functions = new HashMap<>();
@@ -66,10 +64,9 @@ public class Parser {
 
     // class_def = "class", class_id, class_body;
     protected boolean parseClassDef(HashMap<String, ClassDef> classes) {
-        if (!lexer.getCurrentToken().getType().equals(TokenType.CLASS_KEYWORD)) {
+        if (!consumeIf(TokenType.CLASS_KEYWORD)) {
             return false;
         }
-        lexer.getNextToken();
 
         if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
             reportUnexpectedToken("class", "class keyword must be followed by class identifier");
@@ -85,12 +82,11 @@ public class Parser {
 
         lexer.getNextToken();
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.LBRACE)) {
+        if (!consumeIf(TokenType.LBRACE)) {
             // TODO: Underlining for missing brace?
             reportUnexpectedToken();
             return false;
         }
-        lexer.getNextToken();
 
         var classBody = parseClassBody();
 
@@ -112,11 +108,10 @@ public class Parser {
 
     // var_stmt = "var", identifier, ["=", expr], ";";
     protected VarStmt parseVarStmt(HashMap<String, VarStmt> variables) {
-        if (!lexer.getCurrentToken().getType().equals(TokenType.VAR_KEYWORD)) {
+        if (!consumeIf(TokenType.VAR_KEYWORD)) {
             return null;
         }
 
-        lexer.getNextToken();
 
         if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
             reportUnexpectedToken("var", "var keyword must be followed by identifier");
@@ -134,8 +129,7 @@ public class Parser {
 
         lexer.getNextToken();
 
-        if (lexer.getCurrentToken().getType().equals(TokenType.ASSIGNMENT)) {
-            lexer.getNextToken();
+        if (consumeIf(TokenType.ASSIGNMENT)) {
             var expr = parseExpr();
             if (expr == null) {
                 reportUnexpectedToken("=", "= operator without expression");
@@ -146,7 +140,7 @@ public class Parser {
 
         variables.put(varIdentifier, varStmt);
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.SEMICOLON)) {
+        if (!consumeIf(TokenType.SEMICOLON)) {
             errorModule.addError(ErrorElement.builder()
                                      .errorType(ErrorType.MISSING_SEMICOLON)
                                      .location(lexer.getCurrentLocation())
@@ -155,7 +149,6 @@ public class Parser {
                                      .build());
             return null;
         }
-        lexer.getNextToken();
 
         return varStmt;
     }
@@ -175,21 +168,19 @@ public class Parser {
 
         lexer.getNextToken();
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.LPAREN)) {
+        if (!consumeIf(TokenType.LPAREN)) {
             // TODO: Underlining for missing paren?
             reportUnexpectedToken();
             return false;
         }
-        lexer.getNextToken();
 
         ArrayList<Parameter> params = parseParams();
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.RPAREN)) {
+        if (!consumeIf(TokenType.RPAREN)) {
             // TODO: Underlining for missing paren?
             reportUnexpectedToken();
             return false;
         }
-        lexer.getNextToken();
 
         var codeBlock = parseCodeBlock();
 
@@ -200,11 +191,10 @@ public class Parser {
 
     // code_block = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
     protected CodeBLock parseCodeBlock() {
-        if (!lexer.getCurrentToken().getType().equals(TokenType.LBRACE)) {
+        if (!consumeIf(TokenType.LBRACE)) {
             // TODO: Underlining for missing LBRACE?
             reportUnexpectedToken();
         }
-        lexer.getNextToken();
 
         ArrayList<Expression> statementsAndExpressions = new ArrayList<>();
 
@@ -215,31 +205,24 @@ public class Parser {
         }
 
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.RBRACE)) {
+        if (!consumeIf(TokenType.RBRACE)) {
             // TODO: Underlining for missing RBRACE?
             reportUnexpectedToken();
         }
-        lexer.getNextToken();
 
         return new CodeBLock(statementsAndExpressions);
     }
 
     // ["return"], expr, ["=", expr], ";"
     protected boolean parseExprInsideCodeBlock(ArrayList<Expression> statementsAndExpressions) {
-        var isReturn = false;
-
-        if (lexer.getCurrentToken().getType().equals(TokenType.RETURN_KEYWORD)) {
-            isReturn = true;
-            lexer.getNextToken();
-        }
+        var isReturn = consumeIf(TokenType.RETURN_KEYWORD);
 
         var expression = parseExpr();
         if (expression == null) {
             return false;
         }
 
-        if (lexer.getCurrentToken().getType().equals(TokenType.ASSIGNMENT)) {
-            lexer.getNextToken();
+        if (consumeIf(TokenType.ASSIGNMENT)) {
             var assignExpr = parseExpr();
             if (assignExpr == null) {
                 reportUnexpectedToken();
@@ -252,10 +235,9 @@ public class Parser {
 
         statementsAndExpressions.add(expression);
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.SEMICOLON)) {
+        if (!consumeIf(TokenType.SEMICOLON)) {
             reportUnexpectedToken();
         }
-        lexer.getNextToken();
 
         return true;
     }
@@ -265,8 +247,7 @@ public class Parser {
         var left = parseOrOpArg();
         if (left == null) return null;
 
-        while (lexer.getCurrentToken().getType().equals(TokenType.OR_KEYWORD)) {
-            lexer.getNextToken();
+        while (consumeIf(TokenType.OR_KEYWORD)) {
             var right = parseOrOpArg();
             if (right == null) {
                 reportUnexpectedToken();
@@ -282,8 +263,7 @@ public class Parser {
         var left = parseAndOpArg();
         if (left == null) return null;
 
-        while (lexer.getCurrentToken().getType().equals(TokenType.AND_KEYWORD)) {
-            lexer.getNextToken();
+        while (consumeIf(TokenType.AND_KEYWORD)) {
             var right = parseAndOpArg();
             if (right == null) {
                 reportUnexpectedToken();
@@ -385,12 +365,7 @@ public class Parser {
 
     // factor = ["not" | "-"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
     protected Expression parseFactor() {
-        boolean isNegated = false;
-        if (lexer.getCurrentToken().getType().equals(TokenType.MINUS) ||
-            lexer.getCurrentToken().getType().equals(TokenType.NOT_KEYWORD)) {
-            isNegated = true;
-            lexer.getNextToken();
-        }
+        boolean isNegated = consumeIf(TokenType.MINUS) || consumeIf(TokenType.NOT_KEYWORD);
 
         var factor = parseFactorInner();
         if (factor == null) {
@@ -465,17 +440,16 @@ public class Parser {
 
     // "(", expr, ")"
     protected Expression parseExprParenthesized() {
-        if (!lexer.getCurrentToken().getType().equals(TokenType.LBRACE)) {
+        // TODO: test this
+        if (!consumeIf(TokenType.LBRACE)) {
             return null;
         }
-        lexer.getNextToken();
         var expr = parseExpr();
         if (expr == null) {
             reportUnexpectedToken();
             return null;
         }
-        lexer.getNextToken();
-        if (!lexer.getCurrentToken().getType().equals(TokenType.RBRACE)) {
+        if (!consumeIf(TokenType.RBRACE)) {
             reportUnexpectedToken();
         }
         return expr;
@@ -508,15 +482,13 @@ public class Parser {
 
     // cond_stmt = "if", "(", expr, ")", code_block, ["else", code_block];
     protected Expression parseConditionalStmt() {
-        if (!lexer.getCurrentToken().getType().equals(TokenType.IF_KEYWORD)) {
+        if (!consumeIf(TokenType.IF_KEYWORD)) {
             return null;
         }
-        lexer.getNextToken();
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.LPAREN)) {
+        if (!consumeIf(TokenType.LPAREN)) {
             reportUnexpectedToken();
         }
-        lexer.getNextToken();
 
         var expr = parseExpr();
 
@@ -525,10 +497,9 @@ public class Parser {
             return null;
         }
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.RPAREN)) {
+        if (!consumeIf(TokenType.RPAREN)) {
             reportUnexpectedToken();
         }
-        lexer.getNextToken();
 
         var codeBlock = parseCodeBlock();
         if (codeBlock == null) {
@@ -538,8 +509,7 @@ public class Parser {
 
         CodeBLock elseCodeBlock = null;
 
-        if (lexer.getCurrentToken().getType().equals(TokenType.ELSE_KEYWORD)) {
-            lexer.getNextToken();
+        if (consumeIf(TokenType.ELSE_KEYWORD)) {
             elseCodeBlock = parseCodeBlock();
             if (elseCodeBlock == null) {
                 reportUnexpectedToken("else", "code block expected after else in if statement");
@@ -552,15 +522,13 @@ public class Parser {
 
     // while_stmt = "while", "(", expr, ")", code_block;
     protected Expression parseWhileStmt() {
-        if (!lexer.getCurrentToken().getType().equals(TokenType.WHILE_KEYWORD)) {
+        if (!consumeIf(TokenType.WHILE_KEYWORD)) {
             return null;
         }
-        lexer.getNextToken();
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.LPAREN)) {
+        if (!consumeIf(TokenType.LPAREN)) {
             reportUnexpectedToken();
         }
-        lexer.getNextToken();
 
         var expr = parseExpr();
 
@@ -569,10 +537,9 @@ public class Parser {
             return null;
         }
 
-        if (!lexer.getCurrentToken().getType().equals(TokenType.RPAREN)) {
+        if (!consumeIf(TokenType.RPAREN)) {
             reportUnexpectedToken();
         }
-        lexer.getNextToken();
 
         var codeBlock = parseCodeBlock();
         if (codeBlock == null) {
@@ -604,8 +571,7 @@ public class Parser {
         ArrayList<Parameter> params = new ArrayList<>();
         params.add(new Parameter(((StringToken) lexer.getCurrentToken()).getValue()));
         lexer.getNextToken();
-        while (lexer.getCurrentToken().getType().equals(TokenType.COMMA)) {
-            lexer.getNextToken();
+        while (consumeIf(TokenType.COMMA)) {
             if (!lexer.getCurrentToken().getType().equals(TokenType.IDENTIFIER)) {
                 reportUnexpectedToken();
                 continue;
@@ -614,6 +580,14 @@ public class Parser {
             lexer.getNextToken();
         }
         return params;
+    }
+
+    private boolean consumeIf(TokenType tokenType) {
+        if (!lexer.getCurrentToken().getType().equals(tokenType)) {
+            return false;
+        }
+        lexer.getNextToken();
+        return true;
     }
 
     private void reportAlreadyDeclared(String identifier) {

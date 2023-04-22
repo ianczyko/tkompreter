@@ -29,6 +29,7 @@ import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.ForStmt;
 import com.anczykowski.parser.structures.statements.Statement;
+import com.anczykowski.parser.structures.statements.SwitchStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import com.anczykowski.parser.structures.statements.WhileStmt;
 import lombok.RequiredArgsConstructor;
@@ -40,8 +41,18 @@ public class PrinterVisitor implements Visitor {
 
     private int level = 1;
 
+    String additionalInfo = "";
+
     private void printIndentation() {
         out.printf("%s ", "-".repeat(level));
+        consumeAdditionalInfo();
+    }
+
+    private void consumeAdditionalInfo() {
+        if (!additionalInfo.isEmpty()) {
+            out.printf("(%s) ", additionalInfo);
+            additionalInfo = "";
+        }
     }
 
     private void printIsReturnable(Expression expr) {
@@ -342,6 +353,22 @@ public class PrinterVisitor implements Visitor {
         forStmt.getIterator().accept(this);
         forStmt.getIterable().accept(this);
         forStmt.getCodeBLock().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(SwitchStmt switchStmt) {
+        printIndentation();
+        printIsReturnable(switchStmt);
+        out.println("switchStmt: ");
+        level++;
+        switchStmt.getExpression().accept(this);
+        level++;
+        switchStmt.getSwitchElements().forEach((attrKey, attr) -> {
+            additionalInfo = attrKey;
+            attr.accept(this);
+        });
+        level--;
         level--;
     }
 }

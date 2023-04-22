@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.anczykowski.errormodule.ErrorElement;
@@ -39,6 +40,7 @@ import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.ForStmt;
+import com.anczykowski.parser.structures.statements.SwitchStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import com.anczykowski.parser.structures.statements.WhileStmt;
 import lombok.RequiredArgsConstructor;
@@ -600,8 +602,57 @@ public class Parser {
 
     // switch_stmt = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";
     protected Expression parseSwitchStmt() {
-        // TODO: parseSwitchStmt
-        return null;
+        if (!consumeIf(TokenType.SWITCH_KEYWORD)) {
+            return null;
+        }
+
+        if (!consumeIf(TokenType.LPAREN)) {
+            reportUnexpectedToken();
+        }
+
+        var expr = parseExpr();
+
+        if (expr == null) {
+            reportUnexpectedToken("(", "expression expected after '(' in switch statement");
+            return null;
+        }
+
+        if (!consumeIf(TokenType.RPAREN)) {
+            reportUnexpectedToken();
+        }
+
+        if (!consumeIf(TokenType.LBRACE)) {
+            reportUnexpectedToken();
+        }
+
+        Map<String, CodeBLock> switchElements = new HashMap<>();
+
+        while(peekIf(TokenType.IDENTIFIER) || peekIf(TokenType.DEFAULT_KEYWORD)){
+            String label = "default";
+            if(peekIf(TokenType.IDENTIFIER)){
+                label = ((StringToken) lexer.getCurrentToken()).getValue();
+            }
+
+            lexer.getNextToken();
+
+            if (!consumeIf(TokenType.ARROW)) {
+                reportUnexpectedToken();
+            }
+
+            var codeBlock = parseCodeBlock();
+            if (codeBlock == null) {
+                reportUnexpectedToken("->", "code block expected after '->' in switch statement");
+                continue;
+            }
+
+            switchElements.put(label, codeBlock);
+        }
+
+        if (!consumeIf(TokenType.RBRACE)) {
+            reportUnexpectedToken();
+        }
+
+        return new SwitchStmt(expr, switchElements);
     }
 
 
@@ -630,6 +681,11 @@ public class Parser {
         }
         lexer.getNextToken();
         return true;
+    }
+
+    // TODO: refactor: use this where possible
+    private boolean peekIf(TokenType tokenType) {
+        return lexer.getCurrentToken().getType().equals(tokenType);
     }
 
     private void reportAlreadyDeclared(String identifier) {

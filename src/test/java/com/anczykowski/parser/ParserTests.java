@@ -36,6 +36,7 @@ import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.ForStmt;
+import com.anczykowski.parser.structures.statements.SwitchStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import com.anczykowski.parser.structures.statements.WhileStmt;
 
@@ -610,6 +611,88 @@ class ParserTests {
         assertEquals("iter", iterator.getName());
         assertEquals(1, iterable.getValue());
         assertEquals(2, codeBlockFirstStmt.getValue());
+    }
+
+    @Test
+    void parseSwitchStmtDefault() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.SWITCH_KEYWORD, new Location()),
+            new Token(TokenType.LPAREN, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.RPAREN, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+
+            new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+            new Token(TokenType.ARROW, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.SEMICOLON, new Location()),
+            new Token(TokenType.RBRACE, new Location()),
+
+            new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var forStmt = (SwitchStmt) parser.parseSwitchStmt();
+
+        // then
+        var expr = (IntegerConstantExpr) forStmt.getExpression();
+        assertEquals(1, expr.getValue());
+        var switchElements = forStmt.getSwitchElements();
+        assertTrue(switchElements.containsKey("default"));
+        var defFirstExpr = (IntegerConstantExpr) switchElements.get("default").getStatementsAndExpressions().get(0);
+        assertEquals(2, defFirstExpr.getValue());
+    }
+
+    @Test
+    void parseSwitchStmtDefaultAndIntLabel() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.SWITCH_KEYWORD, new Location()),
+            new Token(TokenType.LPAREN, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.RPAREN, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+
+            new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+            new Token(TokenType.ARROW, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.SEMICOLON, new Location()),
+            new Token(TokenType.RBRACE, new Location()),
+
+            new StringToken(TokenType.IDENTIFIER, new Location(), "float"),
+            new Token(TokenType.ARROW, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 3),
+            new Token(TokenType.SEMICOLON, new Location()),
+            new Token(TokenType.RBRACE, new Location()),
+
+            new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var forStmt = (SwitchStmt) parser.parseSwitchStmt();
+
+        // then
+        var expr = (IntegerConstantExpr) forStmt.getExpression();
+        assertEquals(1, expr.getValue());
+
+        var switchElements = forStmt.getSwitchElements();
+        assertTrue(switchElements.containsKey("default"));
+        var defFirstExpr = (IntegerConstantExpr) switchElements.get("default").getStatementsAndExpressions().get(0);
+        assertEquals(2, defFirstExpr.getValue());
+
+        assertTrue(switchElements.containsKey("float"));
+        var floatFirstExpr = (IntegerConstantExpr) switchElements.get("float").getStatementsAndExpressions().get(0);
+        assertEquals(3, floatFirstExpr.getValue());
     }
 
 }

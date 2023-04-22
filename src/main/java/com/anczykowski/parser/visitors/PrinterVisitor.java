@@ -29,6 +29,7 @@ import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.Statement;
 import com.anczykowski.parser.structures.statements.VarStmt;
+import com.anczykowski.parser.structures.statements.WhileStmt;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -317,6 +318,17 @@ public class PrinterVisitor implements Visitor {
         if (condStmt.getElseBlock() != null) {
             condStmt.getElseBlock().accept(this);
         }
+        level--;
+    }
+
+    @Override
+    public void visit(WhileStmt whileStmt) {
+        printIndentation();
+        printIsReturnable(whileStmt);
+        out.println("whileStmt: ");
+        level++;
+        whileStmt.getCondition().accept(this);
+        whileStmt.getCodeBLock().accept(this);
         level--;
     }
 }

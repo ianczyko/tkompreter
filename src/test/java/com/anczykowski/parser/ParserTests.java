@@ -36,6 +36,7 @@ import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
+import com.anczykowski.parser.structures.statements.WhileStmt;
 
 class ParserTests {
     @Test
@@ -518,6 +519,34 @@ class ParserTests {
         assertEquals(1, cond.getValue());
         assertEquals(2, trueBlockFirstStmt.getValue());
         assertEquals(3, elseBlockFirstStmt.getValue());
+    }
+
+    @Test
+    void parseWhileStmt() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.WHILE_KEYWORD, new Location()),
+            new Token(TokenType.LPAREN, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.RPAREN, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.SEMICOLON, new Location()),
+            new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var whileStmt = (WhileStmt) parser.parseWhileStmt();
+
+        // then
+        var cond = (IntegerConstantExpr) whileStmt.getCondition();
+        var trueBLock = (CodeBLock) whileStmt.getCodeBLock();
+        var trueBlockFirstStmt = (IntegerConstantExpr) trueBLock.getStatementsAndExpressions().get(0);
+        assertEquals(1, cond.getValue());
+        assertEquals(2, trueBlockFirstStmt.getValue());
     }
 
 }

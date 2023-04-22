@@ -39,6 +39,7 @@ import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
 import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
+import com.anczykowski.parser.structures.statements.WhileStmt;
 import lombok.RequiredArgsConstructor;
 
 @SuppressWarnings("StatementWithEmptyBody")
@@ -47,6 +48,8 @@ public class Parser {
     final Lexer lexer;
 
     final ErrorModule errorModule;
+
+    // TODO: consumeIf refactor
 
     // program = { func_def | class_def };
     public Program parse() {
@@ -548,19 +551,46 @@ public class Parser {
     }
 
     // while_stmt = "while", "(", expr, ")", code_block;
-    protected Expression parseWhileStmt(){
-        // TODO: parseWhileStmt
-        return null;
+    protected Expression parseWhileStmt() {
+        if (!lexer.getCurrentToken().getType().equals(TokenType.WHILE_KEYWORD)) {
+            return null;
+        }
+        lexer.getNextToken();
+
+        if (!lexer.getCurrentToken().getType().equals(TokenType.LPAREN)) {
+            reportUnexpectedToken();
+        }
+        lexer.getNextToken();
+
+        var expr = parseExpr();
+
+        if (expr == null) {
+            reportUnexpectedToken("(", "expression expected after '(' in while statement");
+            return null;
+        }
+
+        if (!lexer.getCurrentToken().getType().equals(TokenType.RPAREN)) {
+            reportUnexpectedToken();
+        }
+        lexer.getNextToken();
+
+        var codeBlock = parseCodeBlock();
+        if (codeBlock == null) {
+            reportUnexpectedToken(")", "code block expected after ')' in while statement");
+            return null;
+        }
+
+        return new WhileStmt(expr, codeBlock);
     }
 
     // for_stmt = "for", "(", identifier, "in", expr, ")", code_block;
-    protected Expression parseForStmt(){
+    protected Expression parseForStmt() {
         // TODO: parseForStmt
         return null;
     }
 
     // switch_stmt = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";
-    protected Expression parseSwitchStmt(){
+    protected Expression parseSwitchStmt() {
         // TODO: parseSwitchStmt
         return null;
     }

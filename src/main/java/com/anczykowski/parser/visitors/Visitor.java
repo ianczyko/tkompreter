@@ -53,33 +53,33 @@ public interface Visitor {
 
     void visit(AndOpArg andOpArg);
 
-    void visit(EqRelOpArg orOpArg);
+    void visit(EqRelOpArg eqRelOpArg);
 
-    void visit(NeRelOpArg orOpArg);
+    void visit(NeRelOpArg neRelOpArg);
 
-    void visit(GtRelOpArg orOpArg);
+    void visit(GtRelOpArg gtRelOpArg);
 
-    void visit(GeRelOpArg orOpArg);
+    void visit(GeRelOpArg geRelOpArg);
 
-    void visit(LtRelOpArg orOpArg);
+    void visit(LtRelOpArg ltRelOpArg);
 
-    void visit(LeRelOpArg orOpArg);
+    void visit(LeRelOpArg leRelOpArg);
 
-    void visit(AdditionTerm orOpArg);
+    void visit(AdditionTerm additionTerm);
 
-    void visit(SubtractionTerm orOpArg);
+    void visit(SubtractionTerm subtractionTerm);
 
-    void visit(MultiplicationFactor orOpArg);
+    void visit(MultiplicationFactor multiplicationFactor);
 
-    void visit(IntegerConstantExpr orOpArg);
+    void visit(IntegerConstantExpr integerConstantExpr);
 
-    void visit(FloatConstantExpr orOpArg);
+    void visit(FloatConstantExpr floatConstantExpr);
 
-    void visit(DivisionFactor orOpArg);
+    void visit(DivisionFactor divisionFactor);
 
-    void visit(NegatedExpression orOpArg);
+    void visit(NegatedExpression negatedExpression);
 
-    void visit(AssignmentExpression orOpArg);
+    void visit(AssignmentExpression assignmentExpression);
 
-    void visit(CondStmt orOpArg);
+    void visit(CondStmt condStmt);
 }

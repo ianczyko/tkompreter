@@ -24,9 +24,11 @@ import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
+import com.anczykowski.parser.structures.expressions.IdentifierExpression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.NegatedExpression;
+import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
 import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
@@ -74,8 +76,73 @@ class ParserTests {
         // then
         assertTrue(codeBLock.getStatementsAndExpressions().isEmpty());
     }
-
     // TODO: non empty code block
+
+    @Test
+    void parseIdentifier() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new StringToken(TokenType.IDENTIFIER, new Location(), "abc")
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var identifier = (IdentifierExpression) parser.parseIdentOrFunCall();
+
+        // then
+        assertEquals("abc", identifier.getIdentifier());
+    }
+
+    @Test
+    void parseObjAccess() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+            new StringToken(TokenType.IDENTIFIER, new Location(), "aaa"),
+            new Token(TokenType.PERIOD, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "bbb")
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var objAccess = (ObjectAccessExpression) parser.parseObjAccess();
+
+        // then
+        var first = (IdentifierExpression) objAccess.getCurrent();
+        var second = (IdentifierExpression) objAccess.getChild();
+        assertEquals("aaa", first.getIdentifier());
+        assertEquals("bbb", second.getIdentifier());
+    }
+
+    @Test
+    void parseObjAccessDeeper() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+            new StringToken(TokenType.IDENTIFIER, new Location(), "aaa"),
+            new Token(TokenType.PERIOD, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "bbb"),
+            new Token(TokenType.PERIOD, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "ccc")
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var objAccess = (ObjectAccessExpression) parser.parseObjAccess();
+
+        // then
+        var first = (IdentifierExpression) objAccess.getCurrent();
+        var child = (ObjectAccessExpression) objAccess.getChild();
+        var second = (IdentifierExpression) child.getCurrent();
+        var third = (IdentifierExpression) child.getChild();
+        assertEquals("aaa", first.getIdentifier());
+        assertEquals("bbb", second.getIdentifier());
+        assertEquals("ccc", third.getIdentifier());
+    }
 
     @Test
     void parseParamsOne() {

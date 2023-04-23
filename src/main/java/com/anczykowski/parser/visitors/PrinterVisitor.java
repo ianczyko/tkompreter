@@ -14,9 +14,11 @@ import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
+import com.anczykowski.parser.structures.expressions.IdentifierExpression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.NegatedExpression;
+import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
@@ -137,6 +139,24 @@ public class PrinterVisitor implements Visitor {
         printIndentation();
         printIsReturnable(expression);
         out.println("expression: ");
+    }
+
+    @Override
+    public void visit(IdentifierExpression identifierExpression) {
+        printIndentation();
+        printIsReturnable(identifierExpression);
+        out.println("identifierExpression: " + identifierExpression.getIdentifier());
+    }
+
+    @Override
+    public void visit(ObjectAccessExpression objectAccessExpression) {
+        printIndentation();
+        printIsReturnable(objectAccessExpression);
+        out.println("objectAccessExpression: ");
+        level++;
+        objectAccessExpression.getCurrent().accept(this);
+        objectAccessExpression.getChild().accept(this);
+        level--;
     }
 
     @Override

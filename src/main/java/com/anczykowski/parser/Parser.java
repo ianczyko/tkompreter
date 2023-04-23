@@ -1,5 +1,6 @@
 package com.anczykowski.parser;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,9 +27,11 @@ import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
+import com.anczykowski.parser.structures.expressions.IdentifierExpression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.NegatedExpression;
+import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
@@ -426,9 +429,46 @@ public class Parser {
     }
 
 
+    // obj_access = ident_or_fun_call, { ".",  ident_or_fun_call };
     protected Expression parseObjAccess() {
-        // TODO: parseObjAccess
-        return null;
+
+        var objAccess = parseIdentOrFunCall();
+
+        if (objAccess == null) {
+            return null;
+        }
+
+        var accessChildren = new ArrayDeque<Expression>();
+        accessChildren.push(objAccess);
+        while (consumeIf(TokenType.PERIOD)) {
+            var child = parseIdentOrFunCall();
+            if (child == null) {
+                reportUnexpectedToken();
+            } else {
+                accessChildren.push(child);
+            }
+        }
+
+        var lastChild = accessChildren.remove();
+        for (var accessChild : accessChildren) {
+            lastChild = new ObjectAccessExpression(accessChild, lastChild);
+        }
+
+        return lastChild;
+    }
+
+    // ident_or_fun_call  = identifier, ["(", [args], ")"];
+    protected Expression parseIdentOrFunCall() {
+        if (!peekIf(TokenType.IDENTIFIER)) {
+            return null;
+        }
+        var identifier = ((StringToken) lexer.getCurrentToken()).getValue();
+        var identifierExpr = new IdentifierExpression(identifier);
+        lexer.getNextToken();
+        if (consumeIf(TokenType.LPAREN)) {
+            // TODO: fun call
+        }
+        return identifierExpr;
     }
 
     protected Expression parseString() {
@@ -436,6 +476,7 @@ public class Parser {
         return null;
     }
 
+    // class_init = "new", class_id, "(", [args], ")";
     protected Expression parseClassInit() {
         // TODO: parseClassInit
         return null;

@@ -12,9 +12,11 @@ import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
+import com.anczykowski.parser.structures.expressions.IdentifierExpression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.NegatedExpression;
+import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
@@ -91,4 +93,8 @@ public interface Visitor {
     void visit(ForStmt forStmt);
 
     void visit(SwitchStmt switchStmt);
+
+    void visit(IdentifierExpression identifierExpression);
+
+    void visit(ObjectAccessExpression identifierExpression);
 }

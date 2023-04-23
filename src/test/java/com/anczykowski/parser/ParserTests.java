@@ -31,6 +31,7 @@ import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.NegatedExpression;
 import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
+import com.anczykowski.parser.structures.expressions.StringExpression;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
 import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
@@ -95,6 +96,23 @@ class ParserTests {
 
         // then
         assertEquals("abc", identifier.getIdentifier());
+    }
+
+    @Test
+    void parseStringExpr() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new StringToken(TokenType.STRING, new Location(), "abc")
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var stringExpression = (StringExpression) parser.parseString();
+
+        // then
+        assertEquals("abc", stringExpression.getValue());
     }
 
     @Test

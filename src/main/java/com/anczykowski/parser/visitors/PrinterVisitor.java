@@ -23,6 +23,7 @@ import com.anczykowski.parser.structures.expressions.NegatedExpression;
 import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
+import com.anczykowski.parser.structures.expressions.StringExpression;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
 import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
@@ -359,6 +360,13 @@ public class PrinterVisitor implements Visitor {
         assignmentExpression.getLval().accept(this);
         assignmentExpression.getRval().accept(this);
         level--;
+    }
+
+    @Override
+    public void visit(StringExpression stringExpression) {
+        printIndentation();
+        printIsReturnable(stringExpression);
+        out.println("stringExpression: " + stringExpression.getValue());
     }
 
     @Override

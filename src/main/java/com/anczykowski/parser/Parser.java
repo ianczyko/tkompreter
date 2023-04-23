@@ -36,6 +36,7 @@ import com.anczykowski.parser.structures.expressions.NegatedExpression;
 import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
+import com.anczykowski.parser.structures.expressions.StringExpression;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
 import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
@@ -506,8 +507,12 @@ public class Parser {
     }
 
     protected Expression parseString() {
-        // TODO: parseString
-        return null;
+        if(!peekIf(TokenType.STRING)){
+            return null;
+        }
+        var stringToken = (StringToken) lexer.getCurrentToken();
+        lexer.getNextToken();
+        return new StringExpression(stringToken.getValue());
     }
 
     // class_init = "new", class_id, "(", [args], ")";

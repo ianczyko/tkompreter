@@ -21,6 +21,7 @@ import com.anczykowski.parser.structures.expressions.NegatedExpression;
 import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
 import com.anczykowski.parser.structures.expressions.OrExpression;
 import com.anczykowski.parser.structures.expressions.OrOpArg;
+import com.anczykowski.parser.structures.expressions.StringExpression;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
 import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
 import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
@@ -103,4 +104,6 @@ public interface Visitor {
     void visit(Arg arg);
 
     void visit(FunctionCallExpression functionCallExpression);
+
+    void visit(StringExpression stringExpression);
 }

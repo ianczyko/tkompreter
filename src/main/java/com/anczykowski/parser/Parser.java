@@ -88,15 +88,9 @@ public class Parser {
 
         if (classes.containsKey(classIdentifier)) {
             reportAlreadyDeclared(classIdentifier);
-            return false;
         }
 
         lexer.getNextToken();
-
-        if (!consumeIf(TokenType.LBRACE)) {
-            reportUnexpectedToken(classIdentifier, "'(' expected after identifier in class definition");
-            return false;
-        }
 
         var classBody = parseClassBody();
 
@@ -107,10 +101,18 @@ public class Parser {
 
     // class_body = "{", { func_def | var_stmt }, "}";
     protected ClassBody parseClassBody() {
+        if (!consumeIf(TokenType.LBRACE)) {
+            reportUnexpectedTokenWithExplanation( "'{' expected at the start of class body");
+        }
+
         HashMap<String, FuncDef> methods = new HashMap<>();
         HashMap<String, VarStmt> attributes = new HashMap<>();
 
         while (parseFunDef(methods) || parseVarStmt(attributes) != null) {
+        }
+
+        if (!consumeIf(TokenType.RBRACE)) {
+            reportUnexpectedTokenWithExplanation( "'}' at the end of class body");
         }
 
         return new ClassBody(methods, attributes);

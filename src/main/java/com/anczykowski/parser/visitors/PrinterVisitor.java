@@ -51,7 +51,11 @@ public class PrinterVisitor implements Visitor {
     String additionalInfo = "";
 
     private void printIndentation() {
-        out.printf("%s ", "-".repeat(level));
+        printIndentation("-");
+    }
+
+    private void printIndentation(String repeatedString) {
+        out.printf("%s ", repeatedString.repeat(level));
         consumeAdditionalInfo();
     }
 
@@ -88,8 +92,10 @@ public class PrinterVisitor implements Visitor {
 
     @Override
     public void visit(FuncDef funcDef) {
-        printIndentation();
-        out.println("funcDef: " + funcDef.getName());
+        printIndentation("*");
+        out.printf("funcDef: %s ", funcDef.getName());
+        printIndentation("*");
+        out.println();
         level++;
         funcDef.getParams().forEach(method -> method.accept(this));
         funcDef.getCodeBLock().accept(this);

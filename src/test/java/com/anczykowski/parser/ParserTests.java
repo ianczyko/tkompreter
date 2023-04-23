@@ -207,9 +207,9 @@ class ParserTests {
         var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
             new StringToken(TokenType.IDENTIFIER, new Location(), "fun"),
             new Token(TokenType.LPAREN, new Location()),
-            new StringToken(TokenType.IDENTIFIER, new Location(), "arg1"),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "param1"),
             new Token(TokenType.COMMA, new Location()),
-            new StringToken(TokenType.IDENTIFIER, new Location(), "arg2"),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "param2"),
             new Token(TokenType.RPAREN, new Location()),
             new Token(TokenType.LBRACE, new Location()),
             new Token(TokenType.RBRACE, new Location())
@@ -225,8 +225,8 @@ class ParserTests {
         var parsedFunction = functions.get("fun");
         assertEquals("fun", parsedFunction.getName());
 
-        assertEquals("arg1", parsedFunction.getParams().get(0).getName());
-        assertEquals("arg2", parsedFunction.getParams().get(1).getName());
+        assertEquals("param1", parsedFunction.getParams().get(0).getName());
+        assertEquals("param2", parsedFunction.getParams().get(1).getName());
 
         assertTrue(parsedFunction.getCodeBLock().getStatementsAndExpressions().isEmpty());
     }

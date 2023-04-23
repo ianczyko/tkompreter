@@ -1,6 +1,7 @@
 package com.anczykowski.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -24,6 +25,7 @@ import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
+import com.anczykowski.parser.structures.expressions.FunctionCallExpression;
 import com.anczykowski.parser.structures.expressions.IdentifierExpression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
@@ -142,6 +144,37 @@ class ParserTests {
         assertEquals("aaa", first.getIdentifier());
         assertEquals("bbb", second.getIdentifier());
         assertEquals("ccc", third.getIdentifier());
+    }
+
+    @Test
+    void parseFunctionCall() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+            new StringToken(TokenType.IDENTIFIER, new Location(), "fun"),
+            new Token(TokenType.LPAREN, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "arg1"),
+            new Token(TokenType.COMMA, new Location()),
+            new Token(TokenType.REF_KEYWORD, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "arg2"),
+            new Token(TokenType.RPAREN, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var funCall = (FunctionCallExpression) parser.parseIdentOrFunCall();
+
+        // then
+        assertEquals("fun", funCall.getIdentifier());
+
+        assertFalse(funCall.getArgs().get(0).isByReference());
+        var firstArg = (IdentifierExpression) funCall.getArgs().get(0).getArgument();
+        assertEquals("arg1", firstArg.getIdentifier());
+
+        assertTrue(funCall.getArgs().get(1).isByReference());
+        var secondArg = (IdentifierExpression) funCall.getArgs().get(1).getArgument();
+        assertEquals("arg2", secondArg.getIdentifier());
     }
 
     @Test

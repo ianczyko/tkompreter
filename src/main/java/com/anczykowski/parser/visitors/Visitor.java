@@ -8,10 +8,12 @@ import com.anczykowski.parser.structures.Parameter;
 import com.anczykowski.parser.structures.Program;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AndOpArg;
+import com.anczykowski.parser.structures.expressions.Arg;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
+import com.anczykowski.parser.structures.expressions.FunctionCallExpression;
 import com.anczykowski.parser.structures.expressions.IdentifierExpression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
@@ -97,4 +99,8 @@ public interface Visitor {
     void visit(IdentifierExpression identifierExpression);
 
     void visit(ObjectAccessExpression identifierExpression);
+
+    void visit(Arg arg);
+
+    void visit(FunctionCallExpression functionCallExpression);
 }

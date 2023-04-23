@@ -10,10 +10,12 @@ import com.anczykowski.parser.structures.Parameter;
 import com.anczykowski.parser.structures.Program;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AndOpArg;
+import com.anczykowski.parser.structures.expressions.Arg;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
+import com.anczykowski.parser.structures.expressions.FunctionCallExpression;
 import com.anczykowski.parser.structures.expressions.IdentifierExpression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
@@ -156,6 +158,26 @@ public class PrinterVisitor implements Visitor {
         level++;
         objectAccessExpression.getCurrent().accept(this);
         objectAccessExpression.getChild().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(Arg arg) {
+        printIndentation();
+        printIsReturnable(arg);
+        out.println("arg: " + (arg.isByReference() ? "(by reference)" : ""));
+        level++;
+        arg.getArgument().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(FunctionCallExpression functionCallExpression) {
+        printIndentation();
+        printIsReturnable(functionCallExpression);
+        out.println("functionCallExpression: " + functionCallExpression.getIdentifier());
+        level++;
+        functionCallExpression.getArgs().forEach(arg -> arg.accept(this));
         level--;
     }
 

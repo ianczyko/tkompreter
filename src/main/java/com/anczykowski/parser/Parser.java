@@ -23,10 +23,12 @@ import com.anczykowski.parser.structures.FuncDef;
 import com.anczykowski.parser.structures.Parameter;
 import com.anczykowski.parser.structures.Program;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
+import com.anczykowski.parser.structures.expressions.Arg;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
+import com.anczykowski.parser.structures.expressions.FunctionCallExpression;
 import com.anczykowski.parser.structures.expressions.IdentifierExpression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
@@ -466,9 +468,41 @@ public class Parser {
         var identifierExpr = new IdentifierExpression(identifier);
         lexer.getNextToken();
         if (consumeIf(TokenType.LPAREN)) {
-            // TODO: fun call
+            var args = parseArgs();
+            if(!consumeIf(TokenType.RPAREN)){
+                reportUnexpectedToken("(", "unmatched ')' in function call");
+            }
+            return new FunctionCallExpression(identifier, args);
         }
         return identifierExpr;
+    }
+
+    // args = arg, {",", arg }
+    protected ArrayList<Arg> parseArgs() {
+        var args = new ArrayList<Arg>();
+        var firstArg = parseArg();
+        if (firstArg == null) return args;
+        args.add(firstArg);
+        while (consumeIf(TokenType.COMMA)) {
+            var arg = parseArg();
+            if (arg == null) {
+                reportUnexpectedToken();
+                continue;
+            }
+            args.add(arg);
+        }
+
+        return args;
+    }
+
+    // arg = ["ref"] expr;
+    protected Arg parseArg() {
+        var isByRef = consumeIf(TokenType.REF_KEYWORD);
+        var expr = parseExpr();
+        if (expr == null) {
+            return null;
+        }
+        return new Arg(expr, isByRef);
     }
 
     protected Expression parseString() {

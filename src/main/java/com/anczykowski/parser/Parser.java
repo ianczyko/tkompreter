@@ -79,7 +79,7 @@ public class Parser {
 
         if (!peekIf(TokenType.IDENTIFIER)) {
             reportUnexpectedToken("class", "class keyword must be followed by class identifier");
-            return false; // TODO: what to do in case of error (all returns)
+            return false;
         }
 
         var classIdentifier = ((StringToken) lexer.getCurrentToken()).getValue();
@@ -92,8 +92,7 @@ public class Parser {
         lexer.getNextToken();
 
         if (!consumeIf(TokenType.LBRACE)) {
-            // TODO: Underlining for missing brace?
-            reportUnexpectedToken();
+            reportUnexpectedToken(classIdentifier, "'(' expected after identifier in class definition");
             return false;
         }
 
@@ -178,20 +177,23 @@ public class Parser {
         lexer.getNextToken();
 
         if (!consumeIf(TokenType.LPAREN)) {
-            // TODO: Underlining for missing paren?
-            reportUnexpectedToken();
+            reportUnexpectedToken(funIdentifier, "'(' expected after identifier in function definition");
             return false;
         }
 
         ArrayList<Parameter> params = parseParams();
 
         if (!consumeIf(TokenType.RPAREN)) {
-            // TODO: Underlining for missing paren?
-            reportUnexpectedToken();
+            reportUnexpectedToken(funIdentifier, "unmatched ')' with '('");
             return false;
         }
 
         var codeBlock = parseCodeBlock();
+
+        if (codeBlock == null) {
+            reportUnexpectedToken(")", "code block expected after ')' in function definition");
+            return false;
+        }
 
         functions.put(funIdentifier, new FuncDef(funIdentifier, params, codeBlock));
 
@@ -201,8 +203,7 @@ public class Parser {
     // code_block = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
     protected CodeBLock parseCodeBlock() {
         if (!consumeIf(TokenType.LBRACE)) {
-            // TODO: Underlining for missing LBRACE?
-            reportUnexpectedToken();
+            return null;
         }
 
         ArrayList<Expression> statementsAndExpressions = new ArrayList<>();
@@ -215,8 +216,7 @@ public class Parser {
 
 
         if (!consumeIf(TokenType.RBRACE)) {
-            // TODO: Underlining for missing RBRACE?
-            reportUnexpectedToken();
+            reportUnexpectedTokenWithExplanation("Expected '{' to close code block");
         }
 
         return new CodeBLock(statementsAndExpressions);
@@ -801,6 +801,16 @@ public class Parser {
         errorModule.addError(ErrorElement.builder()
                                  .errorType(ErrorType.UNEXPECTED_TOKEN)
                                  .location(lexer.getCurrentLocation())
+                                 .codeLineBuffer(lexer.getCharacterBuffer())
+                                 .build());
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private void reportUnexpectedTokenWithExplanation(String explanation) {
+        errorModule.addError(ErrorElement.builder()
+                                 .errorType(ErrorType.UNEXPECTED_TOKEN)
+                                 .location(lexer.getCurrentLocation())
+                                 .explanation(explanation)
                                  .codeLineBuffer(lexer.getCharacterBuffer())
                                  .build());
     }

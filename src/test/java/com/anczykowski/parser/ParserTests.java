@@ -20,6 +20,7 @@ import com.anczykowski.lexer.StringToken;
 import com.anczykowski.lexer.Token;
 import com.anczykowski.lexer.TokenType;
 import com.anczykowski.parser.helpers.ParserHelpers;
+import com.anczykowski.parser.structures.ClassDef;
 import com.anczykowski.parser.structures.CodeBLock;
 import com.anczykowski.parser.structures.FuncDef;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
@@ -228,6 +229,46 @@ class ParserTests {
         assertEquals("arg2", parsedFunction.getParams().get(1).getName());
 
         assertTrue(parsedFunction.getCodeBLock().getStatementsAndExpressions().isEmpty());
+    }
+
+    @Test
+    void parseClassDefinition() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+            new Token(TokenType.CLASS_KEYWORD, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "Circle"),
+            new Token(TokenType.LBRACE, new Location()),
+            new Token(TokenType.VAR_KEYWORD, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "field1"),
+            new Token(TokenType.SEMICOLON, new Location()),
+
+            new StringToken(TokenType.IDENTIFIER, new Location(), "method1"),
+            new Token(TokenType.LPAREN, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "arg1"),
+            new Token(TokenType.RPAREN, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new Token(TokenType.RBRACE, new Location()),
+
+            new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        var classes = new HashMap<String, ClassDef>();
+
+        // when
+        parser.parseClassDef(classes);
+
+        // then
+        var parsedClass = classes.get("Circle");
+        assertEquals("Circle", parsedClass.getName());
+
+        var method1 = parsedClass.getClassBody().getMethods().get("method1");
+
+        assertEquals("arg1", method1.getParams().get(0).getName());
+
+        assertTrue(method1.getCodeBLock().getStatementsAndExpressions().isEmpty());
     }
 
     @Test

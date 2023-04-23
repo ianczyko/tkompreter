@@ -25,6 +25,7 @@ public enum TokenType {
     NEW_KEYWORD,
     NOT_KEYWORD,
     IN_KEYWORD,
+    REF_KEYWORD,
 
     // 1-character operators
     PLUS, MINUS, ASSIGNMENT, ASTERISK, SLASH,

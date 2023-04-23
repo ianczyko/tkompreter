@@ -177,6 +177,7 @@ public class LexerImpl implements Lexer {
             case "new" -> TokenType.NEW_KEYWORD;
             case "not" -> TokenType.NOT_KEYWORD;
             case "in" -> TokenType.IN_KEYWORD;
+            case "ref" -> TokenType.REF_KEYWORD;
             default -> null;
         };
     }

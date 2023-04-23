@@ -1,20 +1,47 @@
-var a = 4;
 
-if(a == 4) {
-    a = a + 1 * 2;
-} else {
-    a = (a + 1) * 2; // comment here
+class Circle {
+    var r;
+
+    init(radius) {
+        r = radius;
+    }
+
+    printRadius() {
+        print(r);
+    }
+
 }
 
-var lst = list(1, 2.0, new Circle(3), new Square(4));
-for(el in lst) {
-    switch(el) {
-        int -> { print("integer"); }
-        float -> { print("float"); }
-        Circle -> { print("circle"); }
-        default -> { print("other type"); }
+f2(){
+    x = 5;
+    while(true){
+        x = x - 1;
+        if(x < 0) {
+            return 0; // this will return out of f2 block
+        } else {
+            print("hello");
+        }
     }
 }
 
-var 🚀 = 'moon';
-print(🚀);
+fun(x) {
+    x = x + 1;
+    return x;
+}
+
+main() {
+    var x = 5;
+    res = fun(ref x); // res = 6, x = 6
+
+    var lst = list(1, 2.0, new Circle(3));
+    for(el in lst) {
+        switch(el) {
+            int -> { print("integer"); }
+            float -> { print("float"); }
+            Circle -> { print("circle"); }
+            default -> { print("other type"); }
+        }
+    }
+
+    return 0;
+}

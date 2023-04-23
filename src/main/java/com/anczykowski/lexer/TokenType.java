@@ -23,6 +23,7 @@ public enum TokenType {
     DEFAULT_KEYWORD,
     CLASS_KEYWORD,
     NEW_KEYWORD,
+    AS_KEYWORD,
     NOT_KEYWORD,
     IN_KEYWORD,
     REF_KEYWORD,

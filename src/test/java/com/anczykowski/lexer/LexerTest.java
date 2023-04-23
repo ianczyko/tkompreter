@@ -221,6 +221,7 @@ class LexerTest {
             Arguments.of("new", TokenType.NEW_KEYWORD),
             Arguments.of("in", TokenType.IN_KEYWORD),
             Arguments.of("ref", TokenType.REF_KEYWORD),
+            Arguments.of("as", TokenType.AS_KEYWORD),
             Arguments.of("not", TokenType.NOT_KEYWORD)
         );
     }

@@ -23,6 +23,7 @@ import com.anczykowski.parser.helpers.ParserHelpers;
 import com.anczykowski.parser.structures.CodeBLock;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
+import com.anczykowski.parser.structures.expressions.ClassInitExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FunctionCallExpression;
@@ -192,6 +193,38 @@ class ParserTests {
 
         assertTrue(funCall.getArgs().get(1).isByReference());
         var secondArg = (IdentifierExpression) funCall.getArgs().get(1).getArgument();
+        assertEquals("arg2", secondArg.getIdentifier());
+    }
+
+    @Test
+    void parseClassInit() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+            new Token(TokenType.NEW_KEYWORD, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "Circle"),
+            new Token(TokenType.LPAREN, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "arg1"),
+            new Token(TokenType.COMMA, new Location()),
+            new Token(TokenType.REF_KEYWORD, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "arg2"),
+            new Token(TokenType.RPAREN, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var classInit = (ClassInitExpression) parser.parseClassInit();
+
+        // then
+        assertEquals("Circle", classInit.getIdentifier());
+
+        assertFalse(classInit.getArgs().get(0).isByReference());
+        var firstArg = (IdentifierExpression) classInit.getArgs().get(0).getArgument();
+        assertEquals("arg1", firstArg.getIdentifier());
+
+        assertTrue(classInit.getArgs().get(1).isByReference());
+        var secondArg = (IdentifierExpression) classInit.getArgs().get(1).getArgument();
         assertEquals("arg2", secondArg.getIdentifier());
     }
 

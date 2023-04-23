@@ -12,6 +12,7 @@ import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AndOpArg;
 import com.anczykowski.parser.structures.expressions.Arg;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
+import com.anczykowski.parser.structures.expressions.ClassInitExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
@@ -179,6 +180,16 @@ public class PrinterVisitor implements Visitor {
         out.println("functionCallExpression: " + functionCallExpression.getIdentifier());
         level++;
         functionCallExpression.getArgs().forEach(arg -> arg.accept(this));
+        level--;
+    }
+
+    @Override
+    public void visit(ClassInitExpression classInitExpression) {
+        printIndentation();
+        printIsReturnable(classInitExpression);
+        out.println("classInitExpression: " + classInitExpression.getIdentifier());
+        level++;
+        classInitExpression.getArgs().forEach(arg -> arg.accept(this));
         level--;
     }
 

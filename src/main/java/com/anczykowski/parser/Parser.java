@@ -25,6 +25,7 @@ import com.anczykowski.parser.structures.Program;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.Arg;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
+import com.anczykowski.parser.structures.expressions.ClassInitExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
@@ -470,7 +471,7 @@ public class Parser {
         lexer.getNextToken();
         if (consumeIf(TokenType.LPAREN)) {
             var args = parseArgs();
-            if(!consumeIf(TokenType.RPAREN)){
+            if (!consumeIf(TokenType.RPAREN)) {
                 reportUnexpectedToken("(", "unmatched ')' in function call");
             }
             return new FunctionCallExpression(identifier, args);
@@ -507,7 +508,7 @@ public class Parser {
     }
 
     protected Expression parseString() {
-        if(!peekIf(TokenType.STRING)){
+        if (!peekIf(TokenType.STRING)) {
             return null;
         }
         var stringToken = (StringToken) lexer.getCurrentToken();
@@ -517,8 +518,27 @@ public class Parser {
 
     // class_init = "new", class_id, "(", [args], ")";
     protected Expression parseClassInit() {
-        // TODO: parseClassInit
-        return null;
+        if (!consumeIf(TokenType.NEW_KEYWORD)) {
+            return null;
+        }
+        if (!peekIf(TokenType.IDENTIFIER)) {
+            reportUnexpectedToken("new", "expected class identifier after new keyword");
+            return null;
+        }
+
+        var identifier = ((StringToken) lexer.getCurrentToken()).getValue();
+        lexer.getNextToken();
+
+        if (!consumeIf(TokenType.LPAREN)) {
+            reportUnexpectedToken(identifier, "'(' expected after identifier in class initialization");
+        }
+
+        var args = parseArgs();
+
+        if (!consumeIf(TokenType.RPAREN)) {
+            reportUnexpectedToken(identifier, "unmatched ')' in class initialization");
+        }
+        return new ClassInitExpression(identifier, args);
     }
 
     // "(", expr, ")"

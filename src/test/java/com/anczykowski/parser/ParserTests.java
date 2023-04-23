@@ -21,6 +21,7 @@ import com.anczykowski.lexer.Token;
 import com.anczykowski.lexer.TokenType;
 import com.anczykowski.parser.helpers.ParserHelpers;
 import com.anczykowski.parser.structures.CodeBLock;
+import com.anczykowski.parser.structures.FuncDef;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
 import com.anczykowski.parser.structures.expressions.CastExpression;
@@ -195,6 +196,38 @@ class ParserTests {
         assertTrue(funCall.getArgs().get(1).isByReference());
         var secondArg = (IdentifierExpression) funCall.getArgs().get(1).getArgument();
         assertEquals("arg2", secondArg.getIdentifier());
+    }
+
+    @Test
+    void parseFunctionDefinition() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+            new StringToken(TokenType.IDENTIFIER, new Location(), "fun"),
+            new Token(TokenType.LPAREN, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "arg1"),
+            new Token(TokenType.COMMA, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "arg2"),
+            new Token(TokenType.RPAREN, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        var functions = new HashMap<String, FuncDef>();
+
+        // when
+        parser.parseFunDef(functions);
+
+        // then
+        var parsedFunction = functions.get("fun");
+        assertEquals("fun", parsedFunction.getName());
+
+        assertEquals("arg1", parsedFunction.getParams().get(0).getName());
+        assertEquals("arg2", parsedFunction.getParams().get(1).getName());
+
+        assertTrue(parsedFunction.getCodeBLock().getStatementsAndExpressions().isEmpty());
     }
 
     @Test

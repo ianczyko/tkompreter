@@ -163,11 +163,11 @@ f1(x, y, z){
 }
 
 f2(){
-    int x = 5;
+    x = 5;
     while(true){
         x = x - 1;
         if(x < 0) {
-            return; // this will return out of f2 block
+            return 0; // this will return out of f2 block
         }
     }
 }

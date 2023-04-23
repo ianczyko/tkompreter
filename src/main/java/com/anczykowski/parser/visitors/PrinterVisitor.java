@@ -107,8 +107,8 @@ public class PrinterVisitor implements Visitor {
         printIndentation();
         out.println("classBody: ");
         level++;
-        classBody.getMethods().values().forEach(method -> method.accept(this));
         classBody.getAttributes().values().forEach(attr -> attr.accept(this));
+        classBody.getMethods().values().forEach(method -> method.accept(this));
         level--;
     }
 
@@ -373,9 +373,11 @@ public class PrinterVisitor implements Visitor {
     public void visit(AssignmentExpression assignmentExpression) {
         printIndentation();
         printIsReturnable(assignmentExpression);
-        out.println("assignmentExpression: (lval/rval)");
+        out.println("assignmentExpression: ");
         level++;
+        additionalInfo = "lval";
         assignmentExpression.getLval().accept(this);
+        additionalInfo = "rval";
         assignmentExpression.getRval().accept(this);
         level--;
     }
@@ -401,11 +403,14 @@ public class PrinterVisitor implements Visitor {
     public void visit(CondStmt condStmt) {
         printIndentation();
         printIsReturnable(condStmt);
-        out.println("condStmt: (cond/block/elseBlock)");
+        out.println("condStmt: ");
         level++;
+        additionalInfo = "cond";
         condStmt.getCondition().accept(this);
+        additionalInfo = "block";
         condStmt.getTrueBlock().accept(this);
         if (condStmt.getElseBlock() != null) {
+        additionalInfo = "elseBlock";
             condStmt.getElseBlock().accept(this);
         }
         level--;
@@ -426,10 +431,13 @@ public class PrinterVisitor implements Visitor {
     public void visit(ForStmt forStmt) {
         printIndentation();
         printIsReturnable(forStmt);
-        out.println("forStmt: (iterator/iterable/block)");
+        out.println("forStmt: ");
         level++;
+        additionalInfo = "iterator";
         forStmt.getIterator().accept(this);
+        additionalInfo = "iterable";
         forStmt.getIterable().accept(this);
+        additionalInfo = "block";
         forStmt.getCodeBLock().accept(this);
         level--;
     }

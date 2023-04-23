@@ -23,6 +23,7 @@ import com.anczykowski.parser.helpers.ParserHelpers;
 import com.anczykowski.parser.structures.CodeBLock;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
+import com.anczykowski.parser.structures.expressions.CastExpression;
 import com.anczykowski.parser.structures.expressions.ClassInitExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
@@ -611,6 +612,28 @@ class ParserTests {
         var negatedExpr = (NegatedExpression) expr;
         var inner = (IntegerConstantExpr) negatedExpr.getInner();
         assertEquals(1, inner.getValue());
+    }
+
+    @Test
+    void parseCastedFactor() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.AS_KEYWORD, new Location()),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "int")
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = parser.parseFactor();
+
+        // then
+        var castedExpr = (CastExpression) expr;
+        var inner = (IntegerConstantExpr) castedExpr.getInner();
+        assertEquals(1, inner.getValue());
+        assertEquals("int", castedExpr.getType());
     }
 
     @Test

@@ -25,6 +25,7 @@ import com.anczykowski.parser.structures.Program;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.Arg;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
+import com.anczykowski.parser.structures.expressions.CastExpression;
 import com.anczykowski.parser.structures.expressions.ClassInitExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
@@ -382,10 +383,17 @@ public class Parser {
             factor = parseExprParenthesized();
         }
 
-        // TODO: ["as", (type | class_id)]
-
         if (isNegated) {
             factor = new NegatedExpression(factor);
+        }
+
+        if(consumeIf(TokenType.AS_KEYWORD)){
+            if (!peekIf(TokenType.IDENTIFIER)) {
+                reportUnexpectedToken("as", "expected identifier after 'as' keyboard");
+            }
+            var identifier = ((StringToken) lexer.getCurrentToken()).getValue();
+            lexer.getNextToken();
+            factor = new CastExpression(factor, identifier);
         }
 
         return factor;

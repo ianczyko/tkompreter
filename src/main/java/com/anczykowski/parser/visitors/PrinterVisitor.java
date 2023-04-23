@@ -12,6 +12,7 @@ import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AndOpArg;
 import com.anczykowski.parser.structures.expressions.Arg;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
+import com.anczykowski.parser.structures.expressions.CastExpression;
 import com.anczykowski.parser.structures.expressions.ClassInitExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
@@ -378,6 +379,16 @@ public class PrinterVisitor implements Visitor {
         printIndentation();
         printIsReturnable(stringExpression);
         out.println("stringExpression: " + stringExpression.getValue());
+    }
+
+    @Override
+    public void visit(CastExpression castExpression) {
+        printIndentation();
+        printIsReturnable(castExpression);
+        out.printf("castedExpression: (casting to: %s)%n", castExpression.getType());
+        level++;
+        castExpression.getInner().accept(this);
+        level--;
     }
 
     @Override

@@ -10,6 +10,7 @@ import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AndOpArg;
 import com.anczykowski.parser.structures.expressions.Arg;
 import com.anczykowski.parser.structures.expressions.AssignmentExpression;
+import com.anczykowski.parser.structures.expressions.CastExpression;
 import com.anczykowski.parser.structures.expressions.ClassInitExpression;
 import com.anczykowski.parser.structures.expressions.DivisionFactor;
 import com.anczykowski.parser.structures.expressions.Expression;
@@ -109,4 +110,6 @@ public interface Visitor {
     void visit(ClassInitExpression classInitExpression);
 
     void visit(StringExpression stringExpression);
+
+    void visit(CastExpression castExpression);
 }

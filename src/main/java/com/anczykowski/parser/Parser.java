@@ -118,7 +118,7 @@ public class Parser {
         return new ClassBody(methods, attributes);
     }
 
-    // var_stmt = "var", identifier, ["=", expr], ";";
+    // var_stmt = "var", identifier, ["=", expr], ";"; // TODO: może wymusić =
     protected VarStmt parseVarStmt(HashMap<String, VarStmt> variables) {
         if (!consumeIf(TokenType.VAR_KEYWORD)) {
             return null;
@@ -137,7 +137,9 @@ public class Parser {
             return null;
         }
 
-        var varStmt = new VarStmt(varIdentifier);
+        var varStmt = new VarStmt(varIdentifier); // TODO: nie tworzyć nie potrzebnie, else niżej
+
+        // TODO: zamiast varstmt initial, może assignment z lval z varstmt ?
 
         lexer.getNextToken();
 
@@ -175,29 +177,30 @@ public class Parser {
 
         if (functions.containsKey(funIdentifier)) {
             reportAlreadyDeclared(funIdentifier);
-            return false;
+            return false; // TODO: iść dalej tylko nie dorzucać na końcu
         }
 
         lexer.getNextToken();
 
         if (!consumeIf(TokenType.LPAREN)) {
             reportUnexpectedToken(funIdentifier, "'(' expected after identifier in function definition");
-            return false;
         }
 
         ArrayList<Parameter> params = parseParams();
 
         if (!consumeIf(TokenType.RPAREN)) {
             reportUnexpectedToken(funIdentifier, "unmatched ')' with '('");
-            return false;
         }
 
         var codeBlock = parseCodeBlock();
 
         if (codeBlock == null) {
             reportUnexpectedToken(")", "code block expected after ')' in function definition");
+            // TODO: może rzucić wyjątkiem i nie kontynuować?
             return false;
         }
+
+        // TODO: przenieść pierwszy reportAlreadyDeclared tutaj
 
         functions.put(funIdentifier, new FuncDef(funIdentifier, params, codeBlock));
 
@@ -206,6 +209,8 @@ public class Parser {
 
     // code_block = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
     protected CodeBLock parseCodeBlock() {
+        // TODO: przekazywać parametry do codeBlock ?
+
         if (!consumeIf(TokenType.LBRACE)) {
             return null;
         }
@@ -226,7 +231,7 @@ public class Parser {
         return new CodeBLock(statementsAndExpressions);
     }
 
-    // ["return"], expr, ["=", expr], ";"
+    // ["return"], expr, ["=", expr], ";" // TODO: return wydzielić, żeby expr mogło być nullowalne
     protected boolean parseExprInsideCodeBlock(ArrayList<Expression> statementsAndExpressions) {
         var isReturn = consumeIf(TokenType.RETURN_KEYWORD);
 
@@ -244,7 +249,7 @@ public class Parser {
             }
         }
 
-        expression.setReturn(isReturn);
+        expression.setReturn(isReturn); // TODO: opakować w ReturnExpression
 
         statementsAndExpressions.add(expression);
 
@@ -263,7 +268,7 @@ public class Parser {
         while (consumeIf(TokenType.OR_KEYWORD)) {
             var right = parseOrOpArg();
             if (right == null) {
-                reportUnexpectedToken();
+                reportUnexpectedToken(); // TODO: więcej opisu
                 continue;
             }
             left = new OrExpression(left, right);
@@ -303,6 +308,9 @@ public class Parser {
                 reportUnexpectedToken();
                 return left;
             }
+
+            // TODO: w jednym miejscu mapowanie, mapka na konstruktor
+
             left = switch (operatorToken) {
                 case EQ -> new EqRelOpArg(left, right);
                 case NE -> new NeRelOpArg(left, right);
@@ -330,7 +338,7 @@ public class Parser {
 
     private static final Set<TokenType> addOp = new HashSet<>(Arrays.asList(TokenType.PLUS, TokenType.MINUS));
 
-    // rel_op_arg = term, { add_op, term };
+    // rel_op_arg = term, { add_op, term }; // TODO: rel_op_arg nie jest argumentem a reprezentuje jakiś expression
     protected Expression parseRelOpArg() {
         var left = parseTerm();
         if (left == null) return null;
@@ -385,6 +393,15 @@ public class Parser {
             factor = parseExprParenthesized();
         }
 
+        if (factor == null && !isNegated) {
+            return null;
+        }
+
+        if (factor == null) {
+            reportUnexpectedTokenWithExplanation("negation must be followed by inner factor or parenthesized expression");
+            return null;
+        }
+
         if (isNegated) {
             factor = new NegatedExpression(factor);
         }
@@ -403,7 +420,7 @@ public class Parser {
 
     // factor_inner = constant | obj_access | string | class_init;
     protected Expression parseFactorInner() {
-        var inner = parseConstant();
+        var inner = parseConstant(); // TODO: sprawdzić, czy || z nullem zadziała
         if (inner == null) {
             inner = parseObjAccess();
         }
@@ -452,12 +469,12 @@ public class Parser {
             return null;
         }
 
-        var accessChildren = new ArrayDeque<Expression>();
+        var accessChildren = new ArrayDeque<Expression>(); // TODO: odwrotna kolejność
         accessChildren.push(objAccess);
         while (consumeIf(TokenType.PERIOD)) {
             var child = parseIdentOrFunCall();
             if (child == null) {
-                reportUnexpectedToken();
+                reportUnexpectedToken(); // TODO: rozwinąć
             } else {
                 accessChildren.push(child);
             }
@@ -498,7 +515,7 @@ public class Parser {
         while (consumeIf(TokenType.COMMA)) {
             var arg = parseArg();
             if (arg == null) {
-                reportUnexpectedToken();
+                reportUnexpectedToken(); // TODO: rozwinąć informacje o błędzie
                 continue;
             }
             args.add(arg);
@@ -513,6 +530,7 @@ public class Parser {
         var expr = parseExpr();
         if (expr == null) {
             return null;
+            // TODO:  w zależności czy było ref, czy nie zgłaszać błąd
         }
         return new Arg(expr, isByRef);
     }
@@ -558,11 +576,11 @@ public class Parser {
         }
         var expr = parseExpr();
         if (expr == null) {
-            reportUnexpectedToken();
+            reportUnexpectedToken(); // TODO: więcej informacji
             return null;
         }
         if (!consumeIf(TokenType.RPAREN)) {
-            reportUnexpectedToken();
+            reportUnexpectedToken(); // TODO: więcej informacji
         }
         return expr;
     }
@@ -646,6 +664,7 @@ public class Parser {
 
         if (condition == null) {
             reportUnexpectedToken("(", "expression expected after '(' in while statement");
+            // TODO: krytyczny
             return null;
         }
 
@@ -678,7 +697,7 @@ public class Parser {
         }
 
         var iteratorIdentifier = ((StringToken) lexer.getCurrentToken()).getValue();
-        if (variables.containsKey(iteratorIdentifier)) {
+        if (variables.containsKey(iteratorIdentifier)) { // TODO: // zrezygnować na tym etapie
             reportAlreadyDeclared(iteratorIdentifier);
         }
         var iteratorVar = new VarStmt(iteratorIdentifier);
@@ -738,7 +757,7 @@ public class Parser {
         Map<String, CodeBLock> switchElements = new HashMap<>();
 
         while (peekIf(TokenType.IDENTIFIER) || peekIf(TokenType.DEFAULT_KEYWORD)) {
-            String label = "default";
+            String label = "default"; // TODO: obrać w obiekt?
             if (peekIf(TokenType.IDENTIFIER)) {
                 label = ((StringToken) lexer.getCurrentToken()).getValue();
             }
@@ -755,7 +774,7 @@ public class Parser {
                 continue;
             }
 
-            switchElements.put(label, codeBlock);
+            switchElements.put(label, codeBlock); // TODO: sprawdzić czy nie duplikat
         }
 
         if (!consumeIf(TokenType.RBRACE)) {
@@ -776,7 +795,7 @@ public class Parser {
         lexer.getNextToken();
         while (consumeIf(TokenType.COMMA)) {
             if (!peekIf(TokenType.IDENTIFIER)) {
-                reportUnexpectedToken();
+                reportUnexpectedToken(",", "expected token after ',' in parameters");
                 continue;
             }
             params.add(new Parameter(((StringToken) lexer.getCurrentToken()).getValue()));

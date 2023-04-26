@@ -156,8 +156,7 @@ public class Parser {
 
         if (codeBlock == null) {
             reportUnexpectedToken(")", "code block expected after ')' in function definition");
-            // TODO: może rzucić wyjątkiem i nie kontynuować?
-            return false;
+            throw new ParserException();
         }
 
         // TODO: przenieść pierwszy reportAlreadyDeclared tutaj
@@ -584,7 +583,7 @@ public class Parser {
 
         if (condition == null) {
             reportUnexpectedToken("(", "expression expected after '(' in if statement");
-            return null;
+            throw new ParserException();
         }
 
         if (!consumeIf(TokenType.RPAREN)) {
@@ -672,7 +671,7 @@ public class Parser {
 
         if (iterable == null) {
             reportUnexpectedToken("in", "expression expected after 'in' in for statement");
-            return null;
+            throw new ParserException();
         }
 
         if (!consumeIf(TokenType.RPAREN)) {
@@ -702,7 +701,7 @@ public class Parser {
 
         if (expr == null) {
             reportUnexpectedToken("(", "expression expected after '(' in switch statement");
-            return null;
+            throw new ParserException();
         }
 
         if (!consumeIf(TokenType.RPAREN)) {

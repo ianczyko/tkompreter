@@ -3,6 +3,7 @@ package com.anczykowski.parser;
 import com.anczykowski.errormodule.ErrorElement;
 import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.errormodule.ErrorType;
+import com.anczykowski.errormodule.exceptions.ParserException;
 import com.anczykowski.lexer.*;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
@@ -20,7 +21,7 @@ public class Parser {
     final ErrorModule errorModule;
 
     // program = { func_def | class_def };
-    public Program parse() {
+    public Program parse() throws ParserException {
         HashMap<String, FuncDef> functions = new HashMap<>();
         HashMap<String, ClassDef> classes = new HashMap<>();
 
@@ -33,7 +34,7 @@ public class Parser {
     }
 
     // class_def = "class", class_id, class_body;
-    protected boolean parseClassDef(HashMap<String, ClassDef> classes) {
+    protected boolean parseClassDef(HashMap<String, ClassDef> classes) throws ParserException {
         if (!consumeIf(TokenType.CLASS_KEYWORD)) {
             return false;
         }
@@ -59,7 +60,7 @@ public class Parser {
     }
 
     // class_body = "{", { func_def | var_stmt }, "}";
-    protected ClassBody parseClassBody() {
+    protected ClassBody parseClassBody() throws ParserException {
         if (!consumeIf(TokenType.LBRACE)) {
             reportUnexpectedTokenWithExplanation("'{' expected at the start of class body");
         }
@@ -127,7 +128,7 @@ public class Parser {
     }
 
     // func_def = identifier, "(", [parameters], ")", code_block;
-    protected boolean parseFunDef(HashMap<String, FuncDef> functions) {
+    protected boolean parseFunDef(HashMap<String, FuncDef> functions) throws ParserException {
         if (!peekIf(TokenType.IDENTIFIER)) {
             return false;
         }
@@ -167,7 +168,7 @@ public class Parser {
     }
 
     // code_block = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
-    protected CodeBLock parseCodeBlock() {
+    protected CodeBLock parseCodeBlock() throws ParserException {
         // TODO: przekazywać parametry do codeBlock ?
 
         if (!consumeIf(TokenType.LBRACE)) {
@@ -547,7 +548,7 @@ public class Parser {
     // non_ret_stmt = var_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
     protected boolean parseNonRetStmt(
             HashMap<String, VarStmt> variables, ArrayList<Expression> statementsAndExpressions
-    ) {
+    ) throws ParserException {
         Expression nonRetStmt = parseVarStmt(variables);
         if (nonRetStmt == null) {
             nonRetStmt = parseConditionalStmt();
@@ -570,7 +571,7 @@ public class Parser {
     }
 
     // cond_stmt = "if", "(", expr, ")", code_block, ["else", code_block];
-    protected Expression parseConditionalStmt() {
+    protected Expression parseConditionalStmt() throws ParserException {
         if (!consumeIf(TokenType.IF_KEYWORD)) {
             return null;
         }
@@ -610,7 +611,7 @@ public class Parser {
     }
 
     // while_stmt = "while", "(", expr, ")", code_block;
-    protected Expression parseWhileStmt() {
+    protected Expression parseWhileStmt() throws ParserException {
         if (!consumeIf(TokenType.WHILE_KEYWORD)) {
             return null;
         }
@@ -623,8 +624,7 @@ public class Parser {
 
         if (condition == null) {
             reportUnexpectedToken("(", "expression expected after '(' in while statement");
-            // TODO: krytyczny
-            return null;
+            throw new ParserException();
         }
 
         if (!consumeIf(TokenType.RPAREN)) {
@@ -641,7 +641,7 @@ public class Parser {
     }
 
     // for_stmt = "for", "(", identifier, "in", expr, ")", code_block;
-    protected Expression parseForStmt(HashMap<String, VarStmt> variables) {
+    protected Expression parseForStmt(HashMap<String, VarStmt> variables) throws ParserException {
         if (!consumeIf(TokenType.FOR_KEYWORD)) {
             return null;
         }
@@ -689,7 +689,7 @@ public class Parser {
     }
 
     // switch_stmt = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";
-    protected Expression parseSwitchStmt() {
+    protected Expression parseSwitchStmt() throws ParserException {
         if (!consumeIf(TokenType.SWITCH_KEYWORD)) {
             return null;
         }

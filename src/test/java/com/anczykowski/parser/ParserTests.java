@@ -1,15 +1,11 @@
 package com.anczykowski.parser;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import com.anczykowski.errormodule.ErrorModule;
@@ -49,8 +45,11 @@ import com.anczykowski.parser.structures.statements.SwitchStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import com.anczykowski.parser.structures.statements.WhileStmt;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 class ParserTests {
     @Test
+    @SneakyThrows
     void parseProgram() {
         // given
         var errorModule = new ErrorModule();
@@ -59,14 +58,18 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var program = parser.parse();
+        assertDoesNotThrow( () -> {
+            var program = parser.parse();
 
-        // then
-        assertTrue(program.getClasses().isEmpty());
-        assertTrue(program.getFunctions().isEmpty());
+            // then
+            assertTrue(program.getClasses().isEmpty());
+            assertTrue(program.getFunctions().isEmpty());
+        });
+
     }
 
     @Test
+    @SneakyThrows
     void parseCodeBlockEmpty() {
         // given
         var errorModule = new ErrorModule();
@@ -86,6 +89,7 @@ class ParserTests {
     // TODO: non empty code block
 
     @Test
+    @SneakyThrows
     void parseIdentifier() {
         // given
         var errorModule = new ErrorModule();
@@ -103,6 +107,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseStringExpr() {
         // given
         var errorModule = new ErrorModule();
@@ -120,6 +125,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseObjAccess() {
         // given
         var errorModule = new ErrorModule();
@@ -142,6 +148,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseObjAccessDeeper() {
         // given
         var errorModule = new ErrorModule();
@@ -169,6 +176,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseFunctionCall() {
         // given
         var errorModule = new ErrorModule();
@@ -200,6 +208,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseFunctionDefinition() {
         // given
         var errorModule = new ErrorModule();
@@ -232,6 +241,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseClassDefinition() {
         // given
         var errorModule = new ErrorModule();
@@ -272,6 +282,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseClassInit() {
         // given
         var errorModule = new ErrorModule();
@@ -304,6 +315,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseParamsOne() {
         // given
         var errorModule = new ErrorModule();
@@ -322,6 +334,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseFloatConstant() {
         // given
         var errorModule = new ErrorModule();
@@ -339,6 +352,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseIntegerConstant() {
         // given
         var errorModule = new ErrorModule();
@@ -356,6 +370,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseAddition() {
         // given
         var errorModule = new ErrorModule();
@@ -376,6 +391,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseSubtraction() {
         // given
         var errorModule = new ErrorModule();
@@ -396,6 +412,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseMultiplication() {
         // given
         var errorModule = new ErrorModule();
@@ -416,6 +433,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseDivision() {
         // given
         var errorModule = new ErrorModule();
@@ -436,6 +454,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void testAdditionMultiplicationOrder() {
         // given
         var errorModule = new ErrorModule();
@@ -463,6 +482,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void testAdditionMultiplicationOrderParenthesized() {
         // given
         var errorModule = new ErrorModule();
@@ -492,6 +512,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseEq() {
         // given
         var errorModule = new ErrorModule();
@@ -514,6 +535,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseNe() {
         // given
         var errorModule = new ErrorModule();
@@ -536,6 +558,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseLt() {
         // given
         var errorModule = new ErrorModule();
@@ -558,6 +581,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseLe() {
         // given
         var errorModule = new ErrorModule();
@@ -580,6 +604,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseGt() {
         // given
         var errorModule = new ErrorModule();
@@ -602,6 +627,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseGe() {
         // given
         var errorModule = new ErrorModule();
@@ -624,6 +650,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseVarWithAssignment() {
         // given
         var errorModule = new ErrorModule();
@@ -648,6 +675,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseExprWithReturn() {
         // given
         var errorModule = new ErrorModule();
@@ -669,6 +697,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseNegatedFactor() {
         // given
         var errorModule = new ErrorModule();
@@ -689,6 +718,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseCastedFactor() {
         // given
         var errorModule = new ErrorModule();
@@ -711,6 +741,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseAssignmentExpression() {
         // given
         var errorModule = new ErrorModule();
@@ -735,6 +766,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseConditionalStatement() {
         // given
         var errorModule = new ErrorModule();
@@ -765,6 +797,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseConditionalStatementWithElseBlock() {
         // given
         var errorModule = new ErrorModule();
@@ -801,6 +834,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseWhileStmt() {
         // given
         var errorModule = new ErrorModule();
@@ -829,6 +863,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseForStmt() {
         // given
         var errorModule = new ErrorModule();
@@ -862,6 +897,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseSwitchStmtDefault() {
         // given
         var errorModule = new ErrorModule();
@@ -897,6 +933,7 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
     void parseSwitchStmtDefaultAndIntLabel() {
         // given
         var errorModule = new ErrorModule();

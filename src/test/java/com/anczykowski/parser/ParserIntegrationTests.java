@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
 import com.anczykowski.errormodule.ErrorModule;
@@ -22,6 +23,7 @@ import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 class ParserIntegrationTests {
 
     @Test
+    @SneakyThrows
     void parseProgramWithFunction() {
         // given
         var errorModule = new ErrorModule();
@@ -45,6 +47,7 @@ class ParserIntegrationTests {
     }
 
     @Test
+    @SneakyThrows
     void parseProgramWithFunctionWithParam() {
         // given
         var errorModule = new ErrorModule();
@@ -70,6 +73,7 @@ class ParserIntegrationTests {
     }
 
     @Test
+    @SneakyThrows
     void parseProgramWithFunctionWithParams() {
         // given
         var errorModule = new ErrorModule();
@@ -98,6 +102,7 @@ class ParserIntegrationTests {
     }
 
     @Test
+    @SneakyThrows
     void parseProgramWithClass() {
         // given
         var errorModule = new ErrorModule();
@@ -120,6 +125,7 @@ class ParserIntegrationTests {
     }
 
     @Test
+    @SneakyThrows
     void parseProgramWithClassWithAttributes() {
         // given
         var errorModule = new ErrorModule();
@@ -147,6 +153,7 @@ class ParserIntegrationTests {
     }
 
     @Test
+    @SneakyThrows
     void parseProgramWithFunctionWithBody() {
         // given
         var errorModule = new ErrorModule();

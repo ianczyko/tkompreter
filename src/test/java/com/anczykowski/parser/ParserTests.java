@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import com.anczykowski.errormodule.exceptions.ParserException;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -238,6 +239,32 @@ class ParserTests {
         assertEquals("param2", parsedFunction.getParams().get(1).getName());
 
         assertTrue(parsedFunction.getCodeBLock().getStatementsAndExpressions().isEmpty());
+    }
+
+    @Test
+    void parseFunctionDefinitionThrows() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new StringToken(TokenType.IDENTIFIER, new Location(), "fun"),
+                new Token(TokenType.LPAREN, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "param1"),
+                new Token(TokenType.COMMA, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "param2"),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        var functions = new HashMap<String, FuncDef>();
+
+        // then
+        assertThrows(ParserException.class, () -> {
+            // when
+            parser.parseFunDef(functions);
+        });
+        assertFalse(errorModule.getErrors().isEmpty());
     }
 
     @Test
@@ -797,6 +824,27 @@ class ParserTests {
     }
 
     @Test
+    void parseConditionalStatementThrows() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.IF_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when, then
+        assertThrows(ParserException.class, parser::parseConditionalStmt);
+        assertFalse(errorModule.getErrors().isEmpty());
+    }
+
+    @Test
     @SneakyThrows
     void parseConditionalStatementWithElseBlock() {
         // given
@@ -863,6 +911,27 @@ class ParserTests {
     }
 
     @Test
+    void parseWhileStmtThrows() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.WHILE_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when, then
+        assertThrows(ParserException.class, parser::parseWhileStmt);
+        assertFalse(errorModule.getErrors().isEmpty());
+    }
+
+    @Test
     @SneakyThrows
     void parseForStmt() {
         // given
@@ -894,6 +963,30 @@ class ParserTests {
         assertEquals("iter", iterator.getName());
         assertEquals(1, iterable.getValue());
         assertEquals(2, codeBlockFirstStmt.getValue());
+    }
+
+    @Test
+    void parseForStmtThrows() {
+        // given
+        var errorModule = new ErrorModule();
+        var variables = new HashMap<String, VarStmt>();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.FOR_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "iter"),
+                new Token(TokenType.IN_KEYWORD, new Location()),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when, then
+        assertThrows(ParserException.class, () -> parser.parseForStmt(variables));
+        assertFalse(errorModule.getErrors().isEmpty());
     }
 
     @Test
@@ -930,6 +1023,33 @@ class ParserTests {
         assertTrue(switchElements.containsKey("default"));
         var defFirstExpr = (IntegerConstantExpr) switchElements.get("default").getStatementsAndExpressions().get(0);
         assertEquals(2, defFirstExpr.getValue());
+    }
+
+    @Test
+    void parseSwitchStmtThrows() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.SWITCH_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+
+                new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+                new Token(TokenType.ARROW, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location()),
+
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when, then
+        assertThrows(ParserException.class, parser::parseSwitchStmt);
+        assertFalse(errorModule.getErrors().isEmpty());
     }
 
     @Test

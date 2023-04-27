@@ -723,7 +723,11 @@ public class Parser {
                 continue;
             }
 
-            switchElements.put(label, codeBlock); // TODO: sprawdzić czy nie duplikat
+            if(switchElements.containsKey(label)){
+                reportDuplicateLabel(label);
+                continue;
+            }
+            switchElements.put(label, codeBlock);
         }
 
         if (!consumeIf(TokenType.RBRACE)) {
@@ -768,6 +772,15 @@ public class Parser {
     private void reportAlreadyDeclared(String identifier) {
         errorModule.addError(ErrorElement.builder()
                 .errorType(ErrorType.ALREADY_DECLARED)
+                .location(lexer.getCurrentLocation())
+                .codeLineBuffer(lexer.getCharacterBuffer())
+                .underlineFragment(identifier)
+                .build());
+    }
+
+    private void reportDuplicateLabel(String identifier) {
+        errorModule.addError(ErrorElement.builder()
+                .errorType(ErrorType.DUPLICATE_LABEL)
                 .location(lexer.getCurrentLocation())
                 .codeLineBuffer(lexer.getCharacterBuffer())
                 .underlineFragment(identifier)

@@ -12,6 +12,7 @@ import com.anczykowski.parser.structures.statements.*;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
+import java.util.function.BiFunction;
 
 @SuppressWarnings("StatementWithEmptyBody")
 @RequiredArgsConstructor
@@ -247,41 +248,36 @@ public class Parser {
         return left;
     }
 
-    private static final Set<TokenType> relOp = new HashSet<>(
-            Arrays.asList(TokenType.EQ, TokenType.NE, TokenType.LT, TokenType.LE, TokenType.GT, TokenType.GE));
+    private static final Map<TokenType, BiFunction<Expression, Expression, Expression>> relOps = Map.of(
+        TokenType.EQ, EqRelOpArg::new,
+        TokenType.NE, NeRelOpArg::new,
+        TokenType.LT, LtRelOpArg::new,
+        TokenType.LE, LeRelOpArg::new,
+        TokenType.GT, GtRelOpArg::new,
+        TokenType.GE, GeRelOpArg::new
+    );
 
     // and_op_arg = rel_op_arg, [rel_operator, rel_op_arg];
     protected Expression parseAndOpArg() {
         var left = parseRelOpArg();
         if (left == null) return null;
 
-        if (relOp.contains(lexer.getCurrentToken().getType())) {
-            var operatorToken = lexer.getCurrentToken().getType();
+        if (relOps.containsKey(lexer.getCurrentToken().getType())) {
+            var relOpConstructor = relOps.get(lexer.getCurrentToken().getType());
             lexer.getNextToken();
             var right = parseRelOpArg();
             if (right == null) {
                 reportUnexpectedTokenWithExplanation("expected expression after relation operator");
                 return left;
             }
-
-            // TODO: w jednym miejscu mapowanie, mapka na konstruktor
-
-            left = switch (operatorToken) {
-                case EQ -> new EqRelOpArg(left, right);
-                case NE -> new NeRelOpArg(left, right);
-                case LT -> new LtRelOpArg(left, right);
-                case LE -> new LeRelOpArg(left, right);
-                case GT -> new GtRelOpArg(left, right);
-                case GE -> new GeRelOpArg(left, right);
-                default -> throw new IllegalStateException(operatorToken.toString());
-            };
+            left = relOpConstructor.apply(left, right);
         }
 
-        if (relOp.contains(lexer.getCurrentToken().getType())) {
+        if (relOps.containsKey(lexer.getCurrentToken().getType())) {
             reportUnsupportedChaining();
             // consume all unsupported chains (e.g.: a > b > c)
-            while (relOp.contains(lexer.getCurrentToken().getType()) || parseRelOpArg() != null) {
-                if (relOp.contains(lexer.getCurrentToken().getType())) {
+            while (relOps.containsKey(lexer.getCurrentToken().getType()) || parseRelOpArg() != null) {
+                if (relOps.containsKey(lexer.getCurrentToken().getType())) {
                     lexer.getNextToken();
                 }
             }
@@ -291,50 +287,49 @@ public class Parser {
         return left;
     }
 
-    private static final Set<TokenType> addOp = new HashSet<>(Arrays.asList(TokenType.PLUS, TokenType.MINUS));
+    private static final Map<TokenType, BiFunction<Expression, Expression, Expression>> addOps = Map.of(
+            TokenType.PLUS, AdditionTerm::new,
+            TokenType.MINUS, SubtractionTerm::new
+    );
+
 
     // rel_op_arg = term, { add_op, term }; // TODO: rel_op_arg nie jest argumentem a reprezentuje jakiś expression
     protected Expression parseRelOpArg() {
         var left = parseTerm();
         if (left == null) return null;
 
-        while (addOp.contains(lexer.getCurrentToken().getType())) {
-            var operatorToken = lexer.getCurrentToken().getType();
+        while (addOps.containsKey(lexer.getCurrentToken().getType())) {
+            var addOpConstructor = addOps.get(lexer.getCurrentToken().getType());
             lexer.getNextToken();
             var right = parseTerm();
             if (right == null) {
                 reportUnexpectedTokenWithExplanation("expected expression after additive operator");
                 continue;
             }
-            left = switch (operatorToken) {
-                case PLUS -> new AdditionTerm(left, right);
-                case MINUS -> new SubtractionTerm(left, right);
-                default -> throw new IllegalStateException(operatorToken.toString());
-            };
+            left = addOpConstructor.apply(left, right);
         }
         return left;
     }
 
-    private static final Set<TokenType> multOp = new HashSet<>(Arrays.asList(TokenType.ASTERISK, TokenType.SLASH));
+    private static final Map<TokenType, BiFunction<Expression, Expression, Expression>> multOps = Map.of(
+            TokenType.ASTERISK, MultiplicationFactor::new,
+            TokenType.SLASH, DivisionFactor::new
+    );
 
     // term = factor, { mult_op, factor };
     protected Expression parseTerm() {
         var left = parseFactor();
         if (left == null) return null;
 
-        while (multOp.contains(lexer.getCurrentToken().getType())) {
-            var operatorToken = lexer.getCurrentToken().getType();
+        while (multOps.containsKey(lexer.getCurrentToken().getType())) {
+            var multOpConstructor = multOps.get(lexer.getCurrentToken().getType());
             lexer.getNextToken();
             var right = parseFactor();
             if (right == null) {
                 reportUnexpectedTokenWithExplanation("expected expression after multiplicative operator");
                 continue;
             }
-            left = switch (operatorToken) {
-                case ASTERISK -> new MultiplicationFactor(left, right);
-                case SLASH -> new DivisionFactor(left, right);
-                default -> throw new IllegalStateException(operatorToken.toString());
-            };
+            left = multOpConstructor.apply(left, right);
         }
         return left;
     }

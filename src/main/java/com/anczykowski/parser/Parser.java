@@ -370,7 +370,7 @@ public class Parser {
 
     // factor_inner = constant | obj_access | string | class_init;
     protected Expression parseFactorInner() {
-        var inner = parseConstant(); // TODO: sprawdzić, czy || z nullem zadziała
+        var inner = parseConstant();
         if (inner == null) {
             inner = parseObjAccess();
         }

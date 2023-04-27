@@ -135,11 +135,6 @@ public class Parser {
 
         var funIdentifier = ((StringToken) lexer.getCurrentToken()).getValue();
 
-        if (functions.containsKey(funIdentifier)) {
-            reportAlreadyDeclared(funIdentifier);
-            return false; // TODO: iść dalej tylko nie dorzucać na końcu
-        }
-
         lexer.getNextToken();
 
         if (!consumeIf(TokenType.LPAREN)) {
@@ -159,10 +154,11 @@ public class Parser {
             throw new ParserException();
         }
 
-        // TODO: przenieść pierwszy reportAlreadyDeclared tutaj
-
+        if (functions.containsKey(funIdentifier)) {
+            reportAlreadyDeclared(funIdentifier);
+            return false;
+        }
         functions.put(funIdentifier, new FuncDef(funIdentifier, params, codeBlock));
-
         return true;
     }
 

@@ -419,14 +419,14 @@ public class Parser {
             return null;
         }
 
-        var accessChildren = new ArrayDeque<Expression>(); // TODO: odwrotna kolejność
-        accessChildren.push(objAccess);
+        var accessChildren = new ArrayDeque<Expression>();
+        accessChildren.add(objAccess);
         while (consumeIf(TokenType.PERIOD)) {
             var child = parseIdentOrFunCall();
             if (child == null) {
                 reportUnexpectedToken(".", "expected identifier or function call after '.'");
             } else {
-                accessChildren.push(child);
+                accessChildren.add(child);
             }
         }
 

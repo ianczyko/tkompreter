@@ -144,8 +144,8 @@ class ParserTests {
         // then
         var first = (IdentifierExpression) objAccess.getCurrent();
         var second = (IdentifierExpression) objAccess.getChild();
-        assertEquals("aaa", first.getIdentifier());
-        assertEquals("bbb", second.getIdentifier());
+        assertEquals("bbb", first.getIdentifier());
+        assertEquals("aaa", second.getIdentifier());
     }
 
     @Test
@@ -171,9 +171,9 @@ class ParserTests {
         var child = (ObjectAccessExpression) objAccess.getChild();
         var second = (IdentifierExpression) child.getCurrent();
         var third = (IdentifierExpression) child.getChild();
-        assertEquals("aaa", first.getIdentifier());
+        assertEquals("ccc", first.getIdentifier());
         assertEquals("bbb", second.getIdentifier());
-        assertEquals("ccc", third.getIdentifier());
+        assertEquals("aaa", third.getIdentifier());
     }
 
     @Test

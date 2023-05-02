@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.anczykowski.errormodule.exceptions.ParserException;
 import com.anczykowski.parser.structures.SwitchLabel;
+import com.anczykowski.parser.structures.expressions.*;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -21,20 +22,6 @@ import com.anczykowski.parser.helpers.ParserHelpers;
 import com.anczykowski.parser.structures.ClassDef;
 import com.anczykowski.parser.structures.CodeBLock;
 import com.anczykowski.parser.structures.FuncDef;
-import com.anczykowski.parser.structures.expressions.AdditionTerm;
-import com.anczykowski.parser.structures.expressions.AssignmentExpression;
-import com.anczykowski.parser.structures.expressions.CastExpression;
-import com.anczykowski.parser.structures.expressions.ClassInitExpression;
-import com.anczykowski.parser.structures.expressions.DivisionFactor;
-import com.anczykowski.parser.structures.expressions.Expression;
-import com.anczykowski.parser.structures.expressions.FunctionCallExpression;
-import com.anczykowski.parser.structures.expressions.IdentifierExpression;
-import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
-import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
-import com.anczykowski.parser.structures.expressions.NegatedExpression;
-import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
-import com.anczykowski.parser.structures.expressions.StringExpression;
-import com.anczykowski.parser.structures.expressions.SubtractionTerm;
 import com.anczykowski.parser.structures.expressions.relops.EqRelExpr;
 import com.anczykowski.parser.structures.expressions.relops.GeRelExpr;
 import com.anczykowski.parser.structures.expressions.relops.GtRelExpr;
@@ -719,11 +706,11 @@ class ParserTests {
 
         // when
         var statementsAndExpressions = new ArrayList<Expression>();
-        parser.parseExprInsideCodeBlock(statementsAndExpressions);
+        parser.parseRetStmt(statementsAndExpressions);
 
         // then
-        var expr = statementsAndExpressions.get(0);
-        assertTrue(expr.isReturn());
+        var expr = (ReturnExpression) statementsAndExpressions.get(0);
+        assertEquals(1, ((IntegerConstantExpr) expr.getInner()).getValue());
     }
 
     @Test
@@ -779,7 +766,8 @@ class ParserTests {
         var lexer = ParserHelpers.thereIsLexer(List.of(
             new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
             new Token(TokenType.ASSIGNMENT, new Location()),
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.SEMICOLON, new Location())
         ));
         var parser = new Parser(lexer, errorModule);
 

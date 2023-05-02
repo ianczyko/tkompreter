@@ -26,7 +26,8 @@ for_stmt           = "for", "(", identifier, "in", expr, ")", code_block;
 switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";
 
 program            = { func_def | class_def };
-code_block         = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
+code_block         = "{", { non_ret_stmt | ret_stmt | expr, ["=", expr], ";" }, "}";
+ret_stmt           = "return", [expr], ";"
 parameters         = identifier, { ",", identifier };
 non_ret_stmt       = var_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
 class_body         = "{", { func_def | var_stmt }, "}";

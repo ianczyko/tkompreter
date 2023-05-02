@@ -81,4 +81,6 @@ public interface Visitor {
     void visit(CastExpression castExpression);
 
     void visit(SwitchLabel switchLabel);
+
+    void visit(ReturnExpression returnExpression);
 }

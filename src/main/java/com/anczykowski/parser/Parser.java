@@ -163,7 +163,7 @@ public class Parser {
         return true;
     }
 
-    // code_block = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
+    // code_block = "{", { non_ret_stmt | ret_stmt | expr, ["=", expr], ";" }, "}";
     protected CodeBLock parseCodeBlock() throws ParserException {
         // TODO: przekazywać parametry do codeBlock ?
 
@@ -175,8 +175,10 @@ public class Parser {
 
         HashMap<String, VarStmt> variables = new HashMap<>();
 
-        while (parseNonRetStmt(variables, statementsAndExpressions) || parseExprInsideCodeBlock(
-                statementsAndExpressions)) {
+        while (parseNonRetStmt(variables, statementsAndExpressions)
+                || parseRetStmt(statementsAndExpressions)
+                || parseExprInsideCodeBlock(statementsAndExpressions)
+        ) {
         }
 
 
@@ -187,10 +189,25 @@ public class Parser {
         return new CodeBLock(statementsAndExpressions);
     }
 
-    // ["return"], expr, ["=", expr], ";" // TODO: return wydzielić, żeby expr mogło być nullowalne
-    protected boolean parseExprInsideCodeBlock(ArrayList<Expression> statementsAndExpressions) {
-        var isReturn = consumeIf(TokenType.RETURN_KEYWORD);
+    // ret_stmt = "return", [expr], ";"
+    protected boolean parseRetStmt(ArrayList<Expression> statementsAndExpressions) {
+        if(!consumeIf(TokenType.RETURN_KEYWORD)){
+            return false;
+        }
 
+        var expression = parseExpr();
+        var returnExpression = new ReturnExpression(expression);
+        statementsAndExpressions.add(returnExpression);
+
+        if (!consumeIf(TokenType.SEMICOLON)) {
+            reportUnexpectedTokenWithExplanation("';' expected");
+        }
+
+        return true;
+    }
+
+    // expr, ["=", expr], ";"
+    protected boolean parseExprInsideCodeBlock(ArrayList<Expression> statementsAndExpressions) {
         var expression = parseExpr();
         if (expression == null) {
             return false;
@@ -204,8 +221,6 @@ public class Parser {
                 expression = new AssignmentExpression(expression, assignExpr);
             }
         }
-
-        expression.setReturn(isReturn); // TODO: opakować w ReturnExpression
 
         statementsAndExpressions.add(expression);
 

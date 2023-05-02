@@ -165,7 +165,6 @@ public class Parser {
 
     // code_block = "{", { non_ret_stmt | ret_stmt | expr, ["=", expr], ";" }, "}";
     protected CodeBLock parseCodeBlock() throws ParserException {
-        // TODO: przekazywać parametry do codeBlock ?
 
         if (!consumeIf(TokenType.LBRACE)) {
             return null;

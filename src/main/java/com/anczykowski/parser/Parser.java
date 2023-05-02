@@ -216,13 +216,13 @@ public class Parser {
         return true;
     }
 
-    // expr = or_op_arg, { "or", or_op_arg };
+    // expr = and_expr, { "or", and_expr };
     protected Expression parseExpr() {
-        var left = parseOrOpArg();
+        var left = parseAndExpr();
         if (left == null) return null;
 
         while (consumeIf(TokenType.OR_KEYWORD)) {
-            var right = parseOrOpArg();
+            var right = parseAndExpr();
             if (right == null) {
                 reportUnexpectedToken("or", "expected expression after 'or' keyword");
                 continue;
@@ -232,40 +232,40 @@ public class Parser {
         return left;
     }
 
-    // or_op_arg = and_op_arg, { "and", and_op_arg };
-    protected Expression parseOrOpArg() {
-        var left = parseAndOpArg();
+    // and_expr = rel_expr, { "and", rel_expr };
+    protected Expression parseAndExpr() {
+        var left = parseRelExpr();
         if (left == null) return null;
 
         while (consumeIf(TokenType.AND_KEYWORD)) {
-            var right = parseAndOpArg();
+            var right = parseRelExpr();
             if (right == null) {
                 reportUnexpectedToken("and", "expected expression after 'and' keyword");
                 continue;
             }
-            left = new OrOpArg(left, right);
+            left = new AndExpr(left, right);
         }
         return left;
     }
 
     private static final Map<TokenType, BiFunction<Expression, Expression, Expression>> relOps = Map.of(
-        TokenType.EQ, EqRelOpArg::new,
-        TokenType.NE, NeRelOpArg::new,
-        TokenType.LT, LtRelOpArg::new,
-        TokenType.LE, LeRelOpArg::new,
-        TokenType.GT, GtRelOpArg::new,
-        TokenType.GE, GeRelOpArg::new
+        TokenType.EQ, EqRelExpr::new,
+        TokenType.NE, NeRelExpr::new,
+        TokenType.LT, LtRelExpr::new,
+        TokenType.LE, LeRelExpr::new,
+        TokenType.GT, GtRelExpr::new,
+        TokenType.GE, GeRelExpr::new
     );
 
-    // and_op_arg = rel_op_arg, [rel_operator, rel_op_arg];
-    protected Expression parseAndOpArg() {
-        var left = parseRelOpArg();
+    // rel_expr = add_expr, [rel_operator, add_expr];
+    protected Expression parseRelExpr() {
+        var left = parseAddExpr();
         if (left == null) return null;
 
         if (relOps.containsKey(lexer.getCurrentToken().getType())) {
             var relOpConstructor = relOps.get(lexer.getCurrentToken().getType());
             lexer.getNextToken();
-            var right = parseRelOpArg();
+            var right = parseAddExpr();
             if (right == null) {
                 reportUnexpectedTokenWithExplanation("expected expression after relation operator");
                 return left;
@@ -276,7 +276,7 @@ public class Parser {
         if (relOps.containsKey(lexer.getCurrentToken().getType())) {
             reportUnsupportedChaining();
             // consume all unsupported chains (e.g.: a > b > c)
-            while (relOps.containsKey(lexer.getCurrentToken().getType()) || parseRelOpArg() != null) {
+            while (relOps.containsKey(lexer.getCurrentToken().getType()) || parseAddExpr() != null) {
                 if (relOps.containsKey(lexer.getCurrentToken().getType())) {
                     lexer.getNextToken();
                 }
@@ -293,8 +293,8 @@ public class Parser {
     );
 
 
-    // rel_op_arg = term, { add_op, term }; // TODO: rel_op_arg nie jest argumentem a reprezentuje jakiś expression
-    protected Expression parseRelOpArg() {
+    // add_expr = term, { add_op, term };
+    protected Expression parseAddExpr() {
         var left = parseTerm();
         if (left == null) return null;
 

@@ -19,15 +19,15 @@ import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
 import com.anczykowski.parser.structures.expressions.NegatedExpression;
 import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
 import com.anczykowski.parser.structures.expressions.OrExpression;
-import com.anczykowski.parser.structures.expressions.OrOpArg;
+import com.anczykowski.parser.structures.expressions.AndExpr;
 import com.anczykowski.parser.structures.expressions.StringExpression;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
-import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.EqRelExpr;
+import com.anczykowski.parser.structures.expressions.relops.GeRelExpr;
+import com.anczykowski.parser.structures.expressions.relops.GtRelExpr;
+import com.anczykowski.parser.structures.expressions.relops.LeRelExpr;
+import com.anczykowski.parser.structures.expressions.relops.LtRelExpr;
+import com.anczykowski.parser.structures.expressions.relops.NeRelExpr;
 import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.ForStmt;
 import com.anczykowski.parser.structures.statements.Statement;
@@ -186,13 +186,13 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(OrOpArg orOpArg) {
+    public void visit(AndExpr andExpr) {
         printIndentation();
-        printIsReturnable(orOpArg);
+        printIsReturnable(andExpr);
         out.println("orOpArg");
         level++;
-        orOpArg.getLeft().accept(this);
-        orOpArg.getRight().accept(this);
+        andExpr.getLeft().accept(this);
+        andExpr.getRight().accept(this);
         level--;
     }
 
@@ -219,18 +219,18 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(EqRelOpArg eqRelOpArg) {
+    public void visit(EqRelExpr eqRelExpr) {
         printIndentation();
-        printIsReturnable(eqRelOpArg);
+        printIsReturnable(eqRelExpr);
         out.println("eqRelOpArg");
         level++;
-        eqRelOpArg.getLeft().accept(this);
-        eqRelOpArg.getRight().accept(this);
+        eqRelExpr.getLeft().accept(this);
+        eqRelExpr.getRight().accept(this);
         level--;
     }
 
     @Override
-    public void visit(GeRelOpArg geRelOpArg) {
+    public void visit(GeRelExpr geRelOpArg) {
         printIndentation();
         printIsReturnable(geRelOpArg);
         out.println("geRelOpArg");
@@ -241,7 +241,7 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(GtRelOpArg gtRelOpArg) {
+    public void visit(GtRelExpr gtRelOpArg) {
         printIndentation();
         printIsReturnable(gtRelOpArg);
         out.println("gtRelOpArg");
@@ -252,7 +252,7 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(LtRelOpArg ltRelOpArg) {
+    public void visit(LtRelExpr ltRelOpArg) {
         printIndentation();
         printIsReturnable(ltRelOpArg);
         out.println("ltRelOpArg");
@@ -263,7 +263,7 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(NeRelOpArg neRelOpArg) {
+    public void visit(NeRelExpr neRelOpArg) {
         printIndentation();
         printIsReturnable(neRelOpArg);
         out.println("neRelOpArg");
@@ -274,7 +274,7 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(LeRelOpArg leRelOpArg) {
+    public void visit(LeRelExpr leRelOpArg) {
         printIndentation();
         printIsReturnable(leRelOpArg);
         out.println("leRelOpArg");

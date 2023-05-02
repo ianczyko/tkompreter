@@ -35,12 +35,12 @@ import com.anczykowski.parser.structures.expressions.NegatedExpression;
 import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
 import com.anczykowski.parser.structures.expressions.StringExpression;
 import com.anczykowski.parser.structures.expressions.SubtractionTerm;
-import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
+import com.anczykowski.parser.structures.expressions.relops.EqRelExpr;
+import com.anczykowski.parser.structures.expressions.relops.GeRelExpr;
+import com.anczykowski.parser.structures.expressions.relops.GtRelExpr;
+import com.anczykowski.parser.structures.expressions.relops.LeRelExpr;
+import com.anczykowski.parser.structures.expressions.relops.LtRelExpr;
+import com.anczykowski.parser.structures.expressions.relops.NeRelExpr;
 import com.anczykowski.parser.structures.statements.CondStmt;
 import com.anczykowski.parser.structures.statements.ForStmt;
 import com.anczykowski.parser.structures.statements.SwitchStmt;
@@ -413,7 +413,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var expr = (AdditionTerm) parser.parseRelOpArg();
+        var expr = (AdditionTerm) parser.parseAddExpr();
 
         // then
         assertEquals(1, ((IntegerConstantExpr) expr.getLeft()).getValue());
@@ -434,7 +434,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var expr = (SubtractionTerm) parser.parseRelOpArg();
+        var expr = (SubtractionTerm) parser.parseAddExpr();
 
         // then
         assertEquals(1, ((IntegerConstantExpr) expr.getLeft()).getValue());
@@ -499,7 +499,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var expr = (AdditionTerm) parser.parseRelOpArg();
+        var expr = (AdditionTerm) parser.parseAddExpr();
 
         // then
         var left = (IntegerConstantExpr) expr.getLeft();
@@ -529,7 +529,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var expr = (MultiplicationFactor) parser.parseRelOpArg();
+        var expr = (MultiplicationFactor) parser.parseAddExpr();
 
         // then
         var left = (AdditionTerm) expr.getLeft();
@@ -555,7 +555,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var expr = (EqRelOpArg) parser.parseAndOpArg();
+        var expr = (EqRelExpr) parser.parseRelExpr();
 
         // then
         var left = (IntegerConstantExpr) expr.getLeft();
@@ -578,7 +578,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var expr = (NeRelOpArg) parser.parseAndOpArg();
+        var expr = (NeRelExpr) parser.parseRelExpr();
 
         // then
         var left = (IntegerConstantExpr) expr.getLeft();
@@ -601,7 +601,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var expr = (LtRelOpArg) parser.parseAndOpArg();
+        var expr = (LtRelExpr) parser.parseRelExpr();
 
         // then
         var left = (IntegerConstantExpr) expr.getLeft();
@@ -624,7 +624,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var expr = (LeRelOpArg) parser.parseAndOpArg();
+        var expr = (LeRelExpr) parser.parseRelExpr();
 
         // then
         var left = (IntegerConstantExpr) expr.getLeft();
@@ -647,7 +647,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var expr = (GtRelOpArg) parser.parseAndOpArg();
+        var expr = (GtRelExpr) parser.parseRelExpr();
 
         // then
         var left = (IntegerConstantExpr) expr.getLeft();
@@ -670,7 +670,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var expr = (GeRelOpArg) parser.parseAndOpArg();
+        var expr = (GeRelExpr) parser.parseRelExpr();
 
         // then
         var left = (IntegerConstantExpr) expr.getLeft();

@@ -4,7 +4,7 @@ import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.visitors.Visitor;
 import lombok.Getter;
 
-public class LeRelOpArg extends Expression {
+public class GtRelExpr extends Expression {
 
     @Getter
     private final Expression left;
@@ -12,7 +12,7 @@ public class LeRelOpArg extends Expression {
     @Getter
     private final Expression right;
 
-    public LeRelOpArg(Expression left, Expression right) {
+    public GtRelExpr(Expression left, Expression right) {
         this.left = left;
         this.right = right;
     }

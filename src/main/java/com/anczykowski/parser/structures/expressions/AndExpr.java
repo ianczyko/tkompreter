@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class OrOpArg extends Expression {
+public class AndExpr extends Expression {
 
     @Getter
     private final Expression left;

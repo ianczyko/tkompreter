@@ -24,23 +24,23 @@ public interface Visitor {
 
     void visit(Expression expression);
 
-    void visit(OrOpArg orOpArg);
+    void visit(AndExpr andExpr);
 
     void visit(OrExpression orExpression);
 
     void visit(AndOpArg andOpArg);
 
-    void visit(EqRelOpArg eqRelOpArg);
+    void visit(EqRelExpr eqRelExpr);
 
-    void visit(NeRelOpArg neRelOpArg);
+    void visit(NeRelExpr neRelOpArg);
 
-    void visit(GtRelOpArg gtRelOpArg);
+    void visit(GtRelExpr gtRelOpArg);
 
-    void visit(GeRelOpArg geRelOpArg);
+    void visit(GeRelExpr geRelOpArg);
 
-    void visit(LtRelOpArg ltRelOpArg);
+    void visit(LtRelExpr ltRelOpArg);
 
-    void visit(LeRelOpArg leRelOpArg);
+    void visit(LeRelExpr leRelOpArg);
 
     void visit(AdditionTerm additionTerm);
 

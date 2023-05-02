@@ -479,8 +479,10 @@ public class Parser {
         var isByRef = consumeIf(TokenType.REF_KEYWORD);
         var expr = parseExpr();
         if (expr == null) {
+            if (isByRef) {
+                reportUnexpectedToken("ref", "expected expression after ref keyword (argument)");
+            }
             return null;
-            // TODO:  w zależności czy było ref, czy nie zgłaszać błąd
         }
         return new Arg(expr, isByRef);
     }

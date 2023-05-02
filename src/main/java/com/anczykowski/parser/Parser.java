@@ -703,13 +703,12 @@ public class Parser {
             reportUnexpectedToken(")", "expected '{' after ')' in switch statement");
         }
 
-        Map<String, CodeBLock> switchElements = new HashMap<>();
+        Map<SwitchLabel, CodeBLock> switchElements = new HashMap<>();
 
         while (peekIf(TokenType.IDENTIFIER) || peekIf(TokenType.DEFAULT_KEYWORD)) {
-            String label = "default"; // TODO: obrać w obiekt?
-            if (peekIf(TokenType.IDENTIFIER)) {
-                label = ((StringToken) lexer.getCurrentToken()).getValue();
-            }
+            var switchLabel = peekIf(TokenType.IDENTIFIER)
+                    ? new SwitchLabel(((StringToken) lexer.getCurrentToken()).getValue())
+                    : new SwitchLabel("default");
 
             lexer.getNextToken();
 
@@ -723,11 +722,11 @@ public class Parser {
                 continue;
             }
 
-            if(switchElements.containsKey(label)){
-                reportDuplicateLabel(label);
+            if(switchElements.containsKey(switchLabel)){
+                reportDuplicateLabel(switchLabel.getLabel());
                 continue;
             }
-            switchElements.put(label, codeBlock);
+            switchElements.put(switchLabel, codeBlock);
         }
 
         if (!consumeIf(TokenType.RBRACE)) {

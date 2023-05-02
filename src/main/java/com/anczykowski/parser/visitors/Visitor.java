@@ -1,42 +1,9 @@
 package com.anczykowski.parser.visitors;
 
-import com.anczykowski.parser.structures.ClassBody;
-import com.anczykowski.parser.structures.ClassDef;
-import com.anczykowski.parser.structures.CodeBLock;
-import com.anczykowski.parser.structures.FuncDef;
-import com.anczykowski.parser.structures.Parameter;
-import com.anczykowski.parser.structures.Program;
-import com.anczykowski.parser.structures.expressions.AdditionTerm;
-import com.anczykowski.parser.structures.expressions.AndOpArg;
-import com.anczykowski.parser.structures.expressions.Arg;
-import com.anczykowski.parser.structures.expressions.AssignmentExpression;
-import com.anczykowski.parser.structures.expressions.CastExpression;
-import com.anczykowski.parser.structures.expressions.ClassInitExpression;
-import com.anczykowski.parser.structures.expressions.DivisionFactor;
-import com.anczykowski.parser.structures.expressions.Expression;
-import com.anczykowski.parser.structures.expressions.FloatConstantExpr;
-import com.anczykowski.parser.structures.expressions.FunctionCallExpression;
-import com.anczykowski.parser.structures.expressions.IdentifierExpression;
-import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
-import com.anczykowski.parser.structures.expressions.MultiplicationFactor;
-import com.anczykowski.parser.structures.expressions.NegatedExpression;
-import com.anczykowski.parser.structures.expressions.ObjectAccessExpression;
-import com.anczykowski.parser.structures.expressions.OrExpression;
-import com.anczykowski.parser.structures.expressions.OrOpArg;
-import com.anczykowski.parser.structures.expressions.StringExpression;
-import com.anczykowski.parser.structures.expressions.SubtractionTerm;
-import com.anczykowski.parser.structures.expressions.relops.EqRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.GeRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.GtRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.LeRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.LtRelOpArg;
-import com.anczykowski.parser.structures.expressions.relops.NeRelOpArg;
-import com.anczykowski.parser.structures.statements.CondStmt;
-import com.anczykowski.parser.structures.statements.ForStmt;
-import com.anczykowski.parser.structures.statements.Statement;
-import com.anczykowski.parser.structures.statements.SwitchStmt;
-import com.anczykowski.parser.structures.statements.VarStmt;
-import com.anczykowski.parser.structures.statements.WhileStmt;
+import com.anczykowski.parser.structures.*;
+import com.anczykowski.parser.structures.expressions.*;
+import com.anczykowski.parser.structures.expressions.relops.*;
+import com.anczykowski.parser.structures.statements.*;
 
 public interface Visitor {
     void visit(Program program);
@@ -112,4 +79,6 @@ public interface Visitor {
     void visit(StringExpression stringExpression);
 
     void visit(CastExpression castExpression);
+
+    void visit(SwitchLabel switchLabel);
 }

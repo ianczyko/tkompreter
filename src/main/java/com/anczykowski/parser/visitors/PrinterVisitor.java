@@ -2,12 +2,7 @@ package com.anczykowski.parser.visitors;
 
 import java.io.PrintStream;
 
-import com.anczykowski.parser.structures.ClassBody;
-import com.anczykowski.parser.structures.ClassDef;
-import com.anczykowski.parser.structures.CodeBLock;
-import com.anczykowski.parser.structures.FuncDef;
-import com.anczykowski.parser.structures.Parameter;
-import com.anczykowski.parser.structures.Program;
+import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.AdditionTerm;
 import com.anczykowski.parser.structures.expressions.AndOpArg;
 import com.anczykowski.parser.structures.expressions.Arg;
@@ -48,22 +43,12 @@ public class PrinterVisitor implements Visitor {
 
     private int level = 1;
 
-    String additionalInfo = "";
-
     private void printIndentation() {
         printIndentation("-");
     }
 
     private void printIndentation(String repeatedString) {
         out.printf("%s ", repeatedString.repeat(level));
-        consumeAdditionalInfo();
-    }
-
-    private void consumeAdditionalInfo() {
-        if (!additionalInfo.isEmpty()) {
-            out.printf("(%s) ", additionalInfo);
-            additionalInfo = "";
-        }
     }
 
     private void printIsReturnable(Expression expr) {
@@ -373,11 +358,9 @@ public class PrinterVisitor implements Visitor {
     public void visit(AssignmentExpression assignmentExpression) {
         printIndentation();
         printIsReturnable(assignmentExpression);
-        out.println("assignmentExpression: ");
+        out.println("assignmentExpression: (lval/rval) ");
         level++;
-        additionalInfo = "lval";
         assignmentExpression.getLval().accept(this);
-        additionalInfo = "rval";
         assignmentExpression.getRval().accept(this);
         level--;
     }
@@ -400,17 +383,20 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
+    public void visit(SwitchLabel switchLabel) {
+        printIndentation();
+        out.println("switchLabel: " + switchLabel.getLabel());
+    }
+
+    @Override
     public void visit(CondStmt condStmt) {
         printIndentation();
         printIsReturnable(condStmt);
-        out.println("condStmt: ");
+        out.println("condStmt: (cond/block/[elseBlock])");
         level++;
-        additionalInfo = "cond";
         condStmt.getCondition().accept(this);
-        additionalInfo = "block";
         condStmt.getTrueBlock().accept(this);
         if (condStmt.getElseBlock() != null) {
-        additionalInfo = "elseBlock";
             condStmt.getElseBlock().accept(this);
         }
         level--;
@@ -431,13 +417,10 @@ public class PrinterVisitor implements Visitor {
     public void visit(ForStmt forStmt) {
         printIndentation();
         printIsReturnable(forStmt);
-        out.println("forStmt: ");
+        out.println("forStmt: (iterator/iterable/block)");
         level++;
-        additionalInfo = "iterator";
         forStmt.getIterator().accept(this);
-        additionalInfo = "iterable";
         forStmt.getIterable().accept(this);
-        additionalInfo = "block";
         forStmt.getCodeBLock().accept(this);
         level--;
     }
@@ -451,7 +434,7 @@ public class PrinterVisitor implements Visitor {
         switchStmt.getExpression().accept(this);
         level++;
         switchStmt.getSwitchElements().forEach((attrKey, attr) -> {
-            additionalInfo = attrKey;
+            attrKey.accept(this);
             attr.accept(this);
         });
         level--;

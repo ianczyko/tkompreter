@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.anczykowski.errormodule.exceptions.ParserException;
+import com.anczykowski.parser.structures.SwitchLabel;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -1020,8 +1021,9 @@ class ParserTests {
         var expr = (IntegerConstantExpr) forStmt.getExpression();
         assertEquals(1, expr.getValue());
         var switchElements = forStmt.getSwitchElements();
-        assertTrue(switchElements.containsKey("default"));
-        var defFirstExpr = (IntegerConstantExpr) switchElements.get("default").getStatementsAndExpressions().get(0);
+        var defaultLabel = new SwitchLabel("default");
+        assertTrue(switchElements.containsKey(defaultLabel));
+        var defFirstExpr = (IntegerConstantExpr) switchElements.get(defaultLabel).getStatementsAndExpressions().get(0);
         assertEquals(2, defFirstExpr.getValue());
     }
 
@@ -1091,12 +1093,14 @@ class ParserTests {
         assertEquals(1, expr.getValue());
 
         var switchElements = forStmt.getSwitchElements();
-        assertTrue(switchElements.containsKey("default"));
-        var defFirstExpr = (IntegerConstantExpr) switchElements.get("default").getStatementsAndExpressions().get(0);
+        var defaultLabel = new SwitchLabel("default");
+        assertTrue(switchElements.containsKey(defaultLabel));
+        var defFirstExpr = (IntegerConstantExpr) switchElements.get(defaultLabel).getStatementsAndExpressions().get(0);
         assertEquals(2, defFirstExpr.getValue());
 
-        assertTrue(switchElements.containsKey("float"));
-        var floatFirstExpr = (IntegerConstantExpr) switchElements.get("float").getStatementsAndExpressions().get(0);
+        var floatLabel = new SwitchLabel("float");
+        assertTrue(switchElements.containsKey(floatLabel));
+        var floatFirstExpr = (IntegerConstantExpr) switchElements.get(floatLabel).getStatementsAndExpressions().get(0);
         assertEquals(3, floatFirstExpr.getValue());
     }
 

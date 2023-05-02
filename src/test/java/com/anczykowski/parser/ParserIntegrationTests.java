@@ -136,6 +136,8 @@ class ParserIntegrationTests {
             new Token(TokenType.LBRACE, new Location()),
             new Token(TokenType.VAR_KEYWORD, new Location()),
             new StringToken(TokenType.IDENTIFIER, new Location(), "rad"),
+            new Token(TokenType.ASSIGNMENT, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
             new Token(TokenType.SEMICOLON, new Location()),
             new Token(TokenType.RBRACE, new Location())
         ));

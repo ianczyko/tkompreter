@@ -1,7 +1,7 @@
 
 class Circle {
-    var r;
-    var color;
+    var r = 0;
+    var color = 0;
 
     init(radius) {
         r = radius;

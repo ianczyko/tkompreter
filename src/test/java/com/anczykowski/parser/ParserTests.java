@@ -280,6 +280,8 @@ class ParserTests {
             new Token(TokenType.LBRACE, new Location()),
             new Token(TokenType.VAR_KEYWORD, new Location()),
             new StringToken(TokenType.IDENTIFIER, new Location(), "field1"),
+            new Token(TokenType.ASSIGNMENT, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
             new Token(TokenType.SEMICOLON, new Location()),
 
             new StringToken(TokenType.IDENTIFIER, new Location(), "method1"),
@@ -937,7 +939,6 @@ class ParserTests {
     void parseForStmt() {
         // given
         var errorModule = new ErrorModule();
-        var variables = new HashMap<String, VarStmt>();
 
         var lexer = ParserHelpers.thereIsLexer(List.of(
             new Token(TokenType.FOR_KEYWORD, new Location()),
@@ -954,14 +955,14 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var forStmt = (ForStmt) parser.parseForStmt(variables);
+        var forStmt = (ForStmt) parser.parseForStmt();
 
         // then
-        var iterator = (VarStmt) forStmt.getIterator();
+        var iteratorIdentifier = forStmt.getIteratorIdentifier();
         var iterable = (IntegerConstantExpr) forStmt.getIterable();
         var codeBLock = (CodeBLock) forStmt.getCodeBLock();
         var codeBlockFirstStmt = (IntegerConstantExpr) codeBLock.getStatementsAndExpressions().get(0);
-        assertEquals("iter", iterator.getName());
+        assertEquals("iter", iteratorIdentifier);
         assertEquals(1, iterable.getValue());
         assertEquals(2, codeBlockFirstStmt.getValue());
     }
@@ -970,7 +971,6 @@ class ParserTests {
     void parseForStmtThrows() {
         // given
         var errorModule = new ErrorModule();
-        var variables = new HashMap<String, VarStmt>();
 
         var lexer = ParserHelpers.thereIsLexer(List.of(
                 new Token(TokenType.FOR_KEYWORD, new Location()),
@@ -986,7 +986,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when, then
-        assertThrows(ParserException.class, () -> parser.parseForStmt(variables));
+        assertThrows(ParserException.class, parser::parseForStmt);
         assertFalse(errorModule.getErrors().isEmpty());
     }
 

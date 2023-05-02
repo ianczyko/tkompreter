@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 public class ForStmt extends Statement {
 
     @Getter
-    private final VarStmt iterator;
+    private final String iteratorIdentifier;
 
     @Getter
     private final Expression iterable;

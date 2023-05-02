@@ -79,8 +79,8 @@ public class Parser {
         return new ClassBody(methods, attributes);
     }
 
-    // var_stmt = "var", identifier, ["=", expr], ";"; // TODO: może wymusić =
-    protected VarStmt parseVarStmt(HashMap<String, VarStmt> variables) {
+    // var_stmt = "var", identifier, "=", expr, ";";
+    protected VarStmt parseVarStmt(HashMap<String, VarStmt> variables) throws ParserException {
         if (!consumeIf(TokenType.VAR_KEYWORD)) {
             return null;
         }
@@ -98,20 +98,20 @@ public class Parser {
             return null;
         }
 
-        var varStmt = new VarStmt(varIdentifier); // TODO: nie tworzyć nie potrzebnie, else niżej
-
-        // TODO: zamiast varstmt initial, może assignment z lval z varstmt ?
-
         lexer.getNextToken();
 
-        if (consumeIf(TokenType.ASSIGNMENT)) {
-            var expr = parseExpr();
-            if (expr == null) {
-                reportUnexpectedToken("=", "= operator without expression");
-            } else {
-                varStmt = new VarStmt(varIdentifier, expr);
-            }
+        if (!consumeIf(TokenType.ASSIGNMENT)) {
+            reportUnexpectedToken(varIdentifier, "expected '=' after identifier in var statement");
         }
+
+        var expr = parseExpr();
+        VarStmt varStmt;
+        if (expr == null) {
+            reportUnexpectedToken("=", "= operator without expression");
+            throw new ParserException();
+        }
+
+        varStmt = new VarStmt(varIdentifier, expr);
 
         variables.put(varIdentifier, varStmt);
 
@@ -549,7 +549,7 @@ public class Parser {
             nonRetStmt = parseWhileStmt();
         }
         if (nonRetStmt == null) {
-            nonRetStmt = parseForStmt(variables);
+            nonRetStmt = parseForStmt();
         }
         if (nonRetStmt == null) {
             nonRetStmt = parseSwitchStmt();
@@ -633,7 +633,7 @@ public class Parser {
     }
 
     // for_stmt = "for", "(", identifier, "in", expr, ")", code_block;
-    protected Expression parseForStmt(HashMap<String, VarStmt> variables) throws ParserException {
+    protected Expression parseForStmt() throws ParserException {
         if (!consumeIf(TokenType.FOR_KEYWORD)) {
             return null;
         }
@@ -648,11 +648,6 @@ public class Parser {
         }
 
         var iteratorIdentifier = ((StringToken) lexer.getCurrentToken()).getValue();
-        if (variables.containsKey(iteratorIdentifier)) { // TODO: // zrezygnować na tym etapie
-            reportAlreadyDeclared(iteratorIdentifier);
-        }
-        var iteratorVar = new VarStmt(iteratorIdentifier);
-        variables.put(iteratorIdentifier, iteratorVar);
 
         lexer.getNextToken();
 
@@ -677,7 +672,7 @@ public class Parser {
             return null;
         }
 
-        return new ForStmt(iteratorVar, iterable, codeBlock);
+        return new ForStmt(iteratorIdentifier, iterable, codeBlock);
     }
 
     // switch_stmt = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";

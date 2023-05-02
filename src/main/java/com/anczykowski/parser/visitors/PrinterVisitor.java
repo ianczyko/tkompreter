@@ -417,9 +417,8 @@ public class PrinterVisitor implements Visitor {
     public void visit(ForStmt forStmt) {
         printIndentation();
         printIsReturnable(forStmt);
-        out.println("forStmt: (iterator/iterable/block)");
+        out.printf("forStmt: iterator=[%s] (iterable/block)%n", forStmt.getIteratorIdentifier());
         level++;
-        forStmt.getIterator().accept(this);
         forStmt.getIterable().accept(this);
         forStmt.getCodeBLock().accept(this);
         level--;

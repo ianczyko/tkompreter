@@ -17,7 +17,7 @@ Spis treści:
 Składnia:
 
 ```
-var_stmt           = "var", identifier, ["=", expr], ";";
+var_stmt           = "var", identifier, "=", expr, ";";
 func_def           = identifier, "(", [parameters], ")", code_block;
 class_def          = "class", class_id, class_body;
 cond_stmt          = "if", "(", expr, ")", code_block, ["else", code_block];
@@ -120,8 +120,7 @@ Operator `and` ma wyższy priorytet niż `or`. Oba te operatory są łączne.
 ```js
 var t = true;
 var f = false;
-var res;
-res = t and f; // res == false
+var res = t and f; // res == false
 res = t or f; // res == true
 res = t and t and t; // res == true
 
@@ -178,9 +177,8 @@ fun(x) {
 }
 
 main() { // <- this is the entry point of an application
-    var res;
     var x = 5;
-    res = fun(5);     // res = 6, x = 5
+    var res = fun(5);     // res = 6, x = 5
     res = fun(x);     // res = 6, x = 5
     res = fun(ref x); // res = 6, x = 6
     return 0;
@@ -231,7 +229,7 @@ for(el in lst) {
 
 ```js
 class Circle {
-    var r;
+    var r = 0;
 
     init(radius) {
         r = radius;
@@ -253,7 +251,7 @@ circle_builder(){
 circle_builder().printRadius();
 
 class CircleWrapper {
-    var circle;
+    var circle = 0;
     
     init(r){
         circle = new Circle(r);

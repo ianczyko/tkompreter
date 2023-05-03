@@ -168,16 +168,6 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(AndOpArg andOpArg) {
-        printIndentation();
-        out.println("andOpArg");
-        level++;
-        andOpArg.getLeft().accept(this);
-        andOpArg.getRight().accept(this);
-        level--;
-    }
-
-    @Override
     public void visit(EqRelExpr eqRelExpr) {
         printIndentation();
         out.println("eqRelOpArg");

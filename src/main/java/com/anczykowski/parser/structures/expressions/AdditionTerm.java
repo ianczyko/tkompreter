@@ -1,17 +1,12 @@
 package com.anczykowski.parser.structures.expressions;
 
 import com.anczykowski.parser.visitors.Visitor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-public class AdditionTerm extends Expression {
+public class AdditionTerm extends LeftRightExpression {
 
-    @Getter
-    private final Expression left;
-
-    @Getter
-    private final Expression right;
+    public AdditionTerm(Expression left, Expression right) {
+        super(left, right);
+    }
 
     @Override
     public void accept(Visitor visitor) {

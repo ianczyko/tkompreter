@@ -28,8 +28,6 @@ public interface Visitor {
 
     void visit(OrExpression orExpression);
 
-    void visit(AndOpArg andOpArg);
-
     void visit(EqRelExpr eqRelExpr);
 
     void visit(NeRelExpr neRelOpArg);

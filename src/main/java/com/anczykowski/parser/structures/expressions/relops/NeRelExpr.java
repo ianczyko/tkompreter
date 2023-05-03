@@ -1,20 +1,13 @@
 package com.anczykowski.parser.structures.expressions.relops;
 
 import com.anczykowski.parser.structures.expressions.Expression;
+import com.anczykowski.parser.structures.expressions.LeftRightExpression;
 import com.anczykowski.parser.visitors.Visitor;
-import lombok.Getter;
 
-public class NeRelExpr extends Expression {
-
-    @Getter
-    private final Expression left;
-
-    @Getter
-    private final Expression right;
+public class NeRelExpr extends LeftRightExpression {
 
     public NeRelExpr(Expression left, Expression right) {
-        this.left = left;
-        this.right = right;
+        super(left, right);
     }
 
     @Override

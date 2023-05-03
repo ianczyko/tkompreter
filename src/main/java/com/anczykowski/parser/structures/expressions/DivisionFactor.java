@@ -1,17 +1,13 @@
 package com.anczykowski.parser.structures.expressions;
 
 import com.anczykowski.parser.visitors.Visitor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
-public class DivisionFactor extends Expression {
 
-    @Getter
-    private final Expression left;
+public class DivisionFactor extends LeftRightExpression {
 
-    @Getter
-    private final Expression right;
+    public DivisionFactor(Expression left, Expression right) {
+        super(left, right);
+    }
 
     @Override
     public void accept(Visitor visitor) {

@@ -663,6 +663,76 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseClassInitWithoutIdentifier() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new Token(TokenType.NEW_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseClassInit();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseClassInitWithoutLParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new Token(TokenType.NEW_KEYWORD, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "Circle"),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "arg1"),
+                new Token(TokenType.COMMA, new Location()),
+                new Token(TokenType.REF_KEYWORD, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "arg2"),
+                new Token(TokenType.RPAREN, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseClassInit();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseClassInitWithoutRParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new Token(TokenType.NEW_KEYWORD, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "Circle"),
+                new Token(TokenType.LPAREN, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "arg1"),
+                new Token(TokenType.COMMA, new Location()),
+                new Token(TokenType.REF_KEYWORD, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "arg2")
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseClassInit();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
     void parseParamsOne() {
         // given
         var errorModule = new ErrorModule();

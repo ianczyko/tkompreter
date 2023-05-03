@@ -733,6 +733,66 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseExprParenthesized() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = parser.parseExprParenthesized();
+
+        // then
+        assertEquals(1, ((IntegerConstantExpr) expr).getValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseExprParenthesizedNoExpr() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new Token(TokenType.LPAREN, new Location()),
+                new Token(TokenType.RPAREN, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseExprParenthesized();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseExprParenthesizedRParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseExprParenthesized();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
     void parseParamsOne() {
         // given
         var errorModule = new ErrorModule();

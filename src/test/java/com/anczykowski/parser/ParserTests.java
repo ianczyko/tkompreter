@@ -315,6 +315,26 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseObjAccessNoSecondIdentifierAfterDot() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new StringToken(TokenType.IDENTIFIER, new Location(), "aaa"),
+                new Token(TokenType.PERIOD, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseObjAccess();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
     void parseObjAccessDeeper() {
         // given
         var errorModule = new ErrorModule();

@@ -116,12 +116,7 @@ public class Parser {
         variables.put(varIdentifier, varStmt);
 
         if (!consumeIf(TokenType.SEMICOLON)) {
-            errorModule.addError(ErrorElement.builder()
-                    .errorType(ErrorType.MISSING_SEMICOLON)
-                    .location(lexer.getCurrentLocation())
-                    .codeLineBuffer(lexer.getCharacterBuffer())
-                    .underlineFragment(varIdentifier)
-                    .build());
+            reportUnexpectedTokenWithExplanation("';' expected");
             return null;
         }
 

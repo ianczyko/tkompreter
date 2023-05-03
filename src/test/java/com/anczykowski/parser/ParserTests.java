@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
+import com.anczykowski.errormodule.ErrorType;
 import com.anczykowski.errormodule.exceptions.ParserException;
 import com.anczykowski.parser.structures.SwitchLabel;
 import com.anczykowski.parser.structures.expressions.*;
@@ -33,6 +35,9 @@ import com.anczykowski.parser.structures.statements.ForStmt;
 import com.anczykowski.parser.structures.statements.SwitchStmt;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import com.anczykowski.parser.structures.statements.WhileStmt;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -75,7 +80,75 @@ class ParserTests {
         // then
         assertTrue(codeBLock.getStatementsAndExpressions().isEmpty());
     }
-    // TODO: non empty code block
+
+    private static Stream<Arguments> binaryOperatorsMapping() {
+        return Stream.of(
+                Arguments.of(TokenType.OR_KEYWORD, OrExpression.class),
+                Arguments.of(TokenType.AND_KEYWORD, AndExpr.class),
+
+                Arguments.of(TokenType.EQ, EqRelExpr.class),
+                Arguments.of(TokenType.NE, NeRelExpr.class),
+                Arguments.of(TokenType.LT, LtRelExpr.class),
+                Arguments.of(TokenType.LE, LeRelExpr.class),
+                Arguments.of(TokenType.GT, GtRelExpr.class),
+                Arguments.of(TokenType.GE, GeRelExpr.class),
+
+                Arguments.of(TokenType.PLUS, AdditionTerm.class),
+                Arguments.of(TokenType.MINUS, SubtractionTerm.class),
+
+                Arguments.of(TokenType.ASTERISK, MultiplicationFactor.class),
+                Arguments.of(TokenType.SLASH, DivisionFactor.class)
+        );
+    }
+
+    @ParameterizedTest
+    @SneakyThrows
+    @MethodSource("binaryOperatorsMapping")
+    <T extends LeftRightExpression> void parseExprOfType(TokenType binaryOperator, Class<T> binaryClass) {
+
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(binaryOperator, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var expr = parser.parseExpr();
+
+        // then
+        T exprConcrete = binaryClass.cast(expr);
+        assertTrue(exprConcrete.getLeft() instanceof IntegerConstantExpr);
+        assertTrue(exprConcrete.getRight() instanceof IntegerConstantExpr);
+        assertEquals(1, ((IntegerConstantExpr) exprConcrete.getLeft()).getValue());
+        assertEquals(2, ((IntegerConstantExpr) exprConcrete.getRight()).getValue());
+    }
+
+    @ParameterizedTest
+    @SneakyThrows
+    @MethodSource("binaryOperatorsMapping")
+    <T extends LeftRightExpression> void parseExprOfTypeMissingSecondOperand(TokenType binaryOperator, Class<T> ignored) {
+
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(binaryOperator, new Location()),
+                new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseExpr();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
 
     @Test
     @SneakyThrows

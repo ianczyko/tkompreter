@@ -55,6 +55,10 @@ public class Parser {
 
         var classBody = parseClassBody();
 
+        if (classBody == null) {
+            reportUnexpectedToken(classIdentifier, "expected class body after class identifier");
+        }
+
         classes.put(classIdentifier, new ClassDef(classIdentifier, classBody));
 
         return true;
@@ -63,7 +67,7 @@ public class Parser {
     // class_body = "{", { func_def | var_stmt }, "}";
     protected ClassBody parseClassBody() throws ParserException {
         if (!consumeIf(TokenType.LBRACE)) {
-            reportUnexpectedTokenWithExplanation("'{' expected at the start of class body");
+            return null;
         }
 
         HashMap<String, FuncDef> methods = new HashMap<>();

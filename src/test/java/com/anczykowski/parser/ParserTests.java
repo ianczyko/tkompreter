@@ -1056,6 +1056,28 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseExprWithReturnMissingSemicolon() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.RETURN_KEYWORD, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RETURN_KEYWORD, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var statementsAndExpressions = new ArrayList<Expression>();
+        parser.parseRetStmt(statementsAndExpressions);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
     void parseNegatedFactor() {
         // given
         var errorModule = new ErrorModule();

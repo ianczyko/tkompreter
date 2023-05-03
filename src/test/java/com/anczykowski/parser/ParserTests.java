@@ -1148,6 +1148,50 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseAssignmentExpressionMissingRvalAfterAssign() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.ASSIGNMENT, new Location()),
+                new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var statementsAndExpressions = new ArrayList<Expression>();
+        parser.parseExprInsideCodeBlock(statementsAndExpressions);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseAssignmentExpressionMissingSemicolon() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.ASSIGNMENT, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var statementsAndExpressions = new ArrayList<Expression>();
+        parser.parseExprInsideCodeBlock(statementsAndExpressions);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
     void parseConditionalStatement() {
         // given
         var errorModule = new ErrorModule();

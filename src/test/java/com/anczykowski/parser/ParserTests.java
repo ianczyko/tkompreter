@@ -383,6 +383,76 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseClassDefinitionNoIdentifier() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new Token(TokenType.CLASS_KEYWORD, new Location()),
+                new Token(TokenType.LBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        var classes = new HashMap<String, ClassDef>();
+
+        // when
+        parser.parseClassDef(classes);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseClassDefinitionClassRedefinition() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new Token(TokenType.CLASS_KEYWORD, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "Circle"),
+                new Token(TokenType.LBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        var classes = new HashMap<String, ClassDef>();
+
+        classes.put("Circle", null);
+
+        // when
+        parser.parseClassDef(classes);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.ALREADY_DECLARED, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseClassDefinitionNoBody() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new Token(TokenType.CLASS_KEYWORD, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "Circle"),
+                new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        var classes = new HashMap<String, ClassDef>();
+
+        // when
+        parser.parseClassDef(classes);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
     void parseClassInit() {
         // given
         var errorModule = new ErrorModule();

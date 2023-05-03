@@ -172,6 +172,31 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseEqUnsupportedChains() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.EQ, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.EQ, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 3),
+                new Token(TokenType.EQ, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 4)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseRelExpr();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNSUPPORTED_CHAINING, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
     void parseIdentifier() {
         // given
         var errorModule = new ErrorModule();

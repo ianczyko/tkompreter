@@ -986,6 +986,27 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseNegatedFactorNegationNullExpr() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.MINUS, new Location()),
+                new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseFactor();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+
+    @Test
+    @SneakyThrows
     void parseCastedFactor() {
         // given
         var errorModule = new ErrorModule();
@@ -1005,6 +1026,27 @@ class ParserTests {
         var inner = (IntegerConstantExpr) castedExpr.getInner();
         assertEquals(1, inner.getValue());
         assertEquals("int", castedExpr.getType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseCastedFactorWithoutExpr() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.AS_KEYWORD, new Location()),
+                new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseFactor();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
     }
 
     @Test

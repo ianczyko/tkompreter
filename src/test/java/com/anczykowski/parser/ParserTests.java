@@ -846,6 +846,101 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseVarWithAssignmentNoIdentifier() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.VAR_KEYWORD, new Location()),
+            new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var variables = new HashMap<String, VarStmt>();
+        parser.parseVarStmt(variables);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseVarWithAssignmentVarAlreadyDeclared() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.VAR_KEYWORD, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "variable"),
+                new Token(TokenType.ASSIGNMENT, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var variables = new HashMap<String, VarStmt>();
+        variables.put("variable", null);
+
+        parser.parseVarStmt(variables);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.ALREADY_DECLARED, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseVarWithAssignmentWithoutAssignment() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.VAR_KEYWORD, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "variable"),
+                new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var variables = new HashMap<String, VarStmt>();
+
+        assertThrows(ParserException.class, () -> parser.parseVarStmt(variables));
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseVarWithAssignmentMissingSemicolon() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.VAR_KEYWORD, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "variable"),
+                new Token(TokenType.ASSIGNMENT, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.VAR_KEYWORD, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var variables = new HashMap<String, VarStmt>();
+
+        parser.parseVarStmt(variables);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
     void parseExprWithReturn() {
         // given
         var errorModule = new ErrorModule();

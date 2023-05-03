@@ -64,6 +64,26 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseCodeBlockMissingRBrace() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new Token(TokenType.LBRACE, new Location()),
+                new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseCodeBlock();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
     void parseCodeBlockEmpty() {
         // given
         var errorModule = new ErrorModule();

@@ -283,11 +283,11 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var arg = (Arg) parser.parseArg();
+        parser.parseArg();
 
         // then
-        assertEquals(1, ((IntegerConstantExpr) arg.getArgument()).getValue());
-        assertTrue(arg.isByReference());
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
     }
 
     @Test

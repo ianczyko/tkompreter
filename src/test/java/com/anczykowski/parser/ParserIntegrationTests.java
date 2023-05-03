@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 
+import com.anczykowski.parser.structures.statements.VarStmt;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -190,6 +191,45 @@ class ParserIntegrationTests {
         var firstExprLval = (IdentifierExpression) firstExpr.getLval();
         var firstExprRval = (IntegerConstantExpr) firstExpr.getRval();
         assertEquals("variable", firstExprLval.getIdentifier());
+        assertEquals(2, firstExprRval.getValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseProgramWithFunctionWithBodyVariable() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new StringToken(TokenType.IDENTIFIER, new Location(), "fun"),
+                new Token(TokenType.LPAREN, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "param1"),
+                new Token(TokenType.COMMA, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "param2"),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new Token(TokenType.VAR_KEYWORD, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "variable"),
+                new Token(TokenType.ASSIGNMENT, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var program = parser.parse();
+
+        // then
+        assertTrue(program.getClasses().isEmpty());
+        assertFalse(program.getFunctions().isEmpty());
+        var fun = program.getFunctions().get("fun");
+        assertEquals("fun", fun.getName());
+        assertEquals("param1", fun.getParams().get(0).getName());
+        assertEquals("param2", fun.getParams().get(1).getName());
+        var firstExpr = (VarStmt) fun.getCodeBLock().getStatementsAndExpressions().get(0);
+        var firstExprRval = (IntegerConstantExpr) firstExpr.getInitial();
+        assertEquals("variable", firstExpr.getName());
         assertEquals(2, firstExprRval.getValue());
     }
 

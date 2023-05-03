@@ -479,7 +479,7 @@ public class Parser {
         while (consumeIf(TokenType.COMMA)) {
             var arg = parseArg();
             if (arg == null) {
-                reportUnexpectedToken(".", "expected another argument after ','");
+                reportUnexpectedToken(",", "expected another argument after ','");
                 continue;
             }
             args.add(arg);

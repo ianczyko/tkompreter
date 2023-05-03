@@ -230,6 +230,89 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
+    void parseFunctionDefinitionWithoutLParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new StringToken(TokenType.IDENTIFIER, new Location(), "fun"),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "param1"),
+                new Token(TokenType.COMMA, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "param2"),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        var functions = new HashMap<String, FuncDef>();
+
+        // when
+        parser.parseFunDef(functions);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseFunctionDefinitionWithoutRParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new StringToken(TokenType.IDENTIFIER, new Location(), "fun"),
+                new Token(TokenType.LPAREN, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "param1"),
+                new Token(TokenType.COMMA, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "param2"),
+                new Token(TokenType.LBRACE, new Location()),
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        var functions = new HashMap<String, FuncDef>();
+
+        // when
+        parser.parseFunDef(functions);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseFunctionDefinitionRedefinition() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(Arrays.asList(
+                new StringToken(TokenType.IDENTIFIER, new Location(), "fun"),
+                new Token(TokenType.LPAREN, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "param1"),
+                new Token(TokenType.COMMA, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "param2"),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        var functions = new HashMap<String, FuncDef>();
+        functions.put("fun", null);
+
+        // when
+        parser.parseFunDef(functions);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.ALREADY_DECLARED, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
     void parseFunctionDefinitionThrows() {
         // given
         var errorModule = new ErrorModule();

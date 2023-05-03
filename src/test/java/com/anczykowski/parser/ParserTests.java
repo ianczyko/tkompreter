@@ -233,6 +233,65 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseArg() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var arg = (Arg) parser.parseArg();
+
+        // then
+        assertEquals(1, ((IntegerConstantExpr) arg.getArgument()).getValue());
+        assertFalse(arg.isByReference());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseArgRef() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.REF_KEYWORD, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1)
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var arg = (Arg) parser.parseArg();
+
+        // then
+        assertEquals(1, ((IntegerConstantExpr) arg.getArgument()).getValue());
+        assertTrue(arg.isByReference());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseArgRefWithoutExpr() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.REF_KEYWORD, new Location()),
+                new Token(TokenType.SEMICOLON, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        var arg = (Arg) parser.parseArg();
+
+        // then
+        assertEquals(1, ((IntegerConstantExpr) arg.getArgument()).getValue());
+        assertTrue(arg.isByReference());
+    }
+
+    @Test
+    @SneakyThrows
     void parseObjAccess() {
         // given
         var errorModule = new ErrorModule();

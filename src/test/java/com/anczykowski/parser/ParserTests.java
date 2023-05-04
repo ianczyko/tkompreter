@@ -1591,6 +1591,78 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
+    void parseWhileStmtNoLParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.WHILE_KEYWORD, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.RPAREN, new Location()),
+            new Token(TokenType.LBRACE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.SEMICOLON, new Location()),
+            new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseWhileStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseWhileStmtNoRParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+            new Token(TokenType.WHILE_KEYWORD, new Location()),
+            new Token(TokenType.LPAREN, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new Token(TokenType.LBRACE, new Location()),
+            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new Token(TokenType.SEMICOLON, new Location()),
+            new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseWhileStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseWhileStmtNoCodeBlock() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.WHILE_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseWhileStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
     void parseWhileStmtThrows() {
         // given
         var errorModule = new ErrorModule();

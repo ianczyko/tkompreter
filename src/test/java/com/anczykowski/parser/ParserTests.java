@@ -1405,6 +1405,78 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
+    void parseConditionalStatementNoLParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.IF_KEYWORD, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseConditionalStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseConditionalStatementNoRParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.IF_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseConditionalStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseConditionalStatementNoCodeBlock() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.IF_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseConditionalStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
     void parseConditionalStatementThrows() {
         // given
         var errorModule = new ErrorModule();
@@ -1460,6 +1532,33 @@ class ParserTests {
         assertEquals(1, cond.getValue());
         assertEquals(2, trueBlockFirstStmt.getValue());
         assertEquals(3, elseBlockFirstStmt.getValue());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseConditionalStatementWithElseBlockWithoutBlock() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.IF_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location()),
+                new Token(TokenType.ELSE_KEYWORD, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseConditionalStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
     }
 
     @Test

@@ -1909,6 +1909,227 @@ class ParserTests {
     }
 
     @Test
+    @SneakyThrows
+    void parseSwitchStmtNoLParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.SWITCH_KEYWORD, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+
+                new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+                new Token(TokenType.ARROW, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location()),
+
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseSwitchStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseSwitchStmtNoRParen() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.SWITCH_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.LBRACE, new Location()),
+
+                new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+                new Token(TokenType.ARROW, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location()),
+
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseSwitchStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseSwitchStmtNoLBrace() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.SWITCH_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location()),
+
+                new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+                new Token(TokenType.ARROW, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location()),
+
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseSwitchStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseSwitchStmtNoRBrace() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.SWITCH_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+
+                new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+                new Token(TokenType.ARROW, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseSwitchStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseSwitchStmtNoArrow() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.SWITCH_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+
+                new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location()),
+
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseSwitchStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseSwitchStmtNoCodeBlock() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.SWITCH_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+
+                new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+                new Token(TokenType.ARROW, new Location()),
+
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseSwitchStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
+    void parseSwitchStmtDuplicateLabel() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new Token(TokenType.SWITCH_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+
+                new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+                new Token(TokenType.ARROW, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location()),
+
+                new Token(TokenType.DEFAULT_KEYWORD, new Location()),
+                new Token(TokenType.ARROW, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location()),
+
+                new Token(TokenType.RBRACE, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseSwitchStmt();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.DUPLICATE_LABEL, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
     void parseSwitchStmtThrows() {
         // given
         var errorModule = new ErrorModule();

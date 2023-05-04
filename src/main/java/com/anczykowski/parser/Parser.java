@@ -797,7 +797,6 @@ public class Parser {
                 .build());
     }
 
-    @SuppressWarnings("SameParameterValue")
     private void reportUnexpectedToken(String underline, String explanation) {
         errorModule.addError(ErrorElement.builder()
                 .errorType(ErrorType.UNEXPECTED_TOKEN)
@@ -808,17 +807,6 @@ public class Parser {
                 .build());
     }
 
-    @SuppressWarnings({"SameParameterValue", "unused"})
-    private void reportUnexpectedToken(String underline) {
-        errorModule.addError(ErrorElement.builder()
-                .errorType(ErrorType.UNEXPECTED_TOKEN)
-                .location(lexer.getCurrentLocation())
-                .underlineFragment(underline)
-                .codeLineBuffer(lexer.getCharacterBuffer())
-                .build());
-    }
-
-    @SuppressWarnings("SameParameterValue")
     private void reportUnexpectedTokenWithExplanation(String explanation) {
         errorModule.addError(ErrorElement.builder()
                 .errorType(ErrorType.UNEXPECTED_TOKEN)

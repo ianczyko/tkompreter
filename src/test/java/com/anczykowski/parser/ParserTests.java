@@ -877,6 +877,26 @@ class ParserTests {
 
     @Test
     @SneakyThrows
+    void parseParamsNoParemAfterComma() {
+        // given
+        var errorModule = new ErrorModule();
+
+        var lexer = ParserHelpers.thereIsLexer(List.of(
+                new StringToken(TokenType.IDENTIFIER, new Location(), "par1"),
+                new Token(TokenType.COMMA, new Location())
+        ));
+        var parser = new Parser(lexer, errorModule);
+
+        // when
+        parser.parseParams();
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNEXPECTED_TOKEN, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    @SneakyThrows
     void parseFloatConstant() {
         // given
         var errorModule = new ErrorModule();

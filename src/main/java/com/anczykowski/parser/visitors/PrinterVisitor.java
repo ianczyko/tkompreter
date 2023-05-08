@@ -326,7 +326,9 @@ public class PrinterVisitor implements Visitor {
         printIndentation();
         out.println("returnExpression: ");
         level++;
-        returnExpression.getInner().accept(this);
+        if(returnExpression.getInner() != null){
+            returnExpression.getInner().accept(this);
+        }
         level--;
     }
 

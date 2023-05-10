@@ -1,6 +1,5 @@
 package com.anczykowski.parser.structures.statements;
 
-import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.visitors.Visitable;
 import com.anczykowski.parser.visitors.Visitor;
 

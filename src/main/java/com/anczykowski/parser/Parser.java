@@ -162,14 +162,14 @@ public class Parser {
         return true;
     }
 
-    // code_block = "{", { non_ret_stmt | ret_stmt | expr, ["=", expr], ";" }, "}";
+    // code_block  = "{", { non_ret_stmt | ret_stmt | obj_access, ["=", expr], ";" }, "}";
     protected CodeBLock parseCodeBlock() throws ParserException {
 
         if (!consumeIf(TokenType.LBRACE)) {
             return null;
         }
 
-        ArrayList<Expression> statementsAndExpressions = new ArrayList<>();
+        ArrayList<Expression> statementsAndExpressions = new ArrayList<>(); // TODO: Statement jako interfejs, niektóre tylko expression implementują stmt
 
         HashMap<String, VarStmt> variables = new HashMap<>();
 
@@ -311,6 +311,7 @@ public class Parser {
         var left = parseTerm();
         if (left == null) return null;
 
+        // TODO: zamiast containsKey get, get zwraca null jak nie ma
         while (addOps.containsKey(lexer.getCurrentToken().getType())) {
             var addOpConstructor = addOps.get(lexer.getCurrentToken().getType());
             lexer.getNextToken();
@@ -458,7 +459,6 @@ public class Parser {
             return null;
         }
         var identifier = ((StringToken) lexer.getCurrentToken()).getValue();
-        var identifierExpr = new IdentifierExpression(identifier);
         lexer.getNextToken();
         if (consumeIf(TokenType.LPAREN)) {
             var args = parseArgs();
@@ -467,7 +467,7 @@ public class Parser {
             }
             return new FunctionCallExpression(identifier, args);
         }
-        return identifierExpr;
+        return new IdentifierExpression(identifier);
     }
 
     // args = arg, {",", arg }
@@ -782,7 +782,7 @@ public class Parser {
     private void reportAlreadyDeclared(String identifier) {
         errorModule.addError(ErrorElement.builder()
                 .errorType(ErrorType.ALREADY_DECLARED)
-                .location(lexer.getCurrentLocation())
+                .location(lexer.getCurrentLocation().clone())
                 .codeLineBuffer(lexer.getCharacterBuffer())
                 .underlineFragment(identifier)
                 .build());
@@ -791,7 +791,7 @@ public class Parser {
     private void reportDuplicateLabel(String identifier) {
         errorModule.addError(ErrorElement.builder()
                 .errorType(ErrorType.DUPLICATE_LABEL)
-                .location(lexer.getCurrentLocation())
+                .location(lexer.getCurrentLocation().clone())
                 .codeLineBuffer(lexer.getCharacterBuffer())
                 .underlineFragment(identifier)
                 .build());
@@ -800,7 +800,7 @@ public class Parser {
     private void reportUnexpectedToken(String underline, String explanation) {
         errorModule.addError(ErrorElement.builder()
                 .errorType(ErrorType.UNEXPECTED_TOKEN)
-                .location(lexer.getCurrentLocation())
+                .location(lexer.getCurrentLocation().clone())
                 .underlineFragment(underline)
                 .explanation(explanation)
                 .codeLineBuffer(lexer.getCharacterBuffer())
@@ -810,7 +810,7 @@ public class Parser {
     private void reportUnexpectedTokenWithExplanation(String explanation) {
         errorModule.addError(ErrorElement.builder()
                 .errorType(ErrorType.UNEXPECTED_TOKEN)
-                .location(lexer.getCurrentLocation())
+                .location(lexer.getCurrentLocation().clone())
                 .explanation(explanation)
                 .codeLineBuffer(lexer.getCharacterBuffer())
                 .build());
@@ -819,7 +819,7 @@ public class Parser {
     private void reportUnsupportedChaining() {
         errorModule.addError(ErrorElement.builder()
                 .errorType(ErrorType.UNSUPPORTED_CHAINING)
-                .location(lexer.getCurrentLocation())
+                .location(lexer.getCurrentLocation().clone())
                 .codeLineBuffer(lexer.getCharacterBuffer())
                 .build());
     }

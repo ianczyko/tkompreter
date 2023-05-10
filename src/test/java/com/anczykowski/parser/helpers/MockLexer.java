@@ -17,7 +17,7 @@ public class MockLexer implements Lexer {
 
     @Override
     public Location getCurrentLocation() {
-        return null;
+        return new Location();
     }
 
     @Override

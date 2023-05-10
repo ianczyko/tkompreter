@@ -275,8 +275,10 @@ public class Parser {
         var left = parseAddExpr();
         if (left == null) return null;
 
-        if (relOps.containsKey(lexer.getCurrentToken().getType())) {
-            var relOpConstructor = relOps.get(lexer.getCurrentToken().getType());
+
+
+        BiFunction<Expression, Expression, Expression> relOpConstructor;
+        if ((relOpConstructor = relOps.get(lexer.getCurrentToken().getType())) != null) {
             lexer.getNextToken();
             var right = parseAddExpr();
             if (right == null) {
@@ -311,9 +313,8 @@ public class Parser {
         var left = parseTerm();
         if (left == null) return null;
 
-        // TODO: zamiast containsKey get, get zwraca null jak nie ma
-        while (addOps.containsKey(lexer.getCurrentToken().getType())) {
-            var addOpConstructor = addOps.get(lexer.getCurrentToken().getType());
+        BiFunction<Expression, Expression, Expression> addOpConstructor;
+        while ((addOpConstructor = addOps.get(lexer.getCurrentToken().getType())) != null) {
             lexer.getNextToken();
             var right = parseTerm();
             if (right == null) {
@@ -335,8 +336,8 @@ public class Parser {
         var left = parseFactor();
         if (left == null) return null;
 
-        while (multOps.containsKey(lexer.getCurrentToken().getType())) {
-            var multOpConstructor = multOps.get(lexer.getCurrentToken().getType());
+        BiFunction<Expression, Expression, Expression> multOpConstructor;
+        while ((multOpConstructor = multOps.get(lexer.getCurrentToken().getType())) != null) {
             lexer.getNextToken();
             var right = parseFactor();
             if (right == null) {

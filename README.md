@@ -17,7 +17,7 @@ Spis treści:
 Składnia:
 
 ```
-var_stmt           = "var", identifier, ["=", expr], ";";
+var_stmt           = "var", identifier, "=", expr, ";";
 func_def           = identifier, "(", [parameters], ")", code_block;
 class_def          = "class", class_id, class_body;
 cond_stmt          = "if", "(", expr, ")", code_block, ["else", code_block];
@@ -26,18 +26,20 @@ for_stmt           = "for", "(", identifier, "in", expr, ")", code_block;
 switch_stmt        = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";
 
 program            = { func_def | class_def };
-code_block         = "{", { non_ret_stmt | ["return"], expr, ["=", expr], ";" }, "}";
+code_block         = "{", { non_ret_stmt | ret_stmt | obj_access, ["=", expr], ";" }, "}";
+ret_stmt           = "return", [expr], ";"
 parameters         = identifier, { ",", identifier };
 non_ret_stmt       = var_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
 class_body         = "{", { func_def | var_stmt }, "}";
 ident_or_fun_call  = identifier, ["(", [args], ")"];
 class_init         = "new", class_id, "(", [args], ")";
-args               = expr, {",", expr }
+args               = arg, {",", arg }
+arg                = ["ref"] expr;
 obj_access         = ident_or_fun_call, { ".",  ident_or_fun_call };
-expr               = or_op_arg, { "or", or_op_arg };
-or_op_arg          = and_op_arg, { "and", and_op_arg };
-and_op_arg         = rel_op_arg, [rel_operator, rel_op_arg];
-rel_op_arg         = term, { add_op, term };
+expr               = and_expr, { "or", and_expr };
+and_expr           = rel_expr, { "and", rel_expr };
+rel_expr           = add_expr, [rel_operator, add_expr];
+add_expr           = term, { add_op, term };
 term               = factor, { mult_op, factor };
 factor             = ["not" | "-"], (factor_inner | "(", expr, ")"), ["as", (type | class_id)];
 factor_inner       = constant | obj_access | string | class_init;
@@ -119,8 +121,7 @@ Operator `and` ma wyższy priorytet niż `or`. Oba te operatory są łączne.
 ```js
 var t = true;
 var f = false;
-var res;
-res = t and f; // res == false
+var res = t and f; // res == false
 res = t or f; // res == true
 res = t and t and t; // res == true
 
@@ -162,11 +163,11 @@ f1(x, y, z){
 }
 
 f2(){
-    int x = 5;
+    x = 5;
     while(true){
         x = x - 1;
         if(x < 0) {
-            return; // this will return out of f2 block
+            return 0; // this will return out of f2 block
         }
     }
 }
@@ -177,9 +178,8 @@ fun(x) {
 }
 
 main() { // <- this is the entry point of an application
-    var res;
     var x = 5;
-    res = fun(5);     // res = 6, x = 5
+    var res = fun(5);     // res = 6, x = 5
     res = fun(x);     // res = 6, x = 5
     res = fun(ref x); // res = 6, x = 6
     return 0;
@@ -230,7 +230,7 @@ for(el in lst) {
 
 ```js
 class Circle {
-    var r;
+    var r = 0;
 
     init(radius) {
         r = radius;
@@ -252,7 +252,7 @@ circle_builder(){
 circle_builder().printRadius();
 
 class CircleWrapper {
-    var circle;
+    var circle = 0;
     
     init(r){
         circle = new Circle(r);

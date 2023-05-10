@@ -32,8 +32,12 @@ public class ErrorElement {
             case INCONSISTENT_LINE_ENDINGS -> "error: inconsistent line endings";
             case UNKNOWN_CHARACTER -> "error: unknown character";
             case UNCLOSED_STRING -> "error: string not closed";
+            case UNEXPECTED_TOKEN -> "error: unexpected token";
             case CONSTANT_TOO_BIG -> "error: constant exceeded max size";
             case MALFORMED_NUMBER -> "error: malformed number";
+            case ALREADY_DECLARED -> "error: already declared";
+            case DUPLICATE_LABEL -> "error: duplicate label";
+            case UNSUPPORTED_CHAINING -> "error: unsupported chaining";
             default -> "unknownError";
         };
 

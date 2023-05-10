@@ -1,18 +1,19 @@
 package com.anczykowski;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-
 import com.anczykowski.errormodule.ErrorModule;
-import com.anczykowski.lexer.Lexer;
+import com.anczykowski.errormodule.exceptions.ParserException;
+import com.anczykowski.lexer.LexerFiltered;
+import com.anczykowski.lexer.LexerImpl;
 import com.anczykowski.lexer.Source;
 import com.anczykowski.lexer.TokenFilters;
+import com.anczykowski.parser.Parser;
+import com.anczykowski.parser.visitors.PrinterVisitor;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class Main {
+    private static final boolean isDebug = true;
 
     public static void main(String[] args) throws Exception {
         var outPrintStream = getPrintStream();
@@ -20,11 +21,21 @@ public class Main {
         var errorModule = new ErrorModule();
 
         try (var src = getSource(args, errorModule)) {
-            var lexer = new Lexer(src, errorModule);
-            lexer.stream()
-                .filter(TokenFilters.getCommentFilter())
-                .forEach(outPrintStream::println);
-            errorModule.printErrors(outPrintStream);
+            var lexer = new LexerImpl(src, errorModule);
+            var lexerFiltered = new LexerFiltered(lexer, TokenFilters.getCommentFilter());
+
+            var parser = new Parser(lexerFiltered, errorModule);
+
+            try {
+                var program = parser.parse();
+                var printer = new PrinterVisitor(outPrintStream);
+                program.accept(printer);
+            } catch (ParserException pe) {
+                if (isDebug) pe.printStackTrace();
+            } finally {
+                errorModule.printErrors(outPrintStream);
+            }
+
         }
     }
 
@@ -39,7 +50,7 @@ public class Main {
             var fileReader = new FileReader(file, StandardCharsets.UTF_8);
             return new Source(errorModule, fileReader, file.getCanonicalPath());
         } else {
-            var fileReader =  new InputStreamReader(System.in, StandardCharsets.UTF_8);
+            var fileReader = new InputStreamReader(System.in, StandardCharsets.UTF_8);
             return new Source(errorModule, fileReader);
         }
     }

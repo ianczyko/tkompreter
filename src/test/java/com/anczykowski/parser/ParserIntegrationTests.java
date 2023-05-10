@@ -17,7 +17,7 @@ import com.anczykowski.lexer.StringToken;
 import com.anczykowski.lexer.Token;
 import com.anczykowski.lexer.TokenType;
 import com.anczykowski.parser.helpers.ParserHelpers;
-import com.anczykowski.parser.structures.expressions.AssignmentExpression;
+import com.anczykowski.parser.structures.statements.AssignmentStatement;
 import com.anczykowski.parser.structures.expressions.IdentifierExpression;
 import com.anczykowski.parser.structures.expressions.IntegerConstantExpr;
 
@@ -187,7 +187,7 @@ class ParserIntegrationTests {
         assertEquals("fun", fun.getName());
         assertEquals("param1", fun.getParams().get(0).getName());
         assertEquals("param2", fun.getParams().get(1).getName());
-        var firstExpr = (AssignmentExpression) fun.getCodeBLock().getStatementsAndExpressions().get(0);
+        var firstExpr = (AssignmentStatement) fun.getCodeBLock().getStatements().get(0);
         var firstExprLval = (IdentifierExpression) firstExpr.getLval();
         var firstExprRval = (IntegerConstantExpr) firstExpr.getRval();
         assertEquals("variable", firstExprLval.getIdentifier());
@@ -227,7 +227,7 @@ class ParserIntegrationTests {
         assertEquals("fun", fun.getName());
         assertEquals("param1", fun.getParams().get(0).getName());
         assertEquals("param2", fun.getParams().get(1).getName());
-        var firstExpr = (VarStmt) fun.getCodeBLock().getStatementsAndExpressions().get(0);
+        var firstExpr = (VarStmt) fun.getCodeBLock().getStatements().get(0);
         var firstExprRval = (IntegerConstantExpr) firstExpr.getInitial();
         assertEquals("variable", firstExpr.getName());
         assertEquals(2, firstExprRval.getValue());

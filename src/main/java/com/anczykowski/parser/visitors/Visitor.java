@@ -54,7 +54,9 @@ public interface Visitor {
 
     void visit(NegatedExpression negatedExpression);
 
-    void visit(AssignmentExpression assignmentExpression);
+    void visit(AssignmentStatement assignmentStatement);
+
+    void visit(ExpressionStatement expressionStatement);
 
     void visit(CondStmt condStmt);
 
@@ -80,5 +82,5 @@ public interface Visitor {
 
     void visit(SwitchLabel switchLabel);
 
-    void visit(ReturnExpression returnExpression);
+    void visit(ReturnStatement returnStatement);
 }

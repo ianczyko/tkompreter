@@ -88,7 +88,7 @@ public class PrinterVisitor implements Visitor {
         printIndentation();
         out.println("codeBLock: ");
         level++;
-        codeBLock.getStatementsAndExpressions().forEach(statement -> statement.accept(this));
+        codeBLock.getStatements().forEach(statement -> statement.accept(this));
         level--;
     }
 
@@ -291,12 +291,21 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(AssignmentExpression assignmentExpression) {
+    public void visit(AssignmentStatement assignmentStatement) {
         printIndentation();
         out.println("assignmentExpression: (lval/rval) ");
         level++;
-        assignmentExpression.getLval().accept(this);
-        assignmentExpression.getRval().accept(this);
+        assignmentStatement.getLval().accept(this);
+        assignmentStatement.getRval().accept(this);
+        level--;
+    }
+
+    @Override
+    public void visit(ExpressionStatement expressionStatement) {
+        printIndentation();
+        out.println("expressionStatement: ");
+        level++;
+        expressionStatement.getExpression().accept(this);
         level--;
     }
 
@@ -322,12 +331,12 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(ReturnExpression returnExpression) {
+    public void visit(ReturnStatement returnStatement) {
         printIndentation();
         out.println("returnExpression: ");
         level++;
-        if(returnExpression.getInner() != null){
-            returnExpression.getInner().accept(this);
+        if(returnStatement.getInner() != null){
+            returnStatement.getInner().accept(this);
         }
         level--;
     }

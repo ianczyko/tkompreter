@@ -10,6 +10,7 @@ import com.anczykowski.errormodule.ErrorType;
 import com.anczykowski.errormodule.exceptions.ParserException;
 import com.anczykowski.parser.structures.SwitchLabel;
 import com.anczykowski.parser.structures.expressions.*;
+import com.anczykowski.parser.structures.statements.*;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
@@ -30,11 +31,6 @@ import com.anczykowski.parser.structures.expressions.relops.GtRelExpr;
 import com.anczykowski.parser.structures.expressions.relops.LeRelExpr;
 import com.anczykowski.parser.structures.expressions.relops.LtRelExpr;
 import com.anczykowski.parser.structures.expressions.relops.NeRelExpr;
-import com.anczykowski.parser.structures.statements.CondStmt;
-import com.anczykowski.parser.structures.statements.ForStmt;
-import com.anczykowski.parser.structures.statements.SwitchStmt;
-import com.anczykowski.parser.structures.statements.VarStmt;
-import com.anczykowski.parser.structures.statements.WhileStmt;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -98,7 +94,7 @@ class ParserTests {
         var codeBLock = parser.parseCodeBlock();
 
         // then
-        assertTrue(codeBLock.getStatementsAndExpressions().isEmpty());
+        assertTrue(codeBLock.getStatements().isEmpty());
     }
 
     private static Stream<Arguments> binaryOperatorsMapping() {
@@ -468,7 +464,7 @@ class ParserTests {
         assertEquals("param1", parsedFunction.getParams().get(0).getName());
         assertEquals("param2", parsedFunction.getParams().get(1).getName());
 
-        assertTrue(parsedFunction.getCodeBLock().getStatementsAndExpressions().isEmpty());
+        assertTrue(parsedFunction.getCodeBLock().getStatements().isEmpty());
     }
 
     @Test
@@ -620,7 +616,7 @@ class ParserTests {
 
         assertEquals("arg1", method1.getParams().get(0).getName());
 
-        assertTrue(method1.getCodeBLock().getStatementsAndExpressions().isEmpty());
+        assertTrue(method1.getCodeBLock().getStatements().isEmpty());
     }
 
     @Test
@@ -1207,11 +1203,11 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var statementsAndExpressions = new ArrayList<Expression>();
+        var statementsAndExpressions = new ArrayList<Statement>();
         parser.parseRetStmt(statementsAndExpressions);
 
         // then
-        var expr = (ReturnExpression) statementsAndExpressions.get(0);
+        var expr = (ReturnStatement) statementsAndExpressions.get(0);
         assertEquals(1, ((IntegerConstantExpr) expr.getInner()).getValue());
     }
 
@@ -1229,7 +1225,7 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var statementsAndExpressions = new ArrayList<Expression>();
+        var statementsAndExpressions = new ArrayList<Statement>();
         parser.parseRetStmt(statementsAndExpressions);
 
         // then
@@ -1330,7 +1326,7 @@ class ParserTests {
         var errorModule = new ErrorModule();
 
         var lexer = ParserHelpers.thereIsLexer(List.of(
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "a"),
             new Token(TokenType.ASSIGNMENT, new Location()),
             new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
             new Token(TokenType.SEMICOLON, new Location())
@@ -1338,14 +1334,14 @@ class ParserTests {
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var statementsAndExpressions = new ArrayList<Expression>();
+        var statementsAndExpressions = new ArrayList<Statement>();
         parser.parseExprInsideCodeBlock(statementsAndExpressions);
 
         // then
-        var expr = (AssignmentExpression) statementsAndExpressions.get(0);
-        var lval = (IntegerConstantExpr) expr.getLval();
+        var expr = (AssignmentStatement) statementsAndExpressions.get(0);
+        var lval = (IdentifierExpression) expr.getLval();
         var rval = (IntegerConstantExpr) expr.getRval();
-        assertEquals(1, lval.getValue());
+        assertEquals("a", lval.getIdentifier());
         assertEquals(2, rval.getValue());
     }
 
@@ -1356,14 +1352,14 @@ class ParserTests {
         var errorModule = new ErrorModule();
 
         var lexer = ParserHelpers.thereIsLexer(List.of(
-                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "a"),
                 new Token(TokenType.ASSIGNMENT, new Location()),
                 new Token(TokenType.SEMICOLON, new Location())
         ));
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var statementsAndExpressions = new ArrayList<Expression>();
+        var statementsAndExpressions = new ArrayList<Statement>();
         parser.parseExprInsideCodeBlock(statementsAndExpressions);
 
         // then
@@ -1378,14 +1374,14 @@ class ParserTests {
         var errorModule = new ErrorModule();
 
         var lexer = ParserHelpers.thereIsLexer(List.of(
-                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "a"),
                 new Token(TokenType.ASSIGNMENT, new Location()),
                 new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2)
         ));
         var parser = new Parser(lexer, errorModule);
 
         // when
-        var statementsAndExpressions = new ArrayList<Expression>();
+        var statementsAndExpressions = new ArrayList<Statement>();
         parser.parseExprInsideCodeBlock(statementsAndExpressions);
 
         // then
@@ -1400,14 +1396,14 @@ class ParserTests {
         var errorModule = new ErrorModule();
 
         var lexer = ParserHelpers.thereIsLexer(List.of(
-            new Token(TokenType.IF_KEYWORD, new Location()),
-            new Token(TokenType.LPAREN, new Location()),
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
-            new Token(TokenType.RPAREN, new Location()),
-            new Token(TokenType.LBRACE, new Location()),
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
-            new Token(TokenType.SEMICOLON, new Location()),
-            new Token(TokenType.RBRACE, new Location())
+                new Token(TokenType.IF_KEYWORD, new Location()),
+                new Token(TokenType.LPAREN, new Location()),
+                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
+                new Token(TokenType.RPAREN, new Location()),
+                new Token(TokenType.LBRACE, new Location()),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "b"),
+                new Token(TokenType.SEMICOLON, new Location()),
+                new Token(TokenType.RBRACE, new Location())
         ));
         var parser = new Parser(lexer, errorModule);
 
@@ -1417,10 +1413,10 @@ class ParserTests {
         // then
         var cond = (IntegerConstantExpr) condExpr.getCondition();
         var trueBLock = (CodeBLock) condExpr.getTrueBlock();
-        var trueBlockFirstStmt = (IntegerConstantExpr) trueBLock.getStatementsAndExpressions().get(0);
+        var trueBlockFirstStmt = ((IdentifierExpression)((ExpressionStatement) trueBLock.getStatements().get(0)).getExpression());
         var elseBlock = condExpr.getElseBlock();
         assertEquals(1, cond.getValue());
-        assertEquals(2, trueBlockFirstStmt.getValue());
+        assertEquals("b", trueBlockFirstStmt.getIdentifier());
         assertNull(elseBlock);
     }
 
@@ -1529,12 +1525,12 @@ class ParserTests {
             new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
             new Token(TokenType.RPAREN, new Location()),
             new Token(TokenType.LBRACE, new Location()),
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "b"),
             new Token(TokenType.SEMICOLON, new Location()),
             new Token(TokenType.RBRACE, new Location()),
             new Token(TokenType.ELSE_KEYWORD, new Location()),
             new Token(TokenType.LBRACE, new Location()),
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 3),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "c"),
             new Token(TokenType.SEMICOLON, new Location()),
             new Token(TokenType.RBRACE, new Location())
         ));
@@ -1546,12 +1542,12 @@ class ParserTests {
         // then
         var cond = (IntegerConstantExpr) condExpr.getCondition();
         var trueBLock = (CodeBLock) condExpr.getTrueBlock();
-        var trueBlockFirstStmt = (IntegerConstantExpr) trueBLock.getStatementsAndExpressions().get(0);
+        var trueBlockFirstStmt = ((IdentifierExpression)((ExpressionStatement) trueBLock.getStatements().get(0)).getExpression());
         var elseBlock = condExpr.getElseBlock();
-        var elseBlockFirstStmt = (IntegerConstantExpr) elseBlock.getStatementsAndExpressions().get(0);
+        var elseBlockFirstStmt = ((IdentifierExpression)((ExpressionStatement) elseBlock.getStatements().get(0)).getExpression());
         assertEquals(1, cond.getValue());
-        assertEquals(2, trueBlockFirstStmt.getValue());
-        assertEquals(3, elseBlockFirstStmt.getValue());
+        assertEquals("b", trueBlockFirstStmt.getIdentifier());
+        assertEquals("c", elseBlockFirstStmt.getIdentifier());
     }
 
     @Test
@@ -1593,7 +1589,7 @@ class ParserTests {
             new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
             new Token(TokenType.RPAREN, new Location()),
             new Token(TokenType.LBRACE, new Location()),
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "b"),
             new Token(TokenType.SEMICOLON, new Location()),
             new Token(TokenType.RBRACE, new Location())
         ));
@@ -1605,9 +1601,9 @@ class ParserTests {
         // then
         var cond = (IntegerConstantExpr) whileStmt.getCondition();
         var trueBLock = (CodeBLock) whileStmt.getCodeBLock();
-        var trueBlockFirstStmt = (IntegerConstantExpr) trueBLock.getStatementsAndExpressions().get(0);
+        var trueBlockFirstStmt = ((IdentifierExpression)((ExpressionStatement) trueBLock.getStatements().get(0)).getExpression());
         assertEquals(1, cond.getValue());
-        assertEquals(2, trueBlockFirstStmt.getValue());
+        assertEquals("b", trueBlockFirstStmt.getIdentifier());
     }
 
     @Test
@@ -1717,7 +1713,7 @@ class ParserTests {
             new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 1),
             new Token(TokenType.RPAREN, new Location()),
             new Token(TokenType.LBRACE, new Location()),
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "b"),
             new Token(TokenType.SEMICOLON, new Location()),
             new Token(TokenType.RBRACE, new Location())
         ));
@@ -1730,10 +1726,10 @@ class ParserTests {
         var iteratorIdentifier = forStmt.getIteratorIdentifier();
         var iterable = (IntegerConstantExpr) forStmt.getIterable();
         var codeBLock = (CodeBLock) forStmt.getCodeBLock();
-        var codeBlockFirstStmt = (IntegerConstantExpr) codeBLock.getStatementsAndExpressions().get(0);
+        var codeBlockFirstStmt = ((IdentifierExpression)((ExpressionStatement) codeBLock.getStatements().get(0)).getExpression());
         assertEquals("iter", iteratorIdentifier);
         assertEquals(1, iterable.getValue());
-        assertEquals(2, codeBlockFirstStmt.getValue());
+        assertEquals("b", codeBlockFirstStmt.getIdentifier());
     }
 
     @Test
@@ -1907,7 +1903,7 @@ class ParserTests {
             new Token(TokenType.DEFAULT_KEYWORD, new Location()),
             new Token(TokenType.ARROW, new Location()),
             new Token(TokenType.LBRACE, new Location()),
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "b"),
             new Token(TokenType.SEMICOLON, new Location()),
             new Token(TokenType.RBRACE, new Location()),
 
@@ -1924,8 +1920,8 @@ class ParserTests {
         var switchElements = forStmt.getSwitchElements();
         var defaultLabel = new SwitchLabel("default");
         assertTrue(switchElements.containsKey(defaultLabel));
-        var defFirstExpr = (IntegerConstantExpr) switchElements.get(defaultLabel).getStatementsAndExpressions().get(0);
-        assertEquals(2, defFirstExpr.getValue());
+        var defFirstExpr = ((IdentifierExpression)((ExpressionStatement) switchElements.get(defaultLabel).getStatements().get(0)).getExpression());
+        assertEquals("b", defFirstExpr.getIdentifier());
     }
 
     @Test
@@ -2126,14 +2122,14 @@ class ParserTests {
                 new Token(TokenType.DEFAULT_KEYWORD, new Location()),
                 new Token(TokenType.ARROW, new Location()),
                 new Token(TokenType.LBRACE, new Location()),
-                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "b"),
                 new Token(TokenType.SEMICOLON, new Location()),
                 new Token(TokenType.RBRACE, new Location()),
 
                 new Token(TokenType.DEFAULT_KEYWORD, new Location()),
                 new Token(TokenType.ARROW, new Location()),
                 new Token(TokenType.LBRACE, new Location()),
-                new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+                new StringToken(TokenType.IDENTIFIER, new Location(), "c"),
                 new Token(TokenType.SEMICOLON, new Location()),
                 new Token(TokenType.RBRACE, new Location()),
 
@@ -2192,14 +2188,14 @@ class ParserTests {
             new Token(TokenType.DEFAULT_KEYWORD, new Location()),
             new Token(TokenType.ARROW, new Location()),
             new Token(TokenType.LBRACE, new Location()),
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 2),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "b"),
             new Token(TokenType.SEMICOLON, new Location()),
             new Token(TokenType.RBRACE, new Location()),
 
             new StringToken(TokenType.IDENTIFIER, new Location(), "float"),
             new Token(TokenType.ARROW, new Location()),
             new Token(TokenType.LBRACE, new Location()),
-            new IntegerToken(TokenType.INTEGER_NUMBER, new Location(), 3),
+            new StringToken(TokenType.IDENTIFIER, new Location(), "c"),
             new Token(TokenType.SEMICOLON, new Location()),
             new Token(TokenType.RBRACE, new Location()),
 
@@ -2217,13 +2213,13 @@ class ParserTests {
         var switchElements = forStmt.getSwitchElements();
         var defaultLabel = new SwitchLabel("default");
         assertTrue(switchElements.containsKey(defaultLabel));
-        var defFirstExpr = (IntegerConstantExpr) switchElements.get(defaultLabel).getStatementsAndExpressions().get(0);
-        assertEquals(2, defFirstExpr.getValue());
+        var defFirstExpr = ((IdentifierExpression)((ExpressionStatement) switchElements.get(defaultLabel).getStatements().get(0)).getExpression());
+        assertEquals("b", defFirstExpr.getIdentifier());
 
         var floatLabel = new SwitchLabel("float");
         assertTrue(switchElements.containsKey(floatLabel));
-        var floatFirstExpr = (IntegerConstantExpr) switchElements.get(floatLabel).getStatementsAndExpressions().get(0);
-        assertEquals(3, floatFirstExpr.getValue());
+        var floatFirstExpr = ((IdentifierExpression)((ExpressionStatement) switchElements.get(floatLabel).getStatements().get(0)).getExpression());
+        assertEquals("c", floatFirstExpr.getIdentifier());
     }
 
 }

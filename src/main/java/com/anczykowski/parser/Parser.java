@@ -169,13 +169,13 @@ public class Parser {
             return null;
         }
 
-        ArrayList<Expression> statementsAndExpressions = new ArrayList<>(); // TODO: Statement jako interfejs, niektóre tylko expression implementują stmt
+        ArrayList<Statement> statements = new ArrayList<>();
 
         HashMap<String, VarStmt> variables = new HashMap<>();
 
-        while (parseNonRetStmt(variables, statementsAndExpressions)
-                || parseRetStmt(statementsAndExpressions)
-                || parseExprInsideCodeBlock(statementsAndExpressions)
+        while (parseNonRetStmt(variables, statements)
+                || parseRetStmt(statements)
+                || parseExprInsideCodeBlock(statements)
         ) {
         }
 
@@ -184,17 +184,17 @@ public class Parser {
             reportUnexpectedTokenWithExplanation("Expected '{' to close code block");
         }
 
-        return new CodeBLock(statementsAndExpressions);
+        return new CodeBLock(statements);
     }
 
     // ret_stmt = "return", [expr], ";"
-    protected boolean parseRetStmt(ArrayList<Expression> statementsAndExpressions) {
+    protected boolean parseRetStmt(ArrayList<Statement> statementsAndExpressions) {
         if(!consumeIf(TokenType.RETURN_KEYWORD)){
             return false;
         }
 
         var expression = parseExpr();
-        var returnExpression = new ReturnExpression(expression);
+        var returnExpression = new ReturnStatement(expression);
         statementsAndExpressions.add(returnExpression);
 
         if (!consumeIf(TokenType.SEMICOLON)) {
@@ -204,23 +204,28 @@ public class Parser {
         return true;
     }
 
-    // expr, ["=", expr], ";"
-    protected boolean parseExprInsideCodeBlock(ArrayList<Expression> statementsAndExpressions) {
-        var expression = parseExpr();
+    // obj_access, ["=", expr], ";"
+    protected boolean parseExprInsideCodeBlock(ArrayList<Statement> statementsAndExpressions) {
+        var expression = parseObjAccess();
         if (expression == null) {
             return false;
         }
 
+        Statement expressionStatement = null;
         if (consumeIf(TokenType.ASSIGNMENT)) {
             var assignExpr = parseExpr();
             if (assignExpr == null) {
                 reportUnexpectedToken("=", "expected expression after '='");
             } else {
-                expression = new AssignmentExpression(expression, assignExpr);
+                expressionStatement = new AssignmentStatement(expression, assignExpr);
             }
         }
 
-        statementsAndExpressions.add(expression);
+        if (expressionStatement == null) {
+            expressionStatement = new ExpressionStatement(expression);
+        }
+
+        statementsAndExpressions.add(expressionStatement);
 
         if (!consumeIf(TokenType.SEMICOLON)) {
             reportUnexpectedTokenWithExplanation("';' expected");
@@ -554,9 +559,9 @@ public class Parser {
 
     // non_ret_stmt = var_stmt | cond_stmt | while_stmt | for_stmt | switch_stmt;
     protected boolean parseNonRetStmt(
-            HashMap<String, VarStmt> variables, ArrayList<Expression> statementsAndExpressions
+            HashMap<String, VarStmt> variables, ArrayList<Statement> statementsAndExpressions
     ) throws ParserException {
-        Expression nonRetStmt = parseVarStmt(variables);
+        Statement nonRetStmt = parseVarStmt(variables);
         if (nonRetStmt == null) {
             nonRetStmt = parseConditionalStmt();
         }
@@ -578,7 +583,7 @@ public class Parser {
     }
 
     // cond_stmt = "if", "(", expr, ")", code_block, ["else", code_block];
-    protected Expression parseConditionalStmt() throws ParserException {
+    protected Statement parseConditionalStmt() throws ParserException {
         if (!consumeIf(TokenType.IF_KEYWORD)) {
             return null;
         }
@@ -618,7 +623,7 @@ public class Parser {
     }
 
     // while_stmt = "while", "(", expr, ")", code_block;
-    protected Expression parseWhileStmt() throws ParserException {
+    protected Statement parseWhileStmt() throws ParserException {
         if (!consumeIf(TokenType.WHILE_KEYWORD)) {
             return null;
         }
@@ -648,7 +653,7 @@ public class Parser {
     }
 
     // for_stmt = "for", "(", identifier, "in", expr, ")", code_block;
-    protected Expression parseForStmt() throws ParserException {
+    protected Statement parseForStmt() throws ParserException {
         if (!consumeIf(TokenType.FOR_KEYWORD)) {
             return null;
         }
@@ -691,7 +696,7 @@ public class Parser {
     }
 
     // switch_stmt = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";
-    protected Expression parseSwitchStmt() throws ParserException {
+    protected Statement parseSwitchStmt() throws ParserException {
         if (!consumeIf(TokenType.SWITCH_KEYWORD)) {
             return null;
         }

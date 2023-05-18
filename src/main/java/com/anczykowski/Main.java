@@ -7,6 +7,7 @@ import com.anczykowski.lexer.LexerImpl;
 import com.anczykowski.lexer.Source;
 import com.anczykowski.lexer.TokenFilters;
 import com.anczykowski.parser.Parser;
+import com.anczykowski.visitors.InterpreterVisitor;
 import com.anczykowski.visitors.PrinterVisitor;
 
 import java.io.*;
@@ -30,6 +31,9 @@ public class Main {
                 var program = parser.parse();
                 var printer = new PrinterVisitor(outPrintStream);
                 program.accept(printer);
+
+                var interpreter = new InterpreterVisitor();
+                program.accept(interpreter);
             } catch (ParserException pe) {
                 if (isDebug) pe.printStackTrace();
             } finally {

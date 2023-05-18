@@ -2,7 +2,7 @@ package com.anczykowski.parser.structures.statements;
 
 import com.anczykowski.parser.structures.CodeBLock;
 import com.anczykowski.parser.structures.expressions.Expression;
-import com.anczykowski.parser.visitors.Visitor;
+import com.anczykowski.visitors.Visitor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

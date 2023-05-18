@@ -1,4 +1,4 @@
-package com.anczykowski.parser.visitors;
+package com.anczykowski.visitors;
 
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;

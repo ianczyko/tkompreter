@@ -1,6 +1,6 @@
 package com.anczykowski.parser.structures.expressions;
 
-import com.anczykowski.parser.visitors.Visitor;
+import com.anczykowski.visitors.Visitor;
 
 public class MultiplicationFactor extends LeftRightExpression {
 

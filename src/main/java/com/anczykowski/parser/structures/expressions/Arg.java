@@ -1,6 +1,6 @@
 package com.anczykowski.parser.structures.expressions;
 
-import com.anczykowski.parser.visitors.Visitor;
+import com.anczykowski.visitors.Visitor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

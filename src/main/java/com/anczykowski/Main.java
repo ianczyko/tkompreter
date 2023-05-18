@@ -7,7 +7,7 @@ import com.anczykowski.lexer.LexerImpl;
 import com.anczykowski.lexer.Source;
 import com.anczykowski.lexer.TokenFilters;
 import com.anczykowski.parser.Parser;
-import com.anczykowski.parser.visitors.PrinterVisitor;
+import com.anczykowski.visitors.PrinterVisitor;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

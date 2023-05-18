@@ -1,7 +1,7 @@
 package com.anczykowski.parser.structures.statements;
 
-import com.anczykowski.parser.visitors.Visitable;
-import com.anczykowski.parser.visitors.Visitor;
+import com.anczykowski.visitors.Visitable;
+import com.anczykowski.visitors.Visitor;
 
 public class Statement implements Visitable {
     @Override

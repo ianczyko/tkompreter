@@ -1,4 +1,4 @@
-package com.anczykowski.parser.visitors;
+package com.anczykowski.visitors;
 
 public interface Visitable {
     void accept(Visitor visitor);

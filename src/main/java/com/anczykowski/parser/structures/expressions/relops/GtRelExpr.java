@@ -2,7 +2,7 @@ package com.anczykowski.parser.structures.expressions.relops;
 
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.LeftRightExpression;
-import com.anczykowski.parser.visitors.Visitor;
+import com.anczykowski.visitors.Visitor;
 
 public class GtRelExpr extends LeftRightExpression {
 

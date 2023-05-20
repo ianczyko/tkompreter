@@ -1,5 +1,8 @@
 package com.anczykowski.visitors;
 
+import java.util.ArrayList;
+
+import com.anczykowski.interpreter.ContextManager;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
@@ -8,10 +11,19 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 public class InterpreterVisitor implements Visitor {
+
+    ContextManager contextManager;
+
     @Override
     public void visit(Program program) {
         program.getClasses().values().forEach(cls -> cls.accept(this));
         program.getFunctions().values().forEach(fun -> fun.accept(this));
+
+        contextManager.getGlobalSymbolManager().addFunctions(program.getFunctions());
+        contextManager.getGlobalSymbolManager().addClasses(program.getClasses());
+
+        var mainFunctionCall = new FunctionCallExpression("main", new ArrayList<>());
+        mainFunctionCall.accept(this);
     }
 
 
@@ -78,6 +90,7 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(FunctionCallExpression functionCallExpression) {
         functionCallExpression.getArgs().forEach(arg -> arg.accept(this));
+        contextManager.getGlobalSymbolManager().getFunction(functionCallExpression.getIdentifier()).accept(this);
     }
 
     @Override

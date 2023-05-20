@@ -9,10 +9,18 @@ import com.anczykowski.parser.structures.expressions.relops.*;
 import com.anczykowski.parser.structures.statements.*;
 import lombok.RequiredArgsConstructor;
 
+// TODO: obsługa dzielenia przez 0
+// TODO: void funkcja ma czyścić lastResult
+// TODO: "fun();" bez przypisania ma również czyścić lastResult
+
 @RequiredArgsConstructor
 public class InterpreterVisitor implements Visitor {
 
     ContextManager contextManager;
+
+    boolean isReturn = false;
+
+    Object lastResult = null;
 
     @Override
     public void visit(Program program) {
@@ -36,6 +44,13 @@ public class InterpreterVisitor implements Visitor {
     public void visit(FuncDef funcDef) {
         funcDef.getParams().forEach(method -> method.accept(this));
         funcDef.getCodeBLock().accept(this);
+        isReturn = false;
+    }
+
+    @Override
+    public void visit(FunctionCallExpression functionCallExpression) {
+        functionCallExpression.getArgs().forEach(arg -> arg.accept(this));
+        contextManager.getGlobalSymbolManager().getFunction(functionCallExpression.getIdentifier()).accept(this);
     }
 
     @Override
@@ -85,12 +100,6 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(Arg arg) {
         arg.getArgument().accept(this);
-    }
-
-    @Override
-    public void visit(FunctionCallExpression functionCallExpression) {
-        functionCallExpression.getArgs().forEach(arg -> arg.accept(this));
-        contextManager.getGlobalSymbolManager().getFunction(functionCallExpression.getIdentifier()).accept(this);
     }
 
     @Override

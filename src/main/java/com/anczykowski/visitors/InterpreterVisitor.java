@@ -107,14 +107,10 @@ public class InterpreterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Statement statement) {
-
-    }
+    public void visit(Statement statement) {}
 
     @Override
-    public void visit(Expression expression) {
-
-    }
+    public void visit(Expression expression) {}
 
     @Override
     public void visit(IdentifierExpression identifierExpression) {

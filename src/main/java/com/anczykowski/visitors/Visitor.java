@@ -32,13 +32,13 @@ public interface Visitor {
 
     void visit(NeRelExpr neRelOpArg);
 
-    void visit(GtRelExpr gtRelOpArg);
+    void visit(GtRelExpr gtRelExpr);
 
-    void visit(GeRelExpr geRelOpArg);
+    void visit(GeRelExpr geRelExpr);
 
-    void visit(LtRelExpr ltRelOpArg);
+    void visit(LtRelExpr ltRelExpr);
 
-    void visit(LeRelExpr leRelOpArg);
+    void visit(LeRelExpr leRelExpr);
 
     void visit(AdditionTerm additionTerm);
 

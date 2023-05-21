@@ -178,32 +178,32 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(GeRelExpr geRelOpArg) {
+    public void visit(GeRelExpr geRelExpr) {
         printIndentation();
         out.println("geRelOpArg");
         level++;
-        geRelOpArg.getLeft().accept(this);
-        geRelOpArg.getRight().accept(this);
+        geRelExpr.getLeft().accept(this);
+        geRelExpr.getRight().accept(this);
         level--;
     }
 
     @Override
-    public void visit(GtRelExpr gtRelOpArg) {
+    public void visit(GtRelExpr gtRelExpr) {
         printIndentation();
         out.println("gtRelOpArg");
         level++;
-        gtRelOpArg.getLeft().accept(this);
-        gtRelOpArg.getRight().accept(this);
+        gtRelExpr.getLeft().accept(this);
+        gtRelExpr.getRight().accept(this);
         level--;
     }
 
     @Override
-    public void visit(LtRelExpr ltRelOpArg) {
+    public void visit(LtRelExpr ltRelExpr) {
         printIndentation();
         out.println("ltRelOpArg");
         level++;
-        ltRelOpArg.getLeft().accept(this);
-        ltRelOpArg.getRight().accept(this);
+        ltRelExpr.getLeft().accept(this);
+        ltRelExpr.getRight().accept(this);
         level--;
     }
 
@@ -218,12 +218,12 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(LeRelExpr leRelOpArg) {
+    public void visit(LeRelExpr leRelExpr) {
         printIndentation();
         out.println("leRelOpArg");
         level++;
-        leRelOpArg.getLeft().accept(this);
-        leRelOpArg.getRight().accept(this);
+        leRelExpr.getLeft().accept(this);
+        leRelExpr.getRight().accept(this);
         level--;
     }
 

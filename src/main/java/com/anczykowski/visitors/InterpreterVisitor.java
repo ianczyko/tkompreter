@@ -151,21 +151,21 @@ public class InterpreterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(GeRelExpr geRelOpArg) {
-        geRelOpArg.getLeft().accept(this);
-        geRelOpArg.getRight().accept(this);
+    public void visit(GeRelExpr geRelExpr) {
+        geRelExpr.getLeft().accept(this);
+        geRelExpr.getRight().accept(this);
     }
 
     @Override
-    public void visit(GtRelExpr gtRelOpArg) {
-        gtRelOpArg.getLeft().accept(this);
-        gtRelOpArg.getRight().accept(this);
+    public void visit(GtRelExpr gtRelExpr) {
+        gtRelExpr.getLeft().accept(this);
+        gtRelExpr.getRight().accept(this);
     }
 
     @Override
-    public void visit(LtRelExpr ltRelOpArg) {
-        ltRelOpArg.getLeft().accept(this);
-        ltRelOpArg.getRight().accept(this);
+    public void visit(LtRelExpr ltRelExpr) {
+        ltRelExpr.getLeft().accept(this);
+        ltRelExpr.getRight().accept(this);
     }
 
     @Override
@@ -175,9 +175,9 @@ public class InterpreterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(LeRelExpr leRelOpArg) {
-        leRelOpArg.getLeft().accept(this);
-        leRelOpArg.getRight().accept(this);
+    public void visit(LeRelExpr leRelExpr) {
+        leRelExpr.getLeft().accept(this);
+        leRelExpr.getRight().accept(this);
     }
 
     @Override

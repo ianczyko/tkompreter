@@ -39,6 +39,7 @@ public class ErrorElement {
             case DUPLICATE_LABEL -> "error: duplicate label";
             case UNSUPPORTED_CHAINING -> "error: unsupported chaining";
             case UNMATCHED_ARGUMENTS -> "error: unmatched arguments";
+            case UNSUPPORTED_OPERATION -> "error: unsupported operation";
             default -> "unknownError";
         };
 

@@ -40,6 +40,7 @@ public class ErrorElement {
             case UNSUPPORTED_CHAINING -> "error: unsupported chaining";
             case UNMATCHED_ARGUMENTS -> "error: unmatched arguments";
             case UNSUPPORTED_OPERATION -> "error: unsupported operation";
+            case UNDECLARED_VARIABLE -> "error: undeclared variable";
             default -> "unknownError";
         };
 

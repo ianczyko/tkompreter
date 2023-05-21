@@ -115,7 +115,7 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(IdentifierExpression identifierExpression) {
-
+        lastResult = new IdentifierValue(identifierExpression.getIdentifier());
     }
 
     @Override
@@ -293,7 +293,18 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(AssignmentStatement assignmentStatement) {
         assignmentStatement.getLval().accept(this);
+        var lval = lastResult;
         assignmentStatement.getRval().accept(this);
+        var rval = lastResult;
+        lastResult = null;
+        if (lval instanceof IdentifierValue identifierValue){
+            contextManager.updateVariable(identifierValue.getValue(), rval);
+        } else {
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNDECLARED_VARIABLE)
+                    .build()
+            );
+        }
     }
 
     @Override

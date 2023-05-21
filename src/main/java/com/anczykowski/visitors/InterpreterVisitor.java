@@ -43,7 +43,7 @@ public class InterpreterVisitor implements Visitor {
     }
 
 
-    @Override
+    @Override // TODO classDef
     public void visit(ClassDef classDef) {
         classDef.getClassBody().accept(this);
     }
@@ -80,7 +80,7 @@ public class InterpreterVisitor implements Visitor {
         contextManager.getGlobalSymbolManager().getFunction(functionCallExpression.getIdentifier()).accept(this);
     }
 
-    @Override
+    @Override // TODO classBody
     public void visit(ClassBody classBody) {
         classBody.getAttributes().values().forEach(attr -> attr.accept(this));
         classBody.getMethods().values().forEach(method -> method.accept(this));
@@ -94,9 +94,7 @@ public class InterpreterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Parameter parameter) {
-
-    }
+    public void visit(Parameter parameter) {}
 
     @Override
     public void visit(CodeBLock codeBLock) {
@@ -117,7 +115,7 @@ public class InterpreterVisitor implements Visitor {
         lastResult = new IdentifierValue(identifierExpression.getIdentifier());
     }
 
-    @Override
+    @Override // TODO objectAccessExpression
     public void visit(ObjectAccessExpression objectAccessExpression) {
         objectAccessExpression.getCurrent().accept(this);
         objectAccessExpression.getChild().accept(this);
@@ -128,7 +126,7 @@ public class InterpreterVisitor implements Visitor {
         arg.getArgument().accept(this);
     }
 
-    @Override
+    @Override // TODO classInitExpression
     public void visit(ClassInitExpression classInitExpression) {
         classInitExpression.getArgs().forEach(arg -> arg.accept(this));
     }
@@ -306,7 +304,7 @@ public class InterpreterVisitor implements Visitor {
         }
     }
 
-    @Override
+    @Override // TODO expressionStatement
     public void visit(ExpressionStatement expressionStatement) {
         expressionStatement.getExpression().accept(this);
     }
@@ -316,15 +314,13 @@ public class InterpreterVisitor implements Visitor {
         lastResult = new StringValue(stringExpression.getValue());
     }
 
-    @Override
+    @Override // TODO castExpression
     public void visit(CastExpression castExpression) {
         castExpression.getInner().accept(this);
     }
 
     @Override
-    public void visit(SwitchLabel switchLabel) {
-
-    }
+    public void visit(SwitchLabel switchLabel) {}
 
     @Override
     public void visit(ReturnStatement returnStatement) {
@@ -334,7 +330,7 @@ public class InterpreterVisitor implements Visitor {
         }
     }
 
-    @Override
+    @Override  // TODO condStmt
     public void visit(CondStmt condStmt) {
         condStmt.getCondition().accept(this);
         condStmt.getTrueBlock().accept(this);
@@ -344,19 +340,19 @@ public class InterpreterVisitor implements Visitor {
 
     }
 
-    @Override
+    @Override  // TODO whileStmt
     public void visit(WhileStmt whileStmt) {
         whileStmt.getCondition().accept(this);
         whileStmt.getCodeBLock().accept(this);
     }
 
-    @Override
+    @Override  // TODO forStmt
     public void visit(ForStmt forStmt) {
         forStmt.getIterable().accept(this);
         forStmt.getCodeBLock().accept(this);
     }
 
-    @Override
+    @Override  // TODO switchStmt
     public void visit(SwitchStmt switchStmt) {
         switchStmt.getExpression().accept(this);
         switchStmt.getSwitchElements().forEach((attrKey, attr) -> {

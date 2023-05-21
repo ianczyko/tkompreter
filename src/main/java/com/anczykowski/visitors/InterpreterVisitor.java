@@ -15,6 +15,7 @@ import com.anczykowski.parser.structures.statements.*;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.function.BinaryOperator;
 
 // TODO: obsługa dzielenia przez 0
 // TODO: void funkcja ma czyścić lastResult
@@ -133,6 +134,31 @@ public class InterpreterVisitor implements Visitor {
         classInitExpression.getArgs().forEach(arg -> arg.accept(this));
     }
 
+    private void evaluateLeftRightNumerical(
+            LeftRightExpression leftRightExpression,
+            String operationName,
+            BinaryOperator<Integer> integerOperation,
+            BinaryOperator<Float> floatOperation
+    ) {
+        leftRightExpression.getLeft().accept(this);
+        var leftValue = lastResult;
+        lastResult = null;
+        leftRightExpression.getRight().accept(this);
+        var rightValue = lastResult;
+        lastResult = null;
+        if (leftValue instanceof IntValue left && rightValue instanceof IntValue right) {
+            lastResult = new IntValue(integerOperation.apply(left.getValue(), right.getValue()));
+        } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
+            lastResult = new FloatValue(floatOperation.apply(left.getValue(), right.getValue()));
+        } else {
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .explanation("%s is only supported on object of the same type. You may need to cast one of the expressions first.".formatted(operationName))
+                    .build()
+            );
+        }
+    }
+
     @Override
     public void visit(AndExpr andExpr) {
         andExpr.getLeft().accept(this);
@@ -182,57 +208,24 @@ public class InterpreterVisitor implements Visitor {
     }
 
     @Override
+    @SuppressWarnings("Convert2MethodRef")
     public void visit(AdditionTerm additionTerm) {
-        additionTerm.getLeft().accept(this);
-        var leftValue = lastResult;
-        lastResult = null;
-        additionTerm.getRight().accept(this);
-        var rightValue = lastResult;
-        lastResult = null;
-        if (leftValue instanceof IntValue left && rightValue instanceof IntValue right) {
-            lastResult = new IntValue(left.getValue() + right.getValue());
-        } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
-            lastResult = new FloatValue(left.getValue() + right.getValue());
-        } else {
-            errorModule.addError(ErrorElement.builder()
-                    .errorType(ErrorType.UNSUPPORTED_OPERATION)
-                    .explanation("Addition is only supported on object of the same type. You may need to cast one of the expressions first.")
-                    .build()
-            );
-        }
+        evaluateLeftRightNumerical(additionTerm, "addition", (a, b) -> a + b, (a, b) -> a + b);
     }
 
     @Override
     public void visit(SubtractionTerm subtractionTerm) {
-        subtractionTerm.getLeft().accept(this);
-        var leftValue = lastResult;
-        lastResult = null;
-        subtractionTerm.getRight().accept(this);
-        var rightValue = lastResult;
-        lastResult = null;
-        if (leftValue instanceof IntValue left && rightValue instanceof IntValue right) {
-            lastResult = new IntValue(left.getValue() - right.getValue());
-        } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
-            lastResult = new FloatValue(left.getValue() - right.getValue());
-        } else {
-            errorModule.addError(ErrorElement.builder()
-                    .errorType(ErrorType.UNSUPPORTED_OPERATION)
-                    .explanation("Subtraction is only supported on object of the same type. You may need to cast one of the expressions first.")
-                    .build()
-            );
-        }
+        evaluateLeftRightNumerical(subtractionTerm, "subtraction", (a, b) -> a - b, (a, b) -> a - b);
     }
 
     @Override
     public void visit(MultiplicationFactor multiplicationFactor) {
-        multiplicationFactor.getLeft().accept(this);
-        multiplicationFactor.getRight().accept(this);
+        evaluateLeftRightNumerical(multiplicationFactor, "multiplication", (a, b) -> a * b, (a, b) -> a * b);
     }
 
     @Override
     public void visit(DivisionFactor divisionFactor) {
-        divisionFactor.getLeft().accept(this);
-        divisionFactor.getRight().accept(this);
+        evaluateLeftRightNumerical(divisionFactor, "division", (a, b) -> a / b, (a, b) -> a / b);
     }
 
     @Override

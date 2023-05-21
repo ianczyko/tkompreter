@@ -32,7 +32,7 @@ public class Main {
                 var printer = new PrinterVisitor(outPrintStream);
                 program.accept(printer);
 
-                var interpreter = new InterpreterVisitor();
+                var interpreter = new InterpreterVisitor(errorModule);
                 program.accept(interpreter);
             } catch (ParserException pe) {
                 if (isDebug) pe.printStackTrace();

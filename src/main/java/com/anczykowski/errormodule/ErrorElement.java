@@ -38,6 +38,7 @@ public class ErrorElement {
             case ALREADY_DECLARED -> "error: already declared";
             case DUPLICATE_LABEL -> "error: duplicate label";
             case UNSUPPORTED_CHAINING -> "error: unsupported chaining";
+            case UNMATCHED_ARGUMENTS -> "error: unmatched arguments";
             default -> "unknownError";
         };
 

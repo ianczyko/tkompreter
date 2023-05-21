@@ -1,13 +1,19 @@
 package com.anczykowski.visitors;
 
-import java.util.ArrayList;
-
+import com.anczykowski.errormodule.ErrorElement;
+import com.anczykowski.errormodule.ErrorModule;
+import com.anczykowski.errormodule.ErrorType;
+import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.ContextManager;
+import com.anczykowski.interpreter.value.IntValue;
+import com.anczykowski.interpreter.value.Value;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
 import com.anczykowski.parser.structures.statements.*;
 import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
 
 // TODO: obsługa dzielenia przez 0
 // TODO: void funkcja ma czyścić lastResult
@@ -16,17 +22,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InterpreterVisitor implements Visitor {
 
-    ContextManager contextManager;
+    private final ErrorModule errorModule;
+
+    ContextManager contextManager = new ContextManager();
 
     boolean isReturn = false;
 
-    Object lastResult = null;
+    Value lastResult = null;
+
+    ArrayList<Value> argumentsEvaluated = new ArrayList<>();
 
     @Override
     public void visit(Program program) {
-        program.getClasses().values().forEach(cls -> cls.accept(this));
-        program.getFunctions().values().forEach(fun -> fun.accept(this));
-
         contextManager.getGlobalSymbolManager().addFunctions(program.getFunctions());
         contextManager.getGlobalSymbolManager().addClasses(program.getClasses());
 
@@ -42,14 +49,33 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(FuncDef funcDef) {
-        funcDef.getParams().forEach(method -> method.accept(this));
+        if (funcDef.getParams().size() != argumentsEvaluated.size()) {
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNMATCHED_ARGUMENTS)
+                    .explanation("expected %d arguments but %d provided.".formatted(funcDef.getParams().size(), argumentsEvaluated.size()))
+                    .build());
+        }
+        var newContext = new Context();
+        var paramIterator = funcDef.getParams().iterator();
+        var argIterator = argumentsEvaluated.iterator();
+        while (paramIterator.hasNext() && argIterator.hasNext()) {
+            var param = paramIterator.next();
+            var argValue = argIterator.next();
+            newContext.addVariable(param.getName(), argValue);
+        }
+        contextManager.addContext(newContext);
         funcDef.getCodeBLock().accept(this);
+        contextManager.popContext();
         isReturn = false;
     }
 
     @Override
     public void visit(FunctionCallExpression functionCallExpression) {
-        functionCallExpression.getArgs().forEach(arg -> arg.accept(this));
+        argumentsEvaluated.clear();
+        for (Arg arg : functionCallExpression.getArgs()) {
+            arg.accept(this);
+            argumentsEvaluated.add(lastResult);
+        }
         contextManager.getGlobalSymbolManager().getFunction(functionCallExpression.getIdentifier()).accept(this);
     }
 
@@ -61,9 +87,8 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(VarStmt varStmt) {
-        if (varStmt.getInitial() != null) {
-            varStmt.getInitial().accept(this);
-        }
+        varStmt.getInitial().accept(this);
+        contextManager.addVariable(varStmt.getName(), lastResult);
     }
 
     @Override
@@ -181,7 +206,7 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(IntegerConstantExpr integerConstantExpr) {
-
+        lastResult = new IntValue(integerConstantExpr.getValue());
     }
 
     @Override

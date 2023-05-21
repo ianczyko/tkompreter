@@ -100,7 +100,10 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(CodeBLock codeBLock) {
-        codeBLock.getStatements().forEach(statement -> statement.accept(this));
+        for (Statement statement : codeBLock.getStatements()) {
+            statement.accept(this);
+            if(isReturn) return;
+        }
     }
 
     @Override

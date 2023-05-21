@@ -28,11 +28,11 @@ public class InterpreterVisitor implements Visitor {
 
     private final ErrorModule errorModule;
 
-    ContextManager contextManager = new ContextManager();
+    private final ContextManager contextManager = new ContextManager();
 
-    boolean isReturn = false;
+    protected boolean isReturn = false;
 
-    Value lastResult = null;
+    protected Value lastResult = null;
 
     ArrayList<Value> argumentsEvaluated = new ArrayList<>();
 
@@ -275,7 +275,7 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(FloatConstantExpr floatConstantExpr) {
-
+        lastResult = new FloatValue(floatConstantExpr.getValue());
     }
 
     @Override

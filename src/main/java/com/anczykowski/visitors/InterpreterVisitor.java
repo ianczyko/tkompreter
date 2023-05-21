@@ -318,9 +318,35 @@ public class InterpreterVisitor implements Visitor {
         lastResult = new StringValue(stringExpression.getValue());
     }
 
-    @Override // TODO castExpression
+    @Override
     public void visit(CastExpression castExpression) {
         castExpression.getInner().accept(this);
+        switch (castExpression.getType()) {
+            case "int" -> {
+                if (lastResult instanceof IntValue intValue) {
+                    lastResult = new IntValue(intValue.getValue());
+                } else if (lastResult instanceof FloatValue floatValue) {
+                    lastResult = new IntValue((int) floatValue.getValue());
+                } else {
+                    errorModule.addError(ErrorElement.builder()
+                            .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                            .explanation("Can only cast int/float to int")
+                            .build());
+                }
+            }
+            case "float" -> {
+                if (lastResult instanceof IntValue intValue) {
+                    lastResult = new FloatValue((float) intValue.getValue());
+                } else if (lastResult instanceof FloatValue floatValue) {
+                    lastResult = new FloatValue(floatValue.getValue());
+                } else {
+                    errorModule.addError(ErrorElement.builder()
+                            .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                            .explanation("Can only cast int/float to int")
+                            .build());
+                }
+            }
+        }
     }
 
     @Override

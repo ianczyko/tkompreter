@@ -525,4 +525,96 @@ class InterpreterVisitorTest {
         assertTrue(((BoolValue) interpreter.lastResult).getValue());
     }
 
+
+    @Test
+    void interpretCastIntToFloat() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        var expr = new CastExpression(
+                new IntegerConstantExpr(1),
+                "float"
+        );
+
+        // when
+        expr.accept(interpreter);
+
+        // then
+        assertEquals(1.0f, ((FloatValue) interpreter.lastResult).getValue(), 0.000001f);
+    }
+
+    @Test
+    void interpretCastFloatToFloat() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        var expr = new CastExpression(
+                new FloatConstantExpr(1.0f),
+                "float"
+        );
+
+        // when
+        expr.accept(interpreter);
+
+        // then
+        assertEquals(1.0f, ((FloatValue) interpreter.lastResult).getValue(), 0.000001f);
+    }
+
+    @Test
+    void interpretCastFloatToInt() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        var expr = new CastExpression(
+                new FloatConstantExpr(1.0f),
+                "int"
+        );
+
+        // when
+        expr.accept(interpreter);
+
+        // then
+        assertEquals(1, ((IntValue) interpreter.lastResult).getValue());
+    }
+
+    @Test
+    void interpretCastIntToInt() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        var expr = new CastExpression(
+                new IntegerConstantExpr(1),
+                "int"
+        );
+
+        // when
+        expr.accept(interpreter);
+
+        // then
+        assertEquals(1, ((IntValue) interpreter.lastResult).getValue());
+    }
+
+    @Test
+    void interpretCastStringToInt() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        var expr = new CastExpression(
+                new StringExpression("abc"),
+                "int"
+        );
+
+        // when
+        expr.accept(interpreter);
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNSUPPORTED_OPERATION, errorModule.getErrors().get(0).getErrorType());
+    }
+
 }

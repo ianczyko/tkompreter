@@ -5,10 +5,7 @@ import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.errormodule.ErrorType;
 import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.ContextManager;
-import com.anczykowski.interpreter.value.BoolValue;
-import com.anczykowski.interpreter.value.FloatValue;
-import com.anczykowski.interpreter.value.IntValue;
-import com.anczykowski.interpreter.value.Value;
+import com.anczykowski.interpreter.value.*;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
@@ -305,7 +302,7 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(StringExpression stringExpression) {
-
+        lastResult = new StringValue(stringExpression.getValue());
     }
 
     @Override

@@ -90,6 +90,7 @@ public class InterpreterVisitor implements Visitor {
     public void visit(VarStmt varStmt) {
         varStmt.getInitial().accept(this);
         contextManager.addVariable(varStmt.getName(), lastResult);
+        lastResult = null;
     }
 
     @Override

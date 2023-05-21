@@ -330,6 +330,7 @@ public class InterpreterVisitor implements Visitor {
     public void visit(ReturnStatement returnStatement) {
         if (returnStatement.getInner() != null) {
             returnStatement.getInner().accept(this);
+            isReturn = true;
         }
     }
 

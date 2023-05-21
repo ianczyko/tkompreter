@@ -200,13 +200,27 @@ public class InterpreterVisitor implements Visitor {
                     .build()
             );
         }
-
     }
 
     @Override
     public void visit(SubtractionTerm subtractionTerm) {
         subtractionTerm.getLeft().accept(this);
+        var leftValue = lastResult;
+        lastResult = null;
         subtractionTerm.getRight().accept(this);
+        var rightValue = lastResult;
+        lastResult = null;
+        if (leftValue instanceof IntValue left && rightValue instanceof IntValue right) {
+            lastResult = new IntValue(left.getValue() - right.getValue());
+        } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
+            lastResult = new FloatValue(left.getValue() - right.getValue());
+        } else {
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .explanation("Subtraction is only supported on object of the same type. You may need to cast one of the expressions first.")
+                    .build()
+            );
+        }
     }
 
     @Override

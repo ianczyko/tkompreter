@@ -282,6 +282,13 @@ public class InterpreterVisitor implements Visitor {
     public void visit(NegatedExpression negatedExpression) {
         if (negatedExpression.getInner() != null) {
             negatedExpression.getInner().accept(this);
+            if (lastResult instanceof IntValue intValue) {
+                lastResult = new IntValue(-intValue.getValue());
+            } else if (lastResult instanceof FloatValue floatValue){
+                lastResult = new FloatValue(-floatValue.getValue());
+            } else if (lastResult instanceof BoolValue boolValue){
+                lastResult = new BoolValue(!boolValue.getValue());
+            }
         }
     }
 

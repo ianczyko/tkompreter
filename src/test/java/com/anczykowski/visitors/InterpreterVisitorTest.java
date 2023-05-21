@@ -477,4 +477,52 @@ class InterpreterVisitorTest {
         assertEquals(ErrorType.UNSUPPORTED_OPERATION, errorModule.getErrors().get(0).getErrorType());
     }
 
+    @Test
+    void interpretNegatedInt() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        var expr = new NegatedExpression(new IntegerConstantExpr(1));
+
+        // when
+        expr.accept(interpreter);
+
+        // then
+        assertEquals(-1, ((IntValue) interpreter.lastResult).getValue());
+    }
+
+    @Test
+    void interpretNegatedFloat() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        var expr = new NegatedExpression(new FloatConstantExpr(1.0f));
+
+        // when
+        expr.accept(interpreter);
+
+        // then
+        assertEquals(-1.0f, ((FloatValue) interpreter.lastResult).getValue(), 0.000001f);
+    }
+
+    @Test
+    void interpretNegatedBool() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        var expr = new NegatedExpression(new EqRelExpr(
+                new IntegerConstantExpr(1),
+                new IntegerConstantExpr(2)
+        ));
+
+        // when
+        expr.accept(interpreter);
+
+        // then
+        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+    }
+
 }

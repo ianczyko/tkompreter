@@ -94,21 +94,24 @@ public class InterpreterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(Parameter parameter) {}
+    public void visit(Parameter parameter) {
+    }
 
     @Override
     public void visit(CodeBLock codeBLock) {
         for (Statement statement : codeBLock.getStatements()) {
             statement.accept(this);
-            if(isReturn) return;
+            if (isReturn) return;
         }
     }
 
     @Override
-    public void visit(Statement statement) {}
+    public void visit(Statement statement) {
+    }
 
     @Override
-    public void visit(Expression expression) {}
+    public void visit(Expression expression) {
+    }
 
     @Override
     public void visit(IdentifierExpression identifierExpression) {
@@ -232,6 +235,7 @@ public class InterpreterVisitor implements Visitor {
     public void visit(LtRelExpr ltRelExpr) {
         evaluateLeftRightRelational(ltRelExpr, "lt", (a, b) -> a < b, (a, b) -> a < b);
     }
+
     @Override
     public void visit(LeRelExpr leRelExpr) {
         evaluateLeftRightRelational(leRelExpr, "le", (a, b) -> a <= b, (a, b) -> a <= b);
@@ -279,9 +283,9 @@ public class InterpreterVisitor implements Visitor {
             negatedExpression.getInner().accept(this);
             if (lastResult instanceof IntValue intValue) {
                 lastResult = new IntValue(-intValue.getValue());
-            } else if (lastResult instanceof FloatValue floatValue){
+            } else if (lastResult instanceof FloatValue floatValue) {
                 lastResult = new FloatValue(-floatValue.getValue());
-            } else if (lastResult instanceof BoolValue boolValue){
+            } else if (lastResult instanceof BoolValue boolValue) {
                 lastResult = new BoolValue(!boolValue.getValue());
             }
         }
@@ -294,7 +298,7 @@ public class InterpreterVisitor implements Visitor {
         assignmentStatement.getRval().accept(this);
         var rval = lastResult;
         lastResult = null;
-        if (lval instanceof IdentifierValue identifierValue){
+        if (lval instanceof IdentifierValue identifierValue) {
             contextManager.updateVariable(identifierValue.getValue(), rval);
         } else {
             errorModule.addError(ErrorElement.builder()
@@ -320,7 +324,8 @@ public class InterpreterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(SwitchLabel switchLabel) {}
+    public void visit(SwitchLabel switchLabel) {
+    }
 
     @Override
     public void visit(ReturnStatement returnStatement) {

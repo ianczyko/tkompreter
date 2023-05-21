@@ -22,6 +22,7 @@ public class SymbolManager {
         return functions.get(function);
     }
 
+    @SuppressWarnings("unused")
     public ClassDef getClass(String cls) {
         return classes.get(cls);
     }

@@ -5,6 +5,7 @@ import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.errormodule.ErrorType;
 import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.ContextManager;
+import com.anczykowski.interpreter.value.BoolValue;
 import com.anczykowski.interpreter.value.FloatValue;
 import com.anczykowski.interpreter.value.IntValue;
 import com.anczykowski.interpreter.value.Value;
@@ -15,6 +16,7 @@ import com.anczykowski.parser.structures.statements.*;
 import lombok.RequiredArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
 // TODO: obsługa dzielenia przez 0
@@ -159,52 +161,90 @@ public class InterpreterVisitor implements Visitor {
         }
     }
 
+    private void evaluateLeftRightRelational(
+            LeftRightExpression leftRightExpression,
+            String operationName,
+            BiFunction<Integer, Integer, Boolean> integerOperation,
+            BiFunction<Float, Float, Boolean> floatOperation
+    ) {
+        leftRightExpression.getLeft().accept(this);
+        var leftValue = lastResult;
+        lastResult = null;
+        leftRightExpression.getRight().accept(this);
+        var rightValue = lastResult;
+        lastResult = null;
+        if (leftValue instanceof IntValue left && rightValue instanceof IntValue right) {
+            lastResult = new BoolValue(integerOperation.apply(left.getValue(), right.getValue()));
+        } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
+            lastResult = new BoolValue(floatOperation.apply(left.getValue(), right.getValue()));
+        } else {
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .explanation("%s is only supported on object of the same type. You may need to cast one of the expressions first.".formatted(operationName))
+                    .build()
+            );
+        }
+    }
+
+    private void evaluateLeftRightBinary(
+            LeftRightExpression leftRightExpression,
+            String operationName,
+            BinaryOperator<Boolean> booleanOperation
+    ) {
+        leftRightExpression.getLeft().accept(this);
+        var leftValue = lastResult;
+        lastResult = null;
+        leftRightExpression.getRight().accept(this);
+        var rightValue = lastResult;
+        lastResult = null;
+        if (leftValue instanceof BoolValue left && rightValue instanceof BoolValue right) {
+            lastResult = new BoolValue(booleanOperation.apply(left.getValue(), right.getValue()));
+        } else {
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .explanation("%s is only supported on object of the same type. You may need to cast one of the expressions first.".formatted(operationName))
+                    .build()
+            );
+        }
+    }
+
     @Override
     public void visit(AndExpr andExpr) {
-        andExpr.getLeft().accept(this);
-        andExpr.getRight().accept(this);
+        evaluateLeftRightBinary(andExpr, "and", (a, b) -> a && b);
     }
 
     @Override
     public void visit(OrExpression orExpression) {
-        orExpression.getLeft().accept(this);
-        orExpression.getRight().accept(this);
+        evaluateLeftRightBinary(orExpression, "or", (a, b) -> a || b);
     }
 
     @Override
     public void visit(EqRelExpr eqRelExpr) {
-        eqRelExpr.getLeft().accept(this);
-        eqRelExpr.getRight().accept(this);
+        evaluateLeftRightRelational(eqRelExpr, "eq", Integer::equals, Float::equals);
     }
 
     @Override
     public void visit(GeRelExpr geRelExpr) {
-        geRelExpr.getLeft().accept(this);
-        geRelExpr.getRight().accept(this);
+        evaluateLeftRightRelational(geRelExpr, "ge", (a, b) -> a >= b, (a, b) -> a >= b);
     }
 
     @Override
     public void visit(GtRelExpr gtRelExpr) {
-        gtRelExpr.getLeft().accept(this);
-        gtRelExpr.getRight().accept(this);
+        evaluateLeftRightRelational(gtRelExpr, "gt", (a, b) -> a > b, (a, b) -> a > b);
     }
 
     @Override
     public void visit(LtRelExpr ltRelExpr) {
-        ltRelExpr.getLeft().accept(this);
-        ltRelExpr.getRight().accept(this);
+        evaluateLeftRightRelational(ltRelExpr, "lt", (a, b) -> a < b, (a, b) -> a < b);
+    }
+    @Override
+    public void visit(LeRelExpr leRelExpr) {
+        evaluateLeftRightRelational(leRelExpr, "le", (a, b) -> a <= b, (a, b) -> a <= b);
     }
 
     @Override
     public void visit(NeRelExpr neRelOpArg) {
-        neRelOpArg.getLeft().accept(this);
-        neRelOpArg.getRight().accept(this);
-    }
-
-    @Override
-    public void visit(LeRelExpr leRelExpr) {
-        leRelExpr.getLeft().accept(this);
-        leRelExpr.getRight().accept(this);
+        evaluateLeftRightRelational(neRelOpArg, "ne", (a, b) -> !a.equals(b), (a, b) -> !a.equals(b));
     }
 
     @Override

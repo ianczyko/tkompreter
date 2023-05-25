@@ -1,6 +1,5 @@
 package com.anczykowski.interpreter;
 
-import com.anczykowski.interpreter.value.Value;
 import com.anczykowski.interpreter.value.ValueProxy;
 import lombok.Getter;
 
@@ -26,20 +25,6 @@ public class ContextManager {
         if (contexts.peek() != null) {
             contexts.peek().addVariable(variable, value);
         }
-    }
-
-    @SuppressWarnings("UnusedReturnValue")
-    public boolean updateVariable(String variable, Value value) {
-        var it = contexts.descendingIterator();
-        while(it.hasNext()){
-            var context = it.next();
-            var variableProxy = context.variables.get(variable);
-            if (variableProxy != null) {
-                variableProxy.setValue(value);
-                return true;
-            }
-        }
-        return false;
     }
 
     @SuppressWarnings("unused")

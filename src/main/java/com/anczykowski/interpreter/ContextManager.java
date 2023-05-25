@@ -30,10 +30,14 @@ public class ContextManager {
     @SuppressWarnings("unused")
     public ValueProxy getVariable(String variable) {
         var it = contexts.descendingIterator();
-        while(it.hasNext()){
+        boolean foundFunction = false;
+        while(it.hasNext() && !foundFunction){
             var context = it.next();
             if (context.variables.containsKey(variable)) {
                 return context.variables.get(variable);
+            }
+            if(context.isFunctionContext()){
+                foundFunction = true;
             }
         }
         return null;

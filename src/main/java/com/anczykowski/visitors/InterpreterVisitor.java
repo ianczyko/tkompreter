@@ -57,7 +57,7 @@ public class InterpreterVisitor implements Visitor {
                     .explanation("expected %d arguments but %d provided.".formatted(funcDef.getParams().size(), argumentsEvaluated.size()))
                     .build());
         }
-        var newContext = new Context();
+        var newContext = new Context(true);
         var paramIterator = funcDef.getParams().iterator();
         var argIterator = argumentsEvaluated.iterator();
         while (paramIterator.hasNext() && argIterator.hasNext()) {

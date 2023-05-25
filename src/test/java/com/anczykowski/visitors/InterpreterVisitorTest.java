@@ -2,10 +2,12 @@ package com.anczykowski.visitors;
 
 import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.errormodule.ErrorType;
+import com.anczykowski.errormodule.exceptions.InterpreterException;
 import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.value.BoolValue;
 import com.anczykowski.interpreter.value.FloatValue;
 import com.anczykowski.interpreter.value.IntValue;
+import com.anczykowski.interpreter.value.ValueProxy;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
 import com.anczykowski.parser.structures.statements.AssignmentStatement;
@@ -654,6 +656,47 @@ class InterpreterVisitorTest {
 
         // then
         assertEquals(2, ((IntValue) interpreter.contextManager.getVariable("x").getValue()).getValue());
+    }
+
+    @Test
+    void testVarInOutsideLocalScope() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.contextManager.addVariable("x", new ValueProxy(new IntValue(1)));
+        interpreter.contextManager.addContext(new Context());
+
+
+        var identifierExpression = new IdentifierExpression("x");
+
+        // when
+        identifierExpression.accept(interpreter);
+
+        // then
+        assertEquals(1, ((IntValue) interpreter.lastResult.getValue()).getValue());
+    }
+
+    @Test
+    void testVarInOutsideFunctionScope() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.contextManager.addVariable("x", new ValueProxy(new IntValue(1)));
+        interpreter.contextManager.addContext(new Context(true));
+
+
+        var identifierExpression = new IdentifierExpression("x");
+
+        assertThrows(InterpreterException.class, () -> {
+            // when
+            identifierExpression.accept(interpreter);
+        });
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.UNDECLARED_VARIABLE, errorModule.getErrors().get(0).getErrorType());
     }
 
 }

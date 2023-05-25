@@ -377,26 +377,40 @@ public class InterpreterVisitor implements Visitor {
         }
     }
 
-    @Override  // TODO condStmt
+    @Override
     public void visit(CondStmt condStmt) {
         condStmt.getCondition().accept(this);
-        condStmt.getTrueBlock().accept(this);
-        if (condStmt.getElseBlock() != null) {
-            condStmt.getElseBlock().accept(this);
+        var evaluatedCondition = lastResult.getValue();
+        lastResult = null;
+        if (evaluatedCondition instanceof BoolValue boolCondition) {
+            if (boolCondition.getValue()) {
+                contextManager.addContext(new Context());
+                condStmt.getTrueBlock().accept(this);
+                contextManager.popContext();
+            } else {
+                if (condStmt.getElseBlock() != null) {
+                    contextManager.addContext(new Context());
+                    condStmt.getElseBlock().accept(this);
+                    contextManager.popContext();
+                }
+            }
         }
-
     }
 
     @Override  // TODO whileStmt
     public void visit(WhileStmt whileStmt) {
         whileStmt.getCondition().accept(this);
+        contextManager.addContext(new Context());
         whileStmt.getCodeBLock().accept(this);
+        contextManager.popContext();
     }
 
     @Override  // TODO forStmt
     public void visit(ForStmt forStmt) {
         forStmt.getIterable().accept(this);
+        contextManager.addContext(new Context());
         forStmt.getCodeBLock().accept(this);
+        contextManager.popContext();
     }
 
     @Override  // TODO switchStmt
@@ -404,7 +418,9 @@ public class InterpreterVisitor implements Visitor {
         switchStmt.getExpression().accept(this);
         switchStmt.getSwitchElements().forEach((attrKey, attr) -> {
             attrKey.accept(this);
+            contextManager.addContext(new Context());
             attr.accept(this);
+            contextManager.popContext();
         });
     }
 }

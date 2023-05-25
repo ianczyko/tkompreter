@@ -8,11 +8,17 @@ import com.anczykowski.interpreter.value.BoolValue;
 import com.anczykowski.interpreter.value.FloatValue;
 import com.anczykowski.interpreter.value.IntValue;
 import com.anczykowski.interpreter.value.ValueProxy;
+import com.anczykowski.parser.structures.CodeBLock;
+import com.anczykowski.parser.structures.FuncDef;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
 import com.anczykowski.parser.structures.statements.AssignmentStatement;
+import com.anczykowski.parser.structures.statements.CondStmt;
+import com.anczykowski.parser.structures.statements.ReturnStatement;
 import com.anczykowski.parser.structures.statements.VarStmt;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -697,6 +703,39 @@ class InterpreterVisitorTest {
         // then
         assertFalse(errorModule.getErrors().isEmpty());
         assertEquals(ErrorType.UNDECLARED_VARIABLE, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    void testReturnOutOfNestedScope() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+        interpreter.contextManager.addContext(new Context(true));
+
+        var funcDef = new FuncDef("x", new ArrayList<>(), new CodeBLock(
+                new ArrayList<>() {{
+                    add(
+                            new CondStmt(
+                                    new EqRelExpr(new IntegerConstantExpr(1), new IntegerConstantExpr(1)),
+                                    new CodeBLock(
+                                            new ArrayList<>() {{
+                                                add(new ReturnStatement(new IntegerConstantExpr(1)));
+                                                add(new ReturnStatement(new IntegerConstantExpr(2)));
+                                            }}
+                                    ),
+                                    null
+                            )
+                    );
+                    add(new ReturnStatement(new IntegerConstantExpr(3)));
+                }}
+        ));
+
+        // when
+        funcDef.accept(interpreter);
+
+        // then
+        assertEquals(1, ((IntValue) interpreter.lastResult.getValue()).getValue());
+
     }
 
 }

@@ -41,10 +41,12 @@ public class ErrorElement {
             case UNMATCHED_ARGUMENTS -> "error: unmatched arguments";
             case UNSUPPORTED_OPERATION -> "error: unsupported operation";
             case UNDECLARED_VARIABLE -> "error: undeclared variable";
+            case DIVISION_BY_ZERO -> "error: division by zero";
             default -> "unknownError";
         };
-
-        return "%s: %s%s\n%s%s\n".formatted(location.toString(), msg, explanationText, codeLineBuffer, underline);
+        var locationString = location == null ? "" : location.toString();
+        var codeLineBufferString = codeLineBuffer == null ? "" : codeLineBuffer;
+        return "%s: %s%s\n%s%s\n".formatted(locationString, msg, explanationText, codeLineBufferString, underline);
 
     }
 

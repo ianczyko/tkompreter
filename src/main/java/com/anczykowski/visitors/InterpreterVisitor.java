@@ -17,9 +17,9 @@ import java.util.ArrayList;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
-// TODO: obsługa dzielenia przez 0
 // TODO: void funkcja ma czyścić lastResult
 // TODO: "fun();" bez przypisania ma również czyścić lastResult
+// TODO: błędy powinny wskazywać lokalizację a najlepiej jeszcze fragment kodu
 
 @RequiredArgsConstructor
 public class InterpreterVisitor implements Visitor {
@@ -274,7 +274,19 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(DivisionFactor divisionFactor) {
-        evaluateLeftRightNumerical(divisionFactor, "division", (a, b) -> a / b, (a, b) -> a / b);
+        evaluateLeftRightNumerical(divisionFactor, "division", (a, b) -> {
+            if(b == 0) {
+                errorModule.addError(ErrorElement.builder().errorType(ErrorType.DIVISION_BY_ZERO).build());
+                throw new InterpreterException();
+            }
+            return a / b;
+        }, (a, b) -> {
+            if(b.compareTo(0.0f) == 0) {
+                errorModule.addError(ErrorElement.builder().errorType(ErrorType.DIVISION_BY_ZERO).build());
+                throw new InterpreterException();
+            }
+            return a / b;
+        });
     }
 
     @Override

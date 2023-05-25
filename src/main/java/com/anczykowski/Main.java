@@ -35,8 +35,8 @@ public class Main {
 
                 var interpreter = new InterpreterVisitor(errorModule);
                 program.accept(interpreter);
-            } catch (ParserException | InterpreterException pe) {
-                if (isDebug) pe.printStackTrace();
+            } catch (ParserException | InterpreterException e) {
+                if (isDebug) e.printStackTrace();
             }
             finally {
                 errorModule.printErrors(outPrintStream);

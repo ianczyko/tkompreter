@@ -3,6 +3,7 @@ package com.anczykowski.visitors;
 import com.anczykowski.errormodule.ErrorElement;
 import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.errormodule.ErrorType;
+import com.anczykowski.errormodule.exceptions.InterpreterException;
 import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.ContextManager;
 import com.anczykowski.interpreter.value.*;
@@ -123,6 +124,7 @@ public class InterpreterVisitor implements Visitor {
                     .errorType(ErrorType.UNDECLARED_VARIABLE)
                     .build()
             );
+            throw new InterpreterException();
         }
     }
 

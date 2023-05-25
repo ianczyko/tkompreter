@@ -1,6 +1,7 @@
 package com.anczykowski;
 
 import com.anczykowski.errormodule.ErrorModule;
+import com.anczykowski.errormodule.exceptions.InterpreterException;
 import com.anczykowski.errormodule.exceptions.ParserException;
 import com.anczykowski.lexer.LexerFiltered;
 import com.anczykowski.lexer.LexerImpl;
@@ -34,9 +35,10 @@ public class Main {
 
                 var interpreter = new InterpreterVisitor(errorModule);
                 program.accept(interpreter);
-            } catch (ParserException pe) {
+            } catch (ParserException | InterpreterException pe) {
                 if (isDebug) pe.printStackTrace();
-            } finally {
+            }
+            finally {
                 errorModule.printErrors(outPrintStream);
             }
 

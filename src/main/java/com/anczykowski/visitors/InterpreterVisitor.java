@@ -26,7 +26,7 @@ public class InterpreterVisitor implements Visitor {
 
     private final ErrorModule errorModule;
 
-    private final ContextManager contextManager = new ContextManager();
+    protected final ContextManager contextManager = new ContextManager();
 
     protected boolean isReturn = false;
 

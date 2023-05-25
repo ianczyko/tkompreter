@@ -2,11 +2,14 @@ package com.anczykowski.visitors;
 
 import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.errormodule.ErrorType;
+import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.value.BoolValue;
 import com.anczykowski.interpreter.value.FloatValue;
 import com.anczykowski.interpreter.value.IntValue;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
+import com.anczykowski.parser.structures.statements.AssignmentStatement;
+import com.anczykowski.parser.structures.statements.VarStmt;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -615,6 +618,42 @@ class InterpreterVisitorTest {
         // then
         assertFalse(errorModule.getErrors().isEmpty());
         assertEquals(ErrorType.UNSUPPORTED_OPERATION, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    void interpretVarStmt() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+        interpreter.contextManager.addContext(new Context());
+
+
+        var varStmt = new VarStmt("x", new IntegerConstantExpr(1));
+
+        // when
+        varStmt.accept(interpreter);
+
+        // then
+        assertEquals(1, ((IntValue) interpreter.contextManager.getVariable("x").getValue()).getValue());
+    }
+
+    @Test
+    void interpretAssignment() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+        interpreter.contextManager.addContext(new Context());
+
+
+        var varStmt = new VarStmt("x", new IntegerConstantExpr(1));
+        var assignmentStmt = new AssignmentStatement(new IdentifierExpression("x"), new IntegerConstantExpr(2));
+
+        // when
+        varStmt.accept(interpreter);
+        assignmentStmt.accept(interpreter);
+
+        // then
+        assertEquals(2, ((IntValue) interpreter.contextManager.getVariable("x").getValue()).getValue());
     }
 
 }

@@ -1,6 +1,7 @@
 package com.anczykowski.interpreter;
 
 import com.anczykowski.interpreter.value.Value;
+import com.anczykowski.interpreter.value.ValueProxy;
 import lombok.Getter;
 
 import java.util.ArrayDeque;
@@ -21,7 +22,7 @@ public class ContextManager {
     @Getter
     private final SymbolManager globalSymbolManager = new SymbolManager();
 
-    public void addVariable(String variable, Value value) {
+    public void addVariable(String variable, ValueProxy value) {
         if (contexts.peek() != null) {
             contexts.peek().addVariable(variable, value);
         }
@@ -32,8 +33,9 @@ public class ContextManager {
         var it = contexts.descendingIterator();
         while(it.hasNext()){
             var context = it.next();
-            if (context.variables.containsKey(variable)) {
-                context.variables.put(variable, value);
+            var variableProxy = context.variables.get(variable);
+            if (variableProxy != null) {
+                variableProxy.setValue(value);
                 return true;
             }
         }
@@ -41,7 +43,7 @@ public class ContextManager {
     }
 
     @SuppressWarnings("unused")
-    public Value getVariable(String variable) {
+    public ValueProxy getVariable(String variable) {
         var it = contexts.descendingIterator();
         while(it.hasNext()){
             var context = it.next();

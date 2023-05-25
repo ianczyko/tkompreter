@@ -29,7 +29,7 @@ public class InterpreterVisitor implements Visitor {
 
     protected boolean isReturn = false;
 
-    protected Value lastResult = null;
+    protected ValueProxy lastResult = null;
 
     ArrayList<Value> argumentsEvaluated = new ArrayList<>();
 
@@ -62,7 +62,7 @@ public class InterpreterVisitor implements Visitor {
         while (paramIterator.hasNext() && argIterator.hasNext()) {
             var param = paramIterator.next();
             var argValue = argIterator.next();
-            newContext.addVariable(param.getName(), argValue);
+            newContext.addVariable(param.getName(), new ValueProxy(argValue));
         }
         contextManager.addContext(newContext);
         funcDef.getCodeBLock().accept(this);
@@ -75,7 +75,7 @@ public class InterpreterVisitor implements Visitor {
         argumentsEvaluated.clear();
         for (Arg arg : functionCallExpression.getArgs()) {
             arg.accept(this);
-            argumentsEvaluated.add(lastResult);
+            argumentsEvaluated.add(lastResult.getValue());
         }
         contextManager.getGlobalSymbolManager().getFunction(functionCallExpression.getIdentifier()).accept(this);
     }
@@ -115,7 +115,15 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(IdentifierExpression identifierExpression) {
-        lastResult = new IdentifierValue(identifierExpression.getIdentifier());
+        var declaredVariable = contextManager.getVariable(identifierExpression.getIdentifier());
+        if(declaredVariable != null){
+            lastResult = declaredVariable;
+        } else {
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNDECLARED_VARIABLE)
+                    .build()
+            );
+        }
     }
 
     @Override // TODO objectAccessExpression
@@ -141,15 +149,15 @@ public class InterpreterVisitor implements Visitor {
             BinaryOperator<Float> floatOperation
     ) {
         leftRightExpression.getLeft().accept(this);
-        var leftValue = lastResult;
+        var leftValue = lastResult.getValue();
         lastResult = null;
         leftRightExpression.getRight().accept(this);
-        var rightValue = lastResult;
+        var rightValue = lastResult.getValue();
         lastResult = null;
         if (leftValue instanceof IntValue left && rightValue instanceof IntValue right) {
-            lastResult = new IntValue(integerOperation.apply(left.getValue(), right.getValue()));
+            lastResult = new ValueProxy(new IntValue(integerOperation.apply(left.getValue(), right.getValue())));
         } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
-            lastResult = new FloatValue(floatOperation.apply(left.getValue(), right.getValue()));
+            lastResult = new ValueProxy(new FloatValue(floatOperation.apply(left.getValue(), right.getValue())));
         } else {
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
@@ -166,15 +174,15 @@ public class InterpreterVisitor implements Visitor {
             BiFunction<Float, Float, Boolean> floatOperation
     ) {
         leftRightExpression.getLeft().accept(this);
-        var leftValue = lastResult;
+        var leftValue = lastResult.getValue();
         lastResult = null;
         leftRightExpression.getRight().accept(this);
-        var rightValue = lastResult;
+        var rightValue = lastResult.getValue();
         lastResult = null;
         if (leftValue instanceof IntValue left && rightValue instanceof IntValue right) {
-            lastResult = new BoolValue(integerOperation.apply(left.getValue(), right.getValue()));
+            lastResult = new ValueProxy(new BoolValue(integerOperation.apply(left.getValue(), right.getValue())));
         } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
-            lastResult = new BoolValue(floatOperation.apply(left.getValue(), right.getValue()));
+            lastResult = new ValueProxy(new BoolValue(floatOperation.apply(left.getValue(), right.getValue())));
         } else {
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
@@ -190,13 +198,13 @@ public class InterpreterVisitor implements Visitor {
             BinaryOperator<Boolean> booleanOperation
     ) {
         leftRightExpression.getLeft().accept(this);
-        var leftValue = lastResult;
+        var leftValue = lastResult.getValue();
         lastResult = null;
         leftRightExpression.getRight().accept(this);
-        var rightValue = lastResult;
+        var rightValue = lastResult.getValue();
         lastResult = null;
         if (leftValue instanceof BoolValue left && rightValue instanceof BoolValue right) {
-            lastResult = new BoolValue(booleanOperation.apply(left.getValue(), right.getValue()));
+            lastResult = new ValueProxy(new BoolValue(booleanOperation.apply(left.getValue(), right.getValue())));
         } else {
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
@@ -269,24 +277,24 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(IntegerConstantExpr integerConstantExpr) {
-        lastResult = new IntValue(integerConstantExpr.getValue());
+        lastResult = new ValueProxy(new IntValue(integerConstantExpr.getValue()));
     }
 
     @Override
     public void visit(FloatConstantExpr floatConstantExpr) {
-        lastResult = new FloatValue(floatConstantExpr.getValue());
+        lastResult = new ValueProxy(new FloatValue(floatConstantExpr.getValue()));
     }
 
     @Override
     public void visit(NegatedExpression negatedExpression) {
         if (negatedExpression.getInner() != null) {
             negatedExpression.getInner().accept(this);
-            if (lastResult instanceof IntValue intValue) {
-                lastResult = new IntValue(-intValue.getValue());
-            } else if (lastResult instanceof FloatValue floatValue) {
-                lastResult = new FloatValue(-floatValue.getValue());
-            } else if (lastResult instanceof BoolValue boolValue) {
-                lastResult = new BoolValue(!boolValue.getValue());
+            if (lastResult.getValue() instanceof IntValue intValue) {
+                lastResult = new ValueProxy(new IntValue(-intValue.getValue()));
+            } else if (lastResult.getValue() instanceof FloatValue floatValue) {
+                lastResult = new ValueProxy(new FloatValue(-floatValue.getValue()));
+            } else if (lastResult.getValue() instanceof BoolValue boolValue) {
+                lastResult = new ValueProxy(new BoolValue(!boolValue.getValue()));
             }
         }
     }
@@ -295,17 +303,11 @@ public class InterpreterVisitor implements Visitor {
     public void visit(AssignmentStatement assignmentStatement) {
         assignmentStatement.getLval().accept(this);
         var lval = lastResult;
-        assignmentStatement.getRval().accept(this);
-        var rval = lastResult;
         lastResult = null;
-        if (lval instanceof IdentifierValue identifierValue) {
-            contextManager.updateVariable(identifierValue.getValue(), rval);
-        } else {
-            errorModule.addError(ErrorElement.builder()
-                    .errorType(ErrorType.UNDECLARED_VARIABLE)
-                    .build()
-            );
-        }
+        assignmentStatement.getRval().accept(this);
+        var rval = lastResult.getValue();
+        lastResult = null;
+        lval.setValue(rval);
     }
 
     @Override // TODO expressionStatement
@@ -315,7 +317,7 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(StringExpression stringExpression) {
-        lastResult = new StringValue(stringExpression.getValue());
+        lastResult = new ValueProxy(new StringValue(stringExpression.getValue()));
     }
 
     @Override
@@ -323,10 +325,10 @@ public class InterpreterVisitor implements Visitor {
         castExpression.getInner().accept(this);
         switch (castExpression.getType()) {
             case "int" -> {
-                if (lastResult instanceof IntValue intValue) {
-                    lastResult = new IntValue(intValue.getValue());
-                } else if (lastResult instanceof FloatValue floatValue) {
-                    lastResult = new IntValue((int) floatValue.getValue());
+                if (lastResult.getValue() instanceof IntValue intValue) {
+                    lastResult = new ValueProxy(new IntValue(intValue.getValue()));
+                } else if (lastResult.getValue() instanceof FloatValue floatValue) {
+                    lastResult = new ValueProxy(new IntValue((int) floatValue.getValue()));
                 } else {
                     errorModule.addError(ErrorElement.builder()
                             .errorType(ErrorType.UNSUPPORTED_OPERATION)
@@ -335,10 +337,10 @@ public class InterpreterVisitor implements Visitor {
                 }
             }
             case "float" -> {
-                if (lastResult instanceof IntValue intValue) {
-                    lastResult = new FloatValue((float) intValue.getValue());
-                } else if (lastResult instanceof FloatValue floatValue) {
-                    lastResult = new FloatValue(floatValue.getValue());
+                if (lastResult.getValue() instanceof IntValue intValue) {
+                    lastResult = new ValueProxy(new FloatValue((float) intValue.getValue()));
+                } else if (lastResult.getValue() instanceof FloatValue floatValue) {
+                    lastResult = new ValueProxy(new FloatValue(floatValue.getValue()));
                 } else {
                     errorModule.addError(ErrorElement.builder()
                             .errorType(ErrorType.UNSUPPORTED_OPERATION)

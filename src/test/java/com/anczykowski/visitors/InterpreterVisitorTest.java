@@ -27,7 +27,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(3, ((IntValue) interpreter.lastResult).getValue());
+        assertEquals(3, ((IntValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -45,7 +45,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(3.0f, ((FloatValue) interpreter.lastResult).getValue(), 0.000001f);
+        assertEquals(3.0f, ((FloatValue) interpreter.lastResult.getValue()).getValue(), 0.000001f);
     }
 
     @Test
@@ -82,7 +82,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(1, ((IntValue) interpreter.lastResult).getValue());
+        assertEquals(1, ((IntValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -100,7 +100,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(1.0f, ((FloatValue) interpreter.lastResult).getValue(), 0.000001f);
+        assertEquals(1.0f, ((FloatValue) interpreter.lastResult.getValue()).getValue(), 0.000001f);
     }
 
     @Test
@@ -118,7 +118,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(6, ((IntValue) interpreter.lastResult).getValue());
+        assertEquals(6, ((IntValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -136,7 +136,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(6.0f, ((FloatValue) interpreter.lastResult).getValue(), 0.000001f);
+        assertEquals(6.0f, ((FloatValue) interpreter.lastResult.getValue()).getValue(), 0.000001f);
     }
 
     @Test
@@ -154,7 +154,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(2, ((IntValue) interpreter.lastResult).getValue());
+        assertEquals(2, ((IntValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -172,7 +172,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(2.0f, ((FloatValue) interpreter.lastResult).getValue(), 0.000001f);
+        assertEquals(2.0f, ((FloatValue) interpreter.lastResult.getValue()).getValue(), 0.000001f);
     }
 
     @Test
@@ -190,7 +190,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -208,7 +208,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -245,7 +245,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -263,7 +263,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -281,7 +281,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -299,7 +299,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -317,7 +317,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -335,7 +335,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -353,7 +353,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -371,7 +371,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -389,7 +389,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -407,7 +407,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -431,7 +431,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -455,7 +455,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -489,7 +489,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(-1, ((IntValue) interpreter.lastResult).getValue());
+        assertEquals(-1, ((IntValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -504,7 +504,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(-1.0f, ((FloatValue) interpreter.lastResult).getValue(), 0.000001f);
+        assertEquals(-1.0f, ((FloatValue) interpreter.lastResult.getValue()).getValue(), 0.000001f);
     }
 
     @Test
@@ -522,7 +522,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertTrue(((BoolValue) interpreter.lastResult).getValue());
+        assertTrue(((BoolValue) interpreter.lastResult.getValue()).getValue());
     }
 
 
@@ -541,7 +541,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(1.0f, ((FloatValue) interpreter.lastResult).getValue(), 0.000001f);
+        assertEquals(1.0f, ((FloatValue) interpreter.lastResult.getValue()).getValue(), 0.000001f);
     }
 
     @Test
@@ -559,7 +559,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(1.0f, ((FloatValue) interpreter.lastResult).getValue(), 0.000001f);
+        assertEquals(1.0f, ((FloatValue) interpreter.lastResult.getValue()).getValue(), 0.000001f);
     }
 
     @Test
@@ -577,7 +577,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(1, ((IntValue) interpreter.lastResult).getValue());
+        assertEquals(1, ((IntValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test
@@ -595,7 +595,7 @@ class InterpreterVisitorTest {
         expr.accept(interpreter);
 
         // then
-        assertEquals(1, ((IntValue) interpreter.lastResult).getValue());
+        assertEquals(1, ((IntValue) interpreter.lastResult.getValue()).getValue());
     }
 
     @Test

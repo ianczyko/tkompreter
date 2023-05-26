@@ -91,6 +91,7 @@ public class InterpreterVisitor implements Visitor {
             var argValue = argIterator.next();
             newContext.addVariable(param.getName(), new ValueProxy(argValue));
         }
+        argumentsEvaluated.clear();
         contextManager.addContext(newContext);
         funcDef.getCodeBLock().accept(this);
         contextManager.popContext();
@@ -99,7 +100,6 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(FunctionCallExpression functionCallExpression) {
-        argumentsEvaluated.clear();
         for (Arg arg : functionCallExpression.getArgs()) {
             arg.accept(this);
             argumentsEvaluated.add(lastResult.getValue());

@@ -1,5 +1,6 @@
 package com.anczykowski.visitors;
 
+import com.anczykowski.interpreter.PrintCodeBlock;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
@@ -19,6 +20,8 @@ public interface Visitor {
     void visit(Parameter parameter);
 
     void visit(CodeBLock codeBLock);
+
+    void visit(PrintCodeBlock codeBLock);
 
     void visit(Statement statement);
 

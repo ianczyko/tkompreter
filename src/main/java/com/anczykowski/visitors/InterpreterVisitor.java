@@ -6,14 +6,16 @@ import com.anczykowski.errormodule.ErrorType;
 import com.anczykowski.errormodule.exceptions.InterpreterException;
 import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.ContextManager;
+import com.anczykowski.interpreter.PrintCodeBlock;
 import com.anczykowski.interpreter.value.*;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
 import com.anczykowski.parser.structures.statements.*;
-import lombok.RequiredArgsConstructor;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
@@ -21,10 +23,11 @@ import java.util.function.BinaryOperator;
 // TODO: "fun();" bez przypisania ma również czyścić lastResult
 // TODO: błędy powinny wskazywać lokalizację a najlepiej jeszcze fragment kodu
 
-@RequiredArgsConstructor
 public class InterpreterVisitor implements Visitor {
 
     private final ErrorModule errorModule;
+
+    private final PrintStream printStream;
 
     protected final ContextManager contextManager = new ContextManager();
 
@@ -34,15 +37,38 @@ public class InterpreterVisitor implements Visitor {
 
     ArrayList<Value> argumentsEvaluated = new ArrayList<>();
 
+    public InterpreterVisitor(ErrorModule errorModule, PrintStream printStream) {
+        this.errorModule = errorModule;
+        this.printStream = printStream;
+    }
+
+    public InterpreterVisitor(ErrorModule errorModule) {
+        this.errorModule = errorModule;
+        this.printStream = System.out;
+    }
+
     @Override
     public void visit(Program program) {
         contextManager.getGlobalSymbolManager().addFunctions(program.getFunctions());
         contextManager.getGlobalSymbolManager().addClasses(program.getClasses());
 
+        loadBultins();
+
         var mainFunctionCall = new FunctionCallExpression("main", new ArrayList<>());
         mainFunctionCall.accept(this);
     }
 
+    protected void loadBultins(){
+        contextManager.getGlobalSymbolManager().addFunctions(new HashMap<>() {{
+            put("print", new FuncDef(
+                    "print",
+                    new ArrayList<>() {{
+                        add(new Parameter("valueToPrint"));
+                    }},
+                    new PrintCodeBlock()
+            ));
+        }});
+    }
 
     @Override // TODO classDef
     public void visit(ClassDef classDef) {
@@ -107,6 +133,12 @@ public class InterpreterVisitor implements Visitor {
     }
 
     @Override
+    public void visit(PrintCodeBlock printCodeBlock) {
+        var valueToPrint = contextManager.getVariable("valueToPrint");
+        printStream.println(valueToPrint.getValue().toString());
+    }
+
+    @Override
     public void visit(Statement statement) {
     }
 
@@ -117,7 +149,7 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(IdentifierExpression identifierExpression) {
         var declaredVariable = contextManager.getVariable(identifierExpression.getIdentifier());
-        if(declaredVariable != null){
+        if (declaredVariable != null) {
             lastResult = declaredVariable;
         } else {
             errorModule.addError(ErrorElement.builder()
@@ -275,13 +307,13 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(DivisionFactor divisionFactor) {
         evaluateLeftRightNumerical(divisionFactor, "division", (a, b) -> {
-            if(b == 0) {
+            if (b == 0) {
                 errorModule.addError(ErrorElement.builder().errorType(ErrorType.DIVISION_BY_ZERO).build());
                 throw new InterpreterException();
             }
             return a / b;
         }, (a, b) -> {
-            if(b.compareTo(0.0f) == 0) {
+            if (b.compareTo(0.0f) == 0) {
                 errorModule.addError(ErrorElement.builder().errorType(ErrorType.DIVISION_BY_ZERO).build());
                 throw new InterpreterException();
             }
@@ -409,11 +441,11 @@ public class InterpreterVisitor implements Visitor {
         }
     }
 
-    private boolean checkCondition(Expression condition){
+    private boolean checkCondition(Expression condition) {
         condition.accept(this);
         var conditionEvaluated = lastResult;
         lastResult = null;
-        if (conditionEvaluated.getValue() instanceof BoolValue conditionEvaluatedBoolean){
+        if (conditionEvaluated.getValue() instanceof BoolValue conditionEvaluatedBoolean) {
             return conditionEvaluatedBoolean.getValue();
         }
         errorModule.addError(ErrorElement.builder()

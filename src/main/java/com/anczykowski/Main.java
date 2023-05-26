@@ -29,11 +29,13 @@ public class Main {
             var parser = new Parser(lexerFiltered, errorModule);
 
             try {
+                outPrintStream.println("#### Printer ####");
                 var program = parser.parse();
                 var printer = new PrinterVisitor(outPrintStream);
                 program.accept(printer);
 
-                var interpreter = new InterpreterVisitor(errorModule);
+                outPrintStream.println("#### Interpreter ####");
+                var interpreter = new InterpreterVisitor(errorModule, outPrintStream);
                 program.accept(interpreter);
             } catch (ParserException | InterpreterException e) {
                 if (isDebug) e.printStackTrace();

@@ -9,4 +9,9 @@ import lombok.Setter;
 @Setter
 public class FloatValue implements Value {
     private float value;
+
+    @Override
+    public String toString() {
+        return String.valueOf(value);
+    }
 }

@@ -1,5 +1,6 @@
 package com.anczykowski.visitors;
 
+import com.anczykowski.interpreter.PrintCodeBlock;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
@@ -31,6 +32,7 @@ public class PrinterVisitor implements Visitor {
         program.getClasses().values().forEach(cls -> cls.accept(this));
         program.getFunctions().values().forEach(fun -> fun.accept(this));
         level--;
+        out.println();
     }
 
 
@@ -90,6 +92,12 @@ public class PrinterVisitor implements Visitor {
         level++;
         codeBLock.getStatements().forEach(statement -> statement.accept(this));
         level--;
+    }
+
+    @Override
+    public void visit(PrintCodeBlock printCodeBlock) {
+        printIndentation();
+        out.println("printCodeBlock: ");
     }
 
     @Override

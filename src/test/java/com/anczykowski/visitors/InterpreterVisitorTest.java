@@ -15,6 +15,8 @@ import com.anczykowski.parser.structures.expressions.relops.*;
 import com.anczykowski.parser.structures.statements.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -761,6 +763,33 @@ class InterpreterVisitorTest {
         // then
         assertEquals(5, ((IntValue) interpreter.lastResult.getValue()).getValue());
 
+    }
+
+    @Test
+    void testBuiltInPrint() {
+        // given
+        var errorModule = new ErrorModule();
+        var outputStream = new ByteArrayOutputStream();
+        var printStream = new PrintStream(outputStream);
+        var interpreter = new InterpreterVisitor(errorModule, printStream);
+
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.loadBultins();
+
+        var block = new CodeBLock(new ArrayList<>() {{
+            add(new ExpressionStatement(new FunctionCallExpression(
+                    "print",
+                    new ArrayList<>() {{
+                        add(new Arg(new StringExpression("abc"), false));
+                    }}
+            )));
+        }});
+
+        // when
+        block.accept(interpreter);
+
+        // then
+        assertTrue(outputStream.toString().contains("abc"));
     }
 
 }

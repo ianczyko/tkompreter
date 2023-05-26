@@ -9,4 +9,9 @@ import lombok.Setter;
 @Setter
 public class StringValue implements Value {
     private String value;
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }

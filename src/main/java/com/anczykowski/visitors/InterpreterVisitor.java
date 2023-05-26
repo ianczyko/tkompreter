@@ -35,7 +35,7 @@ public class InterpreterVisitor implements Visitor {
 
     protected ValueProxy lastResult = null;
 
-    ArrayList<Value> argumentsEvaluated = new ArrayList<>();
+    ArrayList<ValueProxy> argumentsEvaluated = new ArrayList<>();
 
     public InterpreterVisitor(ErrorModule errorModule, PrintStream printStream) {
         this.errorModule = errorModule;
@@ -88,8 +88,8 @@ public class InterpreterVisitor implements Visitor {
         var argIterator = argumentsEvaluated.iterator();
         while (paramIterator.hasNext() && argIterator.hasNext()) {
             var param = paramIterator.next();
-            var argValue = argIterator.next();
-            newContext.addVariable(param.getName(), new ValueProxy(argValue));
+            var argValueProxy = argIterator.next();
+            newContext.addVariable(param.getName(), argValueProxy);
         }
         argumentsEvaluated.clear();
         contextManager.addContext(newContext);
@@ -102,7 +102,11 @@ public class InterpreterVisitor implements Visitor {
     public void visit(FunctionCallExpression functionCallExpression) {
         for (Arg arg : functionCallExpression.getArgs()) {
             arg.accept(this);
-            argumentsEvaluated.add(lastResult.getValue());
+            if(arg.isByReference()){
+                argumentsEvaluated.add(lastResult);
+            } else {
+                argumentsEvaluated.add(new ValueProxy(lastResult.getValue()));
+            }
         }
         contextManager.getGlobalSymbolManager().getFunction(functionCallExpression.getIdentifier()).accept(this);
     }

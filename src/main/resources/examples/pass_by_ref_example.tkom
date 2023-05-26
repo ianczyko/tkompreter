@@ -1,0 +1,19 @@
+
+
+fun(x) {
+    x = x - 1;
+    return x;
+}
+
+main() {
+    var x = 5;
+
+    fun(x);
+    print(x);
+
+    fun(ref x);
+    print(x);
+
+    return 0;
+}
+

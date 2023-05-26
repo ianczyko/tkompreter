@@ -10,6 +10,7 @@ import com.anczykowski.interpreter.value.IntValue;
 import com.anczykowski.interpreter.value.ValueProxy;
 import com.anczykowski.parser.structures.CodeBLock;
 import com.anczykowski.parser.structures.FuncDef;
+import com.anczykowski.parser.structures.Parameter;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
 import com.anczykowski.parser.structures.statements.*;
@@ -18,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -790,6 +792,96 @@ class InterpreterVisitorTest {
 
         // then
         assertTrue(outputStream.toString().contains("abc"));
+    }
+
+    @Test
+    void testPassByRef() {
+        // given
+        var errorModule = new ErrorModule();
+        var outputStream = new ByteArrayOutputStream();
+        var printStream = new PrintStream(outputStream);
+        var interpreter = new InterpreterVisitor(errorModule, printStream);
+
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.contextManager.getGlobalSymbolManager().addFunctions(new HashMap<>() {{
+            put("increment", new FuncDef(
+                    "increment",
+                    new ArrayList<>() {{
+                        add(new Parameter("x"));
+                    }},
+                    new CodeBLock(new ArrayList<>() {{
+                        add(new AssignmentStatement(
+                                new IdentifierExpression("x"),
+                                new SubtractionTerm(new IdentifierExpression("x"),
+                                        new IntegerConstantExpr(1)
+                                )
+                        ));
+                    }})
+            ));
+        }});
+
+
+        var block = new CodeBLock(new ArrayList<>() {{
+            add(new VarStmt("x", new IntegerConstantExpr(5)));
+            add(new ExpressionStatement(new FunctionCallExpression(
+                    "increment",
+                    new ArrayList<>() {{
+                        add(new Arg(new IdentifierExpression("x"), true));
+                    }}
+            )));
+            add(new ReturnStatement(new IdentifierExpression("x")));
+        }});
+
+        // when
+        block.accept(interpreter);
+
+        // then
+        assertEquals(4, ((IntValue) interpreter.lastResult.getValue()).getValue());
+    }
+
+    @Test
+    void testPassByCopy() {
+        // given
+        var errorModule = new ErrorModule();
+        var outputStream = new ByteArrayOutputStream();
+        var printStream = new PrintStream(outputStream);
+        var interpreter = new InterpreterVisitor(errorModule, printStream);
+
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.contextManager.getGlobalSymbolManager().addFunctions(new HashMap<>() {{
+            put("increment", new FuncDef(
+                    "increment",
+                    new ArrayList<>() {{
+                        add(new Parameter("x"));
+                    }},
+                    new CodeBLock(new ArrayList<>() {{
+                        add(new AssignmentStatement(
+                                new IdentifierExpression("x"),
+                                new SubtractionTerm(new IdentifierExpression("x"),
+                                        new IntegerConstantExpr(1)
+                                )
+                        ));
+                    }})
+            ));
+        }});
+
+
+        var block = new CodeBLock(new ArrayList<>() {{
+            add(new VarStmt("x", new IntegerConstantExpr(5)));
+            add(new ExpressionStatement(new FunctionCallExpression(
+                    "increment",
+                    new ArrayList<>() {{
+                        add(new Arg(new IdentifierExpression("x"), false));
+                    }}
+            )));
+            add(new ReturnStatement(new IdentifierExpression("x")));
+        }});
+
+        // when
+        block.accept(interpreter);
+
+        // then
+        assertEquals(5, ((IntValue) interpreter.lastResult.getValue()).getValue());
     }
 
 }

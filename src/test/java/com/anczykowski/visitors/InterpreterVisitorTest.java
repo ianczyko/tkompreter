@@ -12,10 +12,7 @@ import com.anczykowski.parser.structures.CodeBLock;
 import com.anczykowski.parser.structures.FuncDef;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
-import com.anczykowski.parser.structures.statements.AssignmentStatement;
-import com.anczykowski.parser.structures.statements.CondStmt;
-import com.anczykowski.parser.structures.statements.ReturnStatement;
-import com.anczykowski.parser.structures.statements.VarStmt;
+import com.anczykowski.parser.structures.statements.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -735,6 +732,34 @@ class InterpreterVisitorTest {
 
         // then
         assertEquals(1, ((IntValue) interpreter.lastResult.getValue()).getValue());
+
+    }
+
+    @Test
+    void testWhileStmtAccumulation() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+        interpreter.contextManager.addContext(new Context(true));
+
+        var block = new CodeBLock(new ArrayList<>() {{
+            add(new VarStmt("x", new IntegerConstantExpr(1)));
+            add(new WhileStmt(
+                    new LtRelExpr(new IdentifierExpression("x"), new IntegerConstantExpr(5)),
+                    new CodeBLock(new ArrayList<>() {{
+                        add(new AssignmentStatement(
+                                new IdentifierExpression("x"),
+                                new AdditionTerm(new IdentifierExpression("x"), new IntegerConstantExpr(1))
+                        ));
+                    }})));
+            add(new ReturnStatement(new IdentifierExpression("x")));
+        }});
+
+        // when
+        block.accept(interpreter);
+
+        // then
+        assertEquals(5, ((IntValue) interpreter.lastResult.getValue()).getValue());
 
     }
 

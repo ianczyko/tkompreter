@@ -397,12 +397,30 @@ public class InterpreterVisitor implements Visitor {
         }
     }
 
-    @Override  // TODO whileStmt
+    @Override
     public void visit(WhileStmt whileStmt) {
-        whileStmt.getCondition().accept(this);
-        contextManager.addContext(new Context());
-        whileStmt.getCodeBLock().accept(this);
-        contextManager.popContext();
+        while (checkCondition(whileStmt.getCondition())) {
+            contextManager.addContext(new Context());
+            whileStmt.getCodeBLock().accept(this);
+            contextManager.popContext();
+            if (isReturn) {
+                break;
+            }
+        }
+    }
+
+    private boolean checkCondition(Expression condition){
+        condition.accept(this);
+        var conditionEvaluated = lastResult;
+        lastResult = null;
+        if (conditionEvaluated.getValue() instanceof BoolValue conditionEvaluatedBoolean){
+            return conditionEvaluatedBoolean.getValue();
+        }
+        errorModule.addError(ErrorElement.builder()
+                .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                .explanation("condition in while statement must be evaluable as boolean value.")
+                .build());
+        return false;
     }
 
     @Override  // TODO forStmt

@@ -15,7 +15,7 @@ public class ContextManager {
 
     @SuppressWarnings("UnusedReturnValue")
     public Context popContext() {
-        return contexts.pop();
+        return contexts.removeLast();
     }
 
     @Getter

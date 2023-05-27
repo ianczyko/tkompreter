@@ -22,6 +22,7 @@ import java.util.function.BinaryOperator;
 // TODO: void funkcja ma czyścić lastResult
 // TODO: "fun();" bez przypisania ma również czyścić lastResult
 // TODO: błędy powinny wskazywać lokalizację a najlepiej jeszcze fragment kodu
+// TODO: wbudowana funkcja list(...)
 
 public class InterpreterVisitor implements Visitor {
 

@@ -245,11 +245,11 @@ class Circle {
 var circle = new Circle(5);
 circle.printRadius();
 
-circle_builder(){
+circleBuilder(){
     return new Circle(5); // reference is returned
 }
 
-circle_builder().printRadius();
+circleBuilder().printRadius();
 
 class CircleWrapper {
     var circle = 0;

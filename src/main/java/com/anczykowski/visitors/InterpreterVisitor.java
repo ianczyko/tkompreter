@@ -207,14 +207,13 @@ public class InterpreterVisitor implements Visitor {
 
         contextManager.addContext(classContext);
         cls.getClassBody().getAttributes().values().forEach(varStmt -> varStmt.accept(this));
-        classContext = contextManager.popContext();
+        contextManager.popContext();
         var classValue = new ClassValue(cls.getName(), classContext);
 
         contextManager.addContext(classValue.getClassContext());
         var initFunctionCall = new FunctionCallExpression("init", classInitExpression.getArgs());
         initFunctionCall.accept(this);
-        classContext = contextManager.popContext();
-        classValue.setClassContext(classContext); // TODO: this might be unnecessary
+        contextManager.popContext();
 
         lastResult = new ValueProxy(classValue);
     }

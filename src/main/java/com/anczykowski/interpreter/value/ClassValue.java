@@ -14,6 +14,5 @@ public class ClassValue implements Value {
     private final String classIdentifier;
 
     @Getter
-    @Setter
     private Context classContext;
 }

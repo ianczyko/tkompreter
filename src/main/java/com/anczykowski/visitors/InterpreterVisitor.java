@@ -144,7 +144,7 @@ public class InterpreterVisitor implements Visitor {
         }
     }
 
-    @Override // TODO classBody
+    @Override
     public void visit(ClassBody classBody) {
         classBody.getAttributes().values().forEach(attr -> attr.accept(this));
         classBody.getMethods().values().forEach(method -> method.accept(this));

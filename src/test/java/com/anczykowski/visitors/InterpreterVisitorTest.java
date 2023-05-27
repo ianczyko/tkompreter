@@ -932,4 +932,115 @@ class InterpreterVisitorTest {
         assertEquals(5, ((IntValue) radius.getValue()).getValue());
     }
 
+    @Test
+    void testClassMethodAccess() {
+        // given
+        var errorModule = new ErrorModule();
+        var outputStream = new ByteArrayOutputStream();
+        var printStream = new PrintStream(outputStream);
+        var interpreter = new InterpreterVisitor(errorModule, printStream);
+
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.contextManager.getGlobalSymbolManager().addClasses(new HashMap<>() {{
+            put("Circle", new ClassDef("Circle", new ClassBody(
+                    new HashMap<>() {{
+                        put("init", new FuncDef(
+                                "init",
+                                new ArrayList<>() {{
+                                    add(new Parameter("radius"));
+                                }},
+                                new CodeBLock(new ArrayList<>() {{
+                                    add(new AssignmentStatement(
+                                            new IdentifierExpression("r"),
+                                            new IdentifierExpression("radius")
+                                    ));
+                                }}),
+                                true
+                        ));
+
+                        put("getRadius", new FuncDef(
+                                "getRadius",
+                                new ArrayList<>(),
+                                new CodeBLock(new ArrayList<>() {{
+                                    add(new ReturnStatement(new IdentifierExpression("r")));
+                                }}),
+                                true
+                        ));
+                    }},
+                    new HashMap<>() {{
+                        put("r", new VarStmt("r", new IntegerConstantExpr(0)));
+                    }}
+            )));
+        }});
+
+
+
+        var block = new CodeBLock(new ArrayList<>() {{
+            add(new VarStmt("circle", new ClassInitExpression("Circle", new ArrayList<>(){{
+                add(new Arg(new IntegerConstantExpr(5), false));
+            }})));
+            add(new ReturnStatement(new ObjectAccessExpression(new FunctionCallExpression(
+                    "getRadius",
+                    new ArrayList<>()
+            ), new IdentifierExpression("circle"))));
+        }});
+
+        // when
+        block.accept(interpreter);
+
+        // then
+        assertEquals(5, ((IntValue) interpreter.lastResult.getValue()).getValue());
+    }
+
+    @Test
+    void testClassAttributeAccess() {
+        // given
+        var errorModule = new ErrorModule();
+        var outputStream = new ByteArrayOutputStream();
+        var printStream = new PrintStream(outputStream);
+        var interpreter = new InterpreterVisitor(errorModule, printStream);
+
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.contextManager.getGlobalSymbolManager().addClasses(new HashMap<>() {{
+            put("Circle", new ClassDef("Circle", new ClassBody(
+                    new HashMap<>() {{
+                        put("init", new FuncDef(
+                                "init",
+                                new ArrayList<>() {{
+                                    add(new Parameter("radius"));
+                                }},
+                                new CodeBLock(new ArrayList<>() {{
+                                    add(new AssignmentStatement(
+                                            new IdentifierExpression("r"),
+                                            new IdentifierExpression("radius")
+                                    ));
+                                }}),
+                                true
+                        ));
+                    }},
+                    new HashMap<>() {{
+                        put("r", new VarStmt("r", new IntegerConstantExpr(0)));
+                    }}
+            )));
+        }});
+
+
+
+        var block = new CodeBLock(new ArrayList<>() {{
+            add(new VarStmt("circle", new ClassInitExpression("Circle", new ArrayList<>(){{
+                add(new Arg(new IntegerConstantExpr(5), false));
+            }})));
+            add(new ReturnStatement(new ObjectAccessExpression(
+                    new IdentifierExpression("r"),
+                    new IdentifierExpression("circle")
+            )));
+        }});
+
+        // when
+        block.accept(interpreter);
+
+        // then
+        assertEquals(5, ((IntValue) interpreter.lastResult.getValue()).getValue());
+    }
+
 }

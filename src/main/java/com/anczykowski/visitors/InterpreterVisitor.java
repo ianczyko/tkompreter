@@ -166,10 +166,23 @@ public class InterpreterVisitor implements Visitor {
         }
     }
 
-    @Override // TODO objectAccessExpression
+    @Override
     public void visit(ObjectAccessExpression objectAccessExpression) {
-        objectAccessExpression.getCurrent().accept(this);
         objectAccessExpression.getChild().accept(this);
+        var leftEvaluated = lastResult;
+        lastResult = null;
+        if(leftEvaluated.getValue() instanceof ClassValue leftClsValue){
+            contextManager.addContext(leftClsValue.getClassContext());
+            objectAccessExpression.getCurrent().accept(this);
+            contextManager.popContext();
+        } else {
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .explanation("object access only allowed on class instances")
+                    .build()
+            );
+            throw new InterpreterException();
+        }
     }
 
     @Override

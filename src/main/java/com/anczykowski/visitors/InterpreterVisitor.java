@@ -102,6 +102,21 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(FunctionCallExpression functionCallExpression) {
+        var functionDef = contextManager.getFunction(functionCallExpression.getIdentifier());
+        if (!functionCallExpression.getArgs().isEmpty()) {
+            // methods should evaluate arguments outside class context
+            if (functionDef.getIsMethod()) {
+                var classContext = contextManager.popContext();
+                evaluateArgs(functionCallExpression);
+                contextManager.addContext(classContext);
+            } else {
+                evaluateArgs(functionCallExpression);
+            }
+        }
+        functionDef.accept(this);
+    }
+
+    private void evaluateArgs(FunctionCallExpression functionCallExpression) {
         for (Arg arg : functionCallExpression.getArgs()) {
             arg.accept(this);
             if(arg.isByReference()){
@@ -110,7 +125,6 @@ public class InterpreterVisitor implements Visitor {
                 argumentsEvaluated.add(new ValueProxy(lastResult.getValue()));
             }
         }
-        contextManager.getFunction(functionCallExpression.getIdentifier()).accept(this);
     }
 
     @Override // TODO classBody

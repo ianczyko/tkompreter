@@ -360,7 +360,7 @@ public class InterpreterVisitor implements Visitor {
         lval.setValue(rval);
     }
 
-    @Override // TODO expressionStatement
+    @Override
     public void visit(ExpressionStatement expressionStatement) {
         expressionStatement.getExpression().accept(this);
     }

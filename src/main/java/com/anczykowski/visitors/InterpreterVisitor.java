@@ -24,7 +24,6 @@ import java.util.function.BinaryOperator;
 // TODO: void funkcja ma czyścić lastResult
 // TODO: "fun();" bez przypisania ma również czyścić lastResult
 // TODO: błędy powinny wskazywać lokalizację a najlepiej jeszcze fragment kodu
-// TODO: wbudowana funkcja list(...)
 
 public class InterpreterVisitor implements Visitor {
 
@@ -532,9 +531,21 @@ public class InterpreterVisitor implements Visitor {
     @Override  // TODO forStmt
     public void visit(ForStmt forStmt) {
         forStmt.getIterable().accept(this);
-        contextManager.addContext(new Context());
-        forStmt.getCodeBLock().accept(this);
-        contextManager.popContext();
+        var iterable = lastResult;
+        lastResult= null;
+        if (iterable.getValue() instanceof ListValue iterableList) {
+            for (ValueProxy listElement : iterableList.getValues()) {
+                contextManager.addContext(new Context());
+                contextManager.addVariable(forStmt.getIteratorIdentifier(), listElement);
+                forStmt.getCodeBLock().accept(this);
+                contextManager.popContext();
+            }
+        } else {
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .explanation("iterable in for statement must be a list.")
+                    .build());
+        }
     }
 
     @Override  // TODO switchStmt

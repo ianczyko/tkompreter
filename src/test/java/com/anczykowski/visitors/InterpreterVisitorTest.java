@@ -764,6 +764,44 @@ class InterpreterVisitorTest {
     }
 
     @Test
+    void testForStmtAccumulation() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.loadBultins();
+
+        var block = new CodeBLock(new ArrayList<>() {{
+
+            add(new VarStmt("acc", new IntegerConstantExpr(0)));
+            add(new VarStmt("lst", new FunctionCallExpression(
+                    "list",
+                    new ArrayList<>() {{
+                        add(new Arg(new IntegerConstantExpr(1), false));
+                        add(new Arg(new IntegerConstantExpr(2), false));
+                        add(new Arg(new IntegerConstantExpr(3), false));
+                    }}
+            )));
+            add(new ForStmt("el", new IdentifierExpression("lst"),
+                    new CodeBLock(new ArrayList<>() {{
+                        add(new AssignmentStatement(
+                                new IdentifierExpression("acc"),
+                                new AdditionTerm(new IdentifierExpression("acc"), new IdentifierExpression("el"))
+                        ));
+                    }})
+            ));
+            add(new ReturnStatement(new IdentifierExpression("acc")));
+        }});
+
+        // when
+        block.accept(interpreter);
+
+        // then
+        assertEquals(6, ((IntValue) interpreter.lastResult.getValue()).getValue());
+
+    }
+
+    @Test
     void testBuiltInPrint() {
         // given
         var errorModule = new ErrorModule();

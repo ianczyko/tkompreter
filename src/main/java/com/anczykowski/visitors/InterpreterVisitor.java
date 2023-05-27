@@ -72,7 +72,7 @@ public class InterpreterVisitor implements Visitor {
         }});
     }
 
-    @Override // TODO classDef
+    @Override
     public void visit(ClassDef classDef) {
         classDef.getClassBody().accept(this);
     }

@@ -8,8 +8,8 @@ import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.ContextManager;
 import com.anczykowski.interpreter.ListFuncDef;
 import com.anczykowski.interpreter.PrintCodeBlock;
-import com.anczykowski.interpreter.value.*;
 import com.anczykowski.interpreter.value.ClassValue;
+import com.anczykowski.interpreter.value.*;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
@@ -548,14 +548,31 @@ public class InterpreterVisitor implements Visitor {
         }
     }
 
-    @Override  // TODO switchStmt
+    @Override
     public void visit(SwitchStmt switchStmt) {
         switchStmt.getExpression().accept(this);
-        switchStmt.getSwitchElements().forEach((attrKey, attr) -> {
-            attrKey.accept(this);
-            contextManager.addContext(new Context());
-            attr.accept(this);
-            contextManager.popContext();
-        });
+        var switchedExpr = lastResult;
+        lastResult = null;
+        contextManager.addContext(new Context());
+        boolean matched = false;
+        for (var entry : switchStmt.getSwitchElements().entrySet()) {
+            SwitchLabel label = entry.getKey();
+            CodeBLock codeBlock = entry.getValue();
+            if (label.getLabel().equals("int") && switchedExpr.getValue() instanceof IntValue) {
+                matched = true;
+                codeBlock.accept(this);
+            } else if (label.getLabel().equals("float") && switchedExpr.getValue() instanceof FloatValue) {
+                matched = true;
+                codeBlock.accept(this);
+            } else if (switchedExpr.getValue() instanceof ClassValue cv && cv.getClassIdentifier().equals(label.getLabel())) {
+                matched = true;
+                codeBlock.accept(this);
+            }
+        }
+        if (!matched) {
+            var codeBlock = switchStmt.getSwitchElements().get(new SwitchLabel("default"));
+            codeBlock.accept(this);
+        }
+        contextManager.popContext();
     }
 }

@@ -3,23 +3,30 @@ package com.anczykowski.parser.structures;
 import com.anczykowski.visitors.Visitable;
 import com.anczykowski.visitors.Visitor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
 
+@NoArgsConstructor
 public class FuncDef implements Visitable {
     @Getter
-    private final String name;
+    private String name = "";
 
     @Getter
-    private final ArrayList<Parameter> params;
+    private ArrayList<Parameter> params = new ArrayList<>();
 
     @Getter
-    private final CodeBLock codeBLock;
+    private CodeBLock codeBLock = null;
 
     @Getter
     @Setter
     private Boolean isMethod = false;
+
+    public FuncDef(String name, CodeBLock codeBLock) {
+        this.name = name;
+        this.codeBLock = codeBLock;
+    }
 
     public FuncDef(String name, ArrayList<Parameter> params, CodeBLock codeBLock) {
         this.name = name;

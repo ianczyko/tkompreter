@@ -6,6 +6,7 @@ import com.anczykowski.errormodule.ErrorType;
 import com.anczykowski.errormodule.exceptions.InterpreterException;
 import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.ContextManager;
+import com.anczykowski.interpreter.ListFuncDef;
 import com.anczykowski.interpreter.PrintCodeBlock;
 import com.anczykowski.interpreter.value.*;
 import com.anczykowski.interpreter.value.ClassValue;
@@ -69,6 +70,8 @@ public class InterpreterVisitor implements Visitor {
                     }},
                     new PrintCodeBlock()
             ));
+
+            put("list", new ListFuncDef());
         }});
     }
 
@@ -101,8 +104,23 @@ public class InterpreterVisitor implements Visitor {
     }
 
     @Override
+    public void visit(ListFuncDef listFuncDef) {
+        var listValue = new ListValue(argumentsEvaluated);
+        argumentsEvaluated.clear();
+        lastResult = new ValueProxy(listValue);
+
+    }
+
+    @Override
     public void visit(FunctionCallExpression functionCallExpression) {
         var functionDef = contextManager.getFunction(functionCallExpression.getIdentifier());
+        if(functionDef == null){
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNDEFINED_SYMBOL)
+                    .explanation("declaration of %s not found.".formatted(functionCallExpression.getIdentifier()))
+                    .build());
+            return;
+        }
         if (!functionCallExpression.getArgs().isEmpty()) {
             // methods should evaluate arguments outside class context
             if (functionDef.getIsMethod()) {

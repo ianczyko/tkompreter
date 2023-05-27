@@ -1,5 +1,6 @@
 package com.anczykowski.visitors;
 
+import com.anczykowski.interpreter.ListFuncDef;
 import com.anczykowski.interpreter.PrintCodeBlock;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
@@ -55,6 +56,11 @@ public class PrinterVisitor implements Visitor {
         funcDef.getParams().forEach(method -> method.accept(this));
         funcDef.getCodeBLock().accept(this);
         level--;
+    }
+
+    @Override
+    public void visit(ListFuncDef listFuncDef) {
+        out.println("listFuncDef: ");
     }
 
     @Override

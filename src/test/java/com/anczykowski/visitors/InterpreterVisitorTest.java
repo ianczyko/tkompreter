@@ -4,11 +4,8 @@ import com.anczykowski.errormodule.ErrorModule;
 import com.anczykowski.errormodule.ErrorType;
 import com.anczykowski.errormodule.exceptions.InterpreterException;
 import com.anczykowski.interpreter.Context;
-import com.anczykowski.interpreter.value.BoolValue;
+import com.anczykowski.interpreter.value.*;
 import com.anczykowski.interpreter.value.ClassValue;
-import com.anczykowski.interpreter.value.FloatValue;
-import com.anczykowski.interpreter.value.IntValue;
-import com.anczykowski.interpreter.value.ValueProxy;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
@@ -791,6 +788,36 @@ class InterpreterVisitorTest {
 
         // then
         assertTrue(outputStream.toString().contains("abc"));
+    }
+
+    @Test
+    void testBuiltInList() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.loadBultins();
+
+        var block = new CodeBLock(new ArrayList<>() {{
+            add(new ReturnStatement(new FunctionCallExpression(
+                    "list",
+                    new ArrayList<>() {{
+                        add(new Arg(new IntegerConstantExpr(1), false));
+                        add(new Arg(new IntegerConstantExpr(2), false));
+                        add(new Arg(new IntegerConstantExpr(3), false));
+                    }}
+            )));
+        }});
+
+        // when
+        block.accept(interpreter);
+
+        // then
+        var lst = ((ListValue) interpreter.lastResult.getValue());
+        assertEquals(1, ((IntValue)lst.getValues().get(0).getValue()).getValue());
+        assertEquals(2, ((IntValue)lst.getValues().get(1).getValue()).getValue());
+        assertEquals(3, ((IntValue)lst.getValues().get(2).getValue()).getValue());
     }
 
     @Test

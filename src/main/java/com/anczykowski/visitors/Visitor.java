@@ -1,5 +1,6 @@
 package com.anczykowski.visitors;
 
+import com.anczykowski.interpreter.ListFuncDef;
 import com.anczykowski.interpreter.PrintCodeBlock;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
@@ -12,6 +13,8 @@ public interface Visitor {
     void visit(ClassDef classDef);
 
     void visit(FuncDef funcDef);
+
+    void visit(ListFuncDef listFuncDef);
 
     void visit(ClassBody classBody);
 

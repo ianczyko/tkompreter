@@ -135,7 +135,10 @@ public class InterpreterVisitor implements Visitor {
 
     private void evaluateArgs(FunctionCallExpression functionCallExpression) {
         for (Arg arg : functionCallExpression.getArgs()) {
+            var argumentsEvaluatedCopy = new ArrayList<>(argumentsEvaluated);
+            argumentsEvaluated.clear();
             arg.accept(this);
+            argumentsEvaluated = argumentsEvaluatedCopy;
             if(arg.isByReference()){
                 argumentsEvaluated.add(lastResult);
             } else {

@@ -528,7 +528,7 @@ public class InterpreterVisitor implements Visitor {
         return false;
     }
 
-    @Override  // TODO forStmt
+    @Override
     public void visit(ForStmt forStmt) {
         forStmt.getIterable().accept(this);
         var iterable = lastResult;

@@ -80,6 +80,8 @@ public class Parser {
             reportUnexpectedTokenWithExplanation("'}' at the end of class body");
         }
 
+        methods.values().forEach(method -> method.setIsMethod(true));
+
         return new ClassBody(methods, attributes);
     }
 

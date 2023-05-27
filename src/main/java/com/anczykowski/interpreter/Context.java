@@ -6,17 +6,21 @@ import lombok.Getter;
 import java.util.HashMap;
 
 public class Context {
-    HashMap<String, ValueProxy> variables = new HashMap<>();
+    @Getter
+    private final HashMap<String, ValueProxy> variables = new HashMap<>();
 
     @Getter
-    private final boolean isFunctionContext;
+    private final SymbolManager localSymbolManager = new SymbolManager();
 
-    public Context(boolean isFunctionContext) {
-        this.isFunctionContext = isFunctionContext;
+    @Getter
+    private final boolean isBarrierContext;
+
+    public Context(boolean isBarrierContext) {
+        this.isBarrierContext = isBarrierContext;
     }
 
     public Context() {
-        this.isFunctionContext = false;
+        this.isBarrierContext = false;
     }
 
     public void addVariable(String variable, ValueProxy value) {

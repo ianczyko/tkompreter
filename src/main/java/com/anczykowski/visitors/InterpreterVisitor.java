@@ -8,6 +8,7 @@ import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.ContextManager;
 import com.anczykowski.interpreter.PrintCodeBlock;
 import com.anczykowski.interpreter.value.*;
+import com.anczykowski.interpreter.value.ClassValue;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
@@ -84,7 +85,7 @@ public class InterpreterVisitor implements Visitor {
                     .explanation("expected %d arguments but %d provided.".formatted(funcDef.getParams().size(), argumentsEvaluated.size()))
                     .build());
         }
-        var newContext = new Context(true);
+        var newContext = new Context(!funcDef.getIsMethod());
         var paramIterator = funcDef.getParams().iterator();
         var argIterator = argumentsEvaluated.iterator();
         while (paramIterator.hasNext() && argIterator.hasNext()) {
@@ -109,7 +110,7 @@ public class InterpreterVisitor implements Visitor {
                 argumentsEvaluated.add(new ValueProxy(lastResult.getValue()));
             }
         }
-        contextManager.getGlobalSymbolManager().getFunction(functionCallExpression.getIdentifier()).accept(this);
+        contextManager.getFunction(functionCallExpression.getIdentifier()).accept(this);
     }
 
     @Override // TODO classBody
@@ -176,9 +177,33 @@ public class InterpreterVisitor implements Visitor {
         arg.getArgument().accept(this);
     }
 
-    @Override // TODO classInitExpression
+    @Override
     public void visit(ClassInitExpression classInitExpression) {
-        classInitExpression.getArgs().forEach(arg -> arg.accept(this));
+        var cls = contextManager.getGlobalSymbolManager().getClass(classInitExpression.getIdentifier());
+        if (cls == null){
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNDEFINED_SYMBOL)
+                    .explanation("%s unknown".formatted(classInitExpression.getIdentifier()))
+                    .build()
+            );
+            return;
+        }
+
+        var classContext = new Context(true);
+        classContext.getLocalSymbolManager().addFunctions(cls.getClassBody().getMethods());
+
+        contextManager.addContext(classContext);
+        cls.getClassBody().getAttributes().values().forEach(varStmt -> varStmt.accept(this));
+        classContext = contextManager.popContext();
+        var classValue = new ClassValue(cls.getName(), classContext);
+
+        contextManager.addContext(classValue.getClassContext());
+        var initFunctionCall = new FunctionCallExpression("init", classInitExpression.getArgs());
+        initFunctionCall.accept(this);
+        classContext = contextManager.popContext();
+        classValue.setClassContext(classContext); // TODO: this might be unnecessary
+
+        lastResult = new ValueProxy(classValue);
     }
 
     private void evaluateLeftRightNumerical(

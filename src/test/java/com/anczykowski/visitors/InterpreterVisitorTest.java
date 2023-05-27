@@ -5,12 +5,11 @@ import com.anczykowski.errormodule.ErrorType;
 import com.anczykowski.errormodule.exceptions.InterpreterException;
 import com.anczykowski.interpreter.Context;
 import com.anczykowski.interpreter.value.BoolValue;
+import com.anczykowski.interpreter.value.ClassValue;
 import com.anczykowski.interpreter.value.FloatValue;
 import com.anczykowski.interpreter.value.IntValue;
 import com.anczykowski.interpreter.value.ValueProxy;
-import com.anczykowski.parser.structures.CodeBLock;
-import com.anczykowski.parser.structures.FuncDef;
-import com.anczykowski.parser.structures.Parameter;
+import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
 import com.anczykowski.parser.structures.statements.*;
@@ -882,6 +881,55 @@ class InterpreterVisitorTest {
 
         // then
         assertEquals(5, ((IntValue) interpreter.lastResult.getValue()).getValue());
+    }
+
+    @Test
+    void testClassInit() {
+        // given
+        var errorModule = new ErrorModule();
+        var outputStream = new ByteArrayOutputStream();
+        var printStream = new PrintStream(outputStream);
+        var interpreter = new InterpreterVisitor(errorModule, printStream);
+
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.contextManager.getGlobalSymbolManager().addClasses(new HashMap<>() {{
+            put("Circle", new ClassDef("Circle", new ClassBody(
+                    new HashMap<>() {{
+                        put("init", new FuncDef(
+                                "init",
+                                new ArrayList<>() {{
+                                    add(new Parameter("radius"));
+                                }},
+                                new CodeBLock(new ArrayList<>() {{
+                                    add(new AssignmentStatement(
+                                            new IdentifierExpression("r"),
+                                            new IdentifierExpression("radius")
+                                    ));
+                                }}),
+                                true
+                        ));
+                    }},
+                    new HashMap<>() {{
+                        put("r", new VarStmt("r", new IntegerConstantExpr(0)));
+                    }}
+            )));
+        }});
+
+
+
+        var block = new CodeBLock(new ArrayList<>() {{
+            add(new VarStmt("circle", new ClassInitExpression("Circle", new ArrayList<>(){{
+                add(new Arg(new IntegerConstantExpr(5), false));
+            }})));
+            add(new ReturnStatement(new IdentifierExpression("circle")));
+        }});
+
+        // when
+        block.accept(interpreter);
+
+        // then
+        var radius = ((ClassValue) interpreter.lastResult.getValue()).getClassContext().getVariables().get("r");
+        assertEquals(5, ((IntValue) radius.getValue()).getValue());
     }
 
 }

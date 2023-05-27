@@ -42,6 +42,7 @@ public class ErrorElement {
             case UNSUPPORTED_OPERATION -> "error: unsupported operation";
             case UNDECLARED_VARIABLE -> "error: undeclared variable";
             case DIVISION_BY_ZERO -> "error: division by zero";
+            case UNDEFINED_SYMBOL -> "error: undefined symbol";
             default -> "unknownError";
         };
         var locationString = location == null ? "" : location.toString();

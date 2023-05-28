@@ -47,6 +47,12 @@ public class InterpreterVisitor implements Visitor {
         this.printStream = System.out;
     }
 
+    private ValueProxy consumeLastResult(){
+        var lastResultCopy = lastResult;
+        lastResult = null;
+        return lastResultCopy;
+    }
+
     @Override
     public void visit(Program program) {
         contextManager.getGlobalSymbolManager().addFunctions(program.getFunctions());
@@ -138,9 +144,9 @@ public class InterpreterVisitor implements Visitor {
             arg.accept(this);
             argumentsEvaluated = argumentsEvaluatedCopy;
             if(arg.isByReference()){
-                argumentsEvaluated.add(lastResult);
+                argumentsEvaluated.add(consumeLastResult());
             } else {
-                argumentsEvaluated.add(new ValueProxy(lastResult.getValue()));
+                argumentsEvaluated.add(new ValueProxy(consumeLastResult().getValue()));
             }
         }
     }
@@ -161,8 +167,7 @@ public class InterpreterVisitor implements Visitor {
                     .build());
             return;
         }
-        contextManager.addVariable(varStmt.getName(), lastResult);
-        lastResult = null;
+        contextManager.addVariable(varStmt.getName(), consumeLastResult());
     }
 
     @Override
@@ -208,8 +213,7 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(ObjectAccessExpression objectAccessExpression) {
         objectAccessExpression.getChild().accept(this);
-        var leftEvaluated = lastResult;
-        lastResult = null;
+        var leftEvaluated = consumeLastResult();
         if(leftEvaluated.getValue() instanceof ClassValue leftClsValue){
             contextManager.addContext(leftClsValue.getClassContext());
             objectAccessExpression.getCurrent().accept(this);
@@ -264,11 +268,9 @@ public class InterpreterVisitor implements Visitor {
             BinaryOperator<Float> floatOperation
     ) {
         leftRightExpression.getLeft().accept(this);
-        var leftValue = lastResult.getValue();
-        lastResult = null;
+        var leftValue = consumeLastResult().getValue();
         leftRightExpression.getRight().accept(this);
-        var rightValue = lastResult.getValue();
-        lastResult = null;
+        var rightValue = consumeLastResult().getValue();
         if (leftValue instanceof IntValue left && rightValue instanceof IntValue right) {
             lastResult = new ValueProxy(new IntValue(integerOperation.apply(left.getValue(), right.getValue())));
         } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
@@ -289,11 +291,9 @@ public class InterpreterVisitor implements Visitor {
             BiFunction<Float, Float, Boolean> floatOperation
     ) {
         leftRightExpression.getLeft().accept(this);
-        var leftValue = lastResult.getValue();
-        lastResult = null;
+        var leftValue = consumeLastResult().getValue();
         leftRightExpression.getRight().accept(this);
-        var rightValue = lastResult.getValue();
-        lastResult = null;
+        var rightValue = consumeLastResult().getValue();
         if (leftValue instanceof IntValue left && rightValue instanceof IntValue right) {
             lastResult = new ValueProxy(new BoolValue(integerOperation.apply(left.getValue(), right.getValue())));
         } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
@@ -313,11 +313,9 @@ public class InterpreterVisitor implements Visitor {
             BinaryOperator<Boolean> booleanOperation
     ) {
         leftRightExpression.getLeft().accept(this);
-        var leftValue = lastResult.getValue();
-        lastResult = null;
+        var leftValue = consumeLastResult().getValue();
         leftRightExpression.getRight().accept(this);
-        var rightValue = lastResult.getValue();
-        lastResult = null;
+        var rightValue = consumeLastResult().getValue();
         if (leftValue instanceof BoolValue left && rightValue instanceof BoolValue right) {
             lastResult = new ValueProxy(new BoolValue(booleanOperation.apply(left.getValue(), right.getValue())));
         } else {
@@ -429,8 +427,7 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(AssignmentStatement assignmentStatement) {
         assignmentStatement.getLval().accept(this);
-        var lval = lastResult;
-        lastResult = null;
+        var lval = consumeLastResult();
         assignmentStatement.getRval().accept(this);
         if(lastResult == null){
             errorModule.addError(ErrorElement.builder()
@@ -439,15 +436,14 @@ public class InterpreterVisitor implements Visitor {
                     .build());
             return;
         }
-        var rval = lastResult.getValue();
-        lastResult = null;
+        var rval = consumeLastResult().getValue();
         lval.setValue(rval);
     }
 
     @Override
     public void visit(ExpressionStatement expressionStatement) {
         expressionStatement.getExpression().accept(this);
-        lastResult = null;
+        consumeLastResult();
     }
 
     @Override
@@ -496,15 +492,14 @@ public class InterpreterVisitor implements Visitor {
             returnStatement.getInner().accept(this);
             isReturn = true;
         } else {
-            lastResult = null;
+            consumeLastResult();
         }
     }
 
     @Override
     public void visit(CondStmt condStmt) {
         condStmt.getCondition().accept(this);
-        var evaluatedCondition = lastResult.getValue();
-        lastResult = null;
+        var evaluatedCondition = consumeLastResult().getValue();
         if (evaluatedCondition instanceof BoolValue boolCondition) {
             if (boolCondition.getValue()) {
                 contextManager.addContext(new Context());
@@ -534,8 +529,7 @@ public class InterpreterVisitor implements Visitor {
 
     private boolean checkCondition(Expression condition) {
         condition.accept(this);
-        var conditionEvaluated = lastResult;
-        lastResult = null;
+        var conditionEvaluated = consumeLastResult();
         if (conditionEvaluated.getValue() instanceof BoolValue conditionEvaluatedBoolean) {
             return conditionEvaluatedBoolean.getValue();
         }
@@ -549,8 +543,7 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(ForStmt forStmt) {
         forStmt.getIterable().accept(this);
-        var iterable = lastResult;
-        lastResult= null;
+        var iterable = consumeLastResult();
         if (iterable.getValue() instanceof ListValue iterableList) {
             for (ValueProxy listElement : iterableList.getValues()) {
                 contextManager.addContext(new Context());
@@ -569,8 +562,7 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(SwitchStmt switchStmt) {
         switchStmt.getExpression().accept(this);
-        var switchedExpr = lastResult;
-        lastResult = null;
+        var switchedExpr = consumeLastResult();
         contextManager.addContext(new Context());
         contextManager.addVariable("value", switchedExpr);
         boolean matched = false;

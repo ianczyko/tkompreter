@@ -488,3 +488,196 @@ Testy parsera będą sprawdzały:
 * Czy ciąg prostych tokenów tworzy prawidłowy obiekt (np. "1+1" tworzy obiekt AdditionExpression z odpowiednimi polami)
 * Czy zachowane są priorytety operatorów (np. mnożenie i dodawanie)
 * Czy zachowana jest łączność operatorów
+
+
+## Moduł Parsera
+
+Stworzony został parser zstępujący. Jego sposób funkcjonowania można zobrazować poprzez następujący schemat:
+```text
+Parsuj Program:
+  ...
+      Parsuj WhileStatement
+        - Parsuj warunek
+        - Parsuj block
+          - Parsuj instrukcję
+            ...
+        
+```
+
+Działa on od góry do dołu, dopasowując do najogólniejszych konstrukcji konstrukcje bardziej szczególne.
+
+Buduje on drzewo obiektów implementujące wzorzec `Visitable`, za pomocą wzorcu wizytatora i interfejsu `Visitor`
+tworzone są wizytatory implementujące przechodzenie po drzewie: 
+* `PrinterVisitor` wypisujący drzewo zbudowane przez parser
+* `InterpreterVisitor` interpretujący kod drzewa
+
+Przykładowy element drzewa wygląda następująco:
+
+```java
+@RequiredArgsConstructor
+public class WhileStmt extends Statement {
+
+    @Getter
+    private final Expression condition;
+
+    @Getter
+    private final CodeBLock codeBLock;
+
+    @Override
+    public void accept(Visitor visitor) {
+        visitor.visit(this);
+    }
+}
+```
+
+Dla tego elementu wizytacja `PrinterVisitor` wygląda następująco:
+
+```java
+
+@Override
+public void visit(WhileStmt whileStmt) {
+    printIndentation();
+    out.println("whileStmt: ");
+    level++;
+    whileStmt.getCondition().accept(this);
+    whileStmt.getCodeBLock().accept(this);
+    level--;
+}
+```
+
+Dla przykładowego wejścia:
+
+```js
+main() {
+    var x = 1;
+    while (x < 5) {
+        x = x + 1;
+        print(x);
+    }
+    return 0;
+}
+```
+
+Budowane i wypisywane jest następujące drzewo:
+
+```text
+- program
+** funcDef: main ** 
+--- codeBLock: 
+---- varStmt: x
+----- integerConstantExpr: 1
+---- whileStmt: 
+----- ltRelOpArg
+------ identifierExpression: x
+------ integerConstantExpr: 5
+----- codeBLock: 
+------ assignmentExpression: (lval/rval) 
+------- identifierExpression: x
+------- additionTerm
+-------- identifierExpression: x
+-------- integerConstantExpr: 1
+------ expressionStatement: 
+------- functionCallExpression: print
+-------- arg: 
+--------- identifierExpression: x
+---- returnExpression: 
+----- integerConstantExpr: 0
+```
+
+## Moduł interpretera
+
+Interpreter jest podobny do `PrinterVisitera` jednak odpowiada również za ewaluacje wyrażeń i przechowywanie stanu (kontekstu) wykonywanych operacji.
+
+Omówmy ogólny sposób działania interpretera na podstawie przykładów:
+
+Dla następującego wyrażenia
+```js
+var x = 5;
+```
+
+Interpreter ewaluuję wartość prawej strony przypisania (czyli odwiedza prawą stronę, która ustawia `lastResult` na 5) i w bieżącym kontekście dodaję zmienną z identyfikatorem "x" i z wartością 5;
+
+Dla następującego wyrażenia
+```js
+1 + 2 * 3
+```
+
+Drzewo wygląda następująco
+```text
+----- additionTerm
+------ integerConstantExpr: 1
+------ multiplicationFactor
+------- integerConstantExpr: 2
+------- integerConstantExpr: 3
+```
+
+Interpreter ewaluuje lewą i prawą stronę operacji dodawania i ustawia wartość lastResult
+
+```java
+leftRightExpression.getLeft().accept(this); // ewaluacja lewej strony czyli 1
+var leftValue = consumeLastResult().getValue();
+leftRightExpression.getRight().accept(this); // ewaluacja prawej strony czyli mnożenie 2*3=6
+var rightValue = consumeLastResult().getValue();
+
+// w uproszczeniu, bez obsługi błędów i generalizacji dla innych operatorów
+lastResult = leftValue + rightValue
+```
+
+## ContextManager
+
+`ContextManager` przechowuje stos kontekstów wykonania. Wywołanie funkcji tworzy nowy kontekst z dodatkową flagę `isBarrierContext` ustawioną na `true`, oznacza to że `ContextManager` nie będzie szukał zmiennych w kontekstach powyżej tego kontekstu. Pozostałe konteksty czyli np. konteksty bloków warunkowych albo bloków pętli while/for mają dostęp do zmiennych powyżej siebie.
+
+`ContextManager` przechowuje również definicje funkcji/klas. ponadtko, każdy kontekst może posiadać swoje własne definicje funkcji - jest to mechanizm wykorzystywany w sytuacji metod klas. 
+
+Klasy są realizowane w taki sposób, że przechowują swój własny kontekst zawierający aktualny stan atrybutów jak i również definicje metod są przechowywane w kontekście i mają pierwszeństwo nad globalnymi funkcjami.
+
+## Value
+
+Wartość jest realizowana poprzez interfejs `Value` i implementację w postaci
+
+wartości typowych:
+
+* `IntValue`
+* `FloatValue`
+* `BoolValue`
+* `StringValue`
+
+wartości specjalnych:
+
+* `ClassValue` - zawiera identyfikator i kontekst obiektu klasy
+* `ListValue` - zawiera listę wartości
+
+większość sytuacji wykorzystuje rzutowanie w postaci
+
+```java
+if (left instanceof IntValue leftInt) {
+    Integer leftIntValue = leftInt.getValue();
+}
+```
+
+## ValueProxy
+
+Dodany został mechanizm Proxy do wartości polegający na tym, że zarówno `lastResult` jak i słownik kontekstu przechowuje proxy do wartości, co ułatwia na dynamiczne modyfikowanie zmiennych, a szczególnie pozwala to na to że `ObjectAccessExpression` zwraca referencję do proxy do wartości pozwalające zmienić zarówno wartość jak i typ wartości danej zmiennej. `ObjectAccessExpression` jest wtedy ewaluowany jednokrotnie i nie odpowiada za warunkowe przypisanie.
+
+Dla sytuacji:
+
+```js
+class Circle {
+  var r = 0;
+
+  init(radius) {
+    r = radius;
+  }
+  
+}
+
+getCircle(circle){
+  // additional computation
+  return circle;
+}
+
+var circle = new Circle(5);
+getCircle().r = 1.0;
+```
+
+`getCircle().r` jest ewaluowane tylko jeden raz i do referencji którą ewaluuje przypisywana jest prawa strona przypisania. Sama ewaluacja `getCircle().r` nie ma w sobie zawartego przypisania - jest to odpowiedzialność `AssignmentStatement`;

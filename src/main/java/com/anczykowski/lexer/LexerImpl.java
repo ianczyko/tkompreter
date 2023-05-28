@@ -31,8 +31,18 @@ public class LexerImpl implements Lexer {
     }
 
     @Override
+    public Location getPreviousLocation() {
+        return source.getPreviousLocation();
+    }
+
+    @Override
     public String getCharacterBuffer() {
         return source.getCharacterBuffer().toString();
+    }
+
+    @Override
+    public String getEffectiveCharacterBuffer() {
+        return source.getPreviousLine() + "\n" + getCharacterBuffer();
     }
 
     @Override

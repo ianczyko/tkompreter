@@ -67,8 +67,10 @@ class InterpreterVisitorTest {
                 new FloatConstantExpr(1.0f)
         );
 
-        // when
-        expr.accept(interpreter);
+        assertThrows(InterpreterException.class, () -> {
+            // when
+            expr.accept(interpreter);
+        });
 
         // then
         assertFalse(errorModule.getErrors().isEmpty());
@@ -230,8 +232,10 @@ class InterpreterVisitorTest {
                 new FloatConstantExpr(1.0f)
         );
 
-        // when
-        expr.accept(interpreter);
+        assertThrows(InterpreterException.class, () -> {
+            // when
+            expr.accept(interpreter);
+        });
 
         // then
         assertFalse(errorModule.getErrors().isEmpty());
@@ -477,8 +481,11 @@ class InterpreterVisitorTest {
                 new FloatConstantExpr(1.0f)
         );
 
-        // when
-        expr.accept(interpreter);
+        assertThrows(InterpreterException.class, () -> {
+            // when
+            expr.accept(interpreter);
+        });
+
 
         // then
         assertFalse(errorModule.getErrors().isEmpty());

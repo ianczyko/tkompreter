@@ -12,7 +12,6 @@ import com.anczykowski.parser.structures.statements.*;
 import lombok.RequiredArgsConstructor;
 
 import java.util.*;
-import java.util.function.BiFunction;
 
 @SuppressWarnings("StatementWithEmptyBody")
 @RequiredArgsConstructor
@@ -117,7 +116,7 @@ public class Parser {
             throw new ParserException();
         }
 
-        varStmt = new VarStmt(varIdentifier, expr);
+        varStmt = new VarStmt(varIdentifier, expr, lexer.getPreviousLocation().clone(), lexer.getEffectiveCharacterBuffer());
 
         variables.put(varIdentifier, varStmt);
 
@@ -268,7 +267,12 @@ public class Parser {
         return left;
     }
 
-    private static final Map<TokenType, BiFunction<Expression, Expression, Expression>> relOps = Map.of(
+    @FunctionalInterface
+    public interface FourParameterFunction<T, U, V, W, R> {
+        R apply(T t, U u, V v, W w);
+    }
+
+    private static final Map<TokenType, FourParameterFunction<Expression, Expression, Location, String, Expression>> relOps = Map.of(
         TokenType.EQ, EqRelExpr::new,
         TokenType.NE, NeRelExpr::new,
         TokenType.LT, LtRelExpr::new,
@@ -284,15 +288,16 @@ public class Parser {
 
 
 
-        BiFunction<Expression, Expression, Expression> relOpConstructor;
+        FourParameterFunction<Expression, Expression, Location, String, Expression> relOpConstructor;
         if ((relOpConstructor = relOps.get(lexer.getCurrentToken().getType())) != null) {
             lexer.getNextToken();
+            var location = lexer.getCurrentLocation().clone();
             var right = parseAddExpr();
             if (right == null) {
                 reportUnexpectedTokenWithExplanation("expected expression after relation operator");
                 return left;
             }
-            left = relOpConstructor.apply(left, right);
+            left = relOpConstructor.apply(left, right, location, lexer.getEffectiveCharacterBuffer());
         }
 
         if (relOps.containsKey(lexer.getCurrentToken().getType())) {
@@ -309,7 +314,7 @@ public class Parser {
         return left;
     }
 
-    private static final Map<TokenType, BiFunction<Expression, Expression, Expression>> addOps = Map.of(
+    private static final Map<TokenType, FourParameterFunction<Expression, Expression, Location, String, Expression>> addOps = Map.of(
             TokenType.PLUS, AdditionTerm::new,
             TokenType.MINUS, SubtractionTerm::new
     );
@@ -320,20 +325,21 @@ public class Parser {
         var left = parseTerm();
         if (left == null) return null;
 
-        BiFunction<Expression, Expression, Expression> addOpConstructor;
+        FourParameterFunction<Expression, Expression, Location, String, Expression> addOpConstructor;
         while ((addOpConstructor = addOps.get(lexer.getCurrentToken().getType())) != null) {
             lexer.getNextToken();
+            var location = lexer.getCurrentLocation().clone();
             var right = parseTerm();
             if (right == null) {
                 reportUnexpectedTokenWithExplanation("expected expression after additive operator");
                 continue;
             }
-            left = addOpConstructor.apply(left, right);
+            left = addOpConstructor.apply(left, right, location, lexer.getEffectiveCharacterBuffer());
         }
         return left;
     }
 
-    private static final Map<TokenType, BiFunction<Expression, Expression, Expression>> multOps = Map.of(
+    private static final Map<TokenType, FourParameterFunction<Expression, Expression, Location, String, Expression>> multOps = Map.of(
             TokenType.ASTERISK, MultiplicationFactor::new,
             TokenType.SLASH, DivisionFactor::new
     );
@@ -343,15 +349,16 @@ public class Parser {
         var left = parseFactor();
         if (left == null) return null;
 
-        BiFunction<Expression, Expression, Expression> multOpConstructor;
+        FourParameterFunction<Expression, Expression, Location, String, Expression> multOpConstructor;
         while ((multOpConstructor = multOps.get(lexer.getCurrentToken().getType())) != null) {
             lexer.getNextToken();
+            var location = lexer.getCurrentLocation().clone();
             var right = parseFactor();
             if (right == null) {
                 reportUnexpectedTokenWithExplanation("expected expression after multiplicative operator");
                 continue;
             }
-            left = multOpConstructor.apply(left, right);
+            left = multOpConstructor.apply(left, right, location, lexer.getEffectiveCharacterBuffer());
         }
         return left;
     }
@@ -455,7 +462,7 @@ public class Parser {
 
         var lastChild = accessChildren.remove();
         for (var accessChild : accessChildren) {
-            lastChild = new ObjectAccessExpression(accessChild, lastChild);
+            lastChild = new ObjectAccessExpression(accessChild, lastChild, lexer.getPreviousLocation().clone(), lexer.getEffectiveCharacterBuffer());
         }
 
         return lastChild;
@@ -470,10 +477,12 @@ public class Parser {
         lexer.getNextToken();
         if (consumeIf(TokenType.LPAREN)) {
             var args = parseArgs();
+            var location = lexer.getCurrentLocation().clone();
+            var characterBuffer = lexer.getCharacterBuffer();
             if (!consumeIf(TokenType.RPAREN)) {
                 reportUnexpectedToken("(", "unmatched ')' in function call");
             }
-            return new FunctionCallExpression(identifier, args);
+            return new FunctionCallExpression(identifier, args, location, characterBuffer);
         }
         return new IdentifierExpression(identifier);
     }
@@ -540,7 +549,7 @@ public class Parser {
         if (!consumeIf(TokenType.RPAREN)) {
             reportUnexpectedToken(identifier, "unmatched ')' in class initialization");
         }
-        return new ClassInitExpression(identifier, args);
+        return new ClassInitExpression(identifier, args, lexer.getPreviousLocation().clone(), lexer.getEffectiveCharacterBuffer());
     }
 
     // "(", expr, ")"

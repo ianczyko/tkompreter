@@ -1,0 +1,15 @@
+
+
+f1(x, y){
+    return x;
+}
+
+f2() {
+    return 1;
+}
+
+main() {
+    f1(1, f2(), 3);
+    return 0;
+}
+

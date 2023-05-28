@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // TODO: błędy powinny wskazywać lokalizację a najlepiej jeszcze fragment kodu
 
@@ -85,12 +87,6 @@ public class InterpreterVisitor implements Visitor {
 
     @Override
     public void visit(FuncDef funcDef) {
-        if (funcDef.getParams().size() != argumentsEvaluated.size()) {
-            errorModule.addError(ErrorElement.builder()
-                    .errorType(ErrorType.UNMATCHED_ARGUMENTS)
-                    .explanation("expected %d arguments but %d provided.".formatted(funcDef.getParams().size(), argumentsEvaluated.size()))
-                    .build());
-        }
         var newContext = new Context(!funcDef.getIsMethod());
         var paramIterator = funcDef.getParams().iterator();
         var argIterator = argumentsEvaluated.iterator();
@@ -134,6 +130,26 @@ public class InterpreterVisitor implements Visitor {
                 evaluateArgs(functionCallExpression);
             }
         }
+
+        if (functionDef.getParams().size() != argumentsEvaluated.size()) {
+            Pattern pattern = Pattern.compile("[(](.*)[)]");
+            String underline = null;
+            if(functionCallExpression.getCharacterBuffer() != null){
+                Matcher matcher = pattern.matcher(functionCallExpression.getCharacterBuffer());
+                if (matcher.find())
+                {
+                    underline = matcher.group(1);
+                }
+            }
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNMATCHED_ARGUMENTS)
+                    .location(functionCallExpression.getLocation())
+                    .codeLineBuffer(functionCallExpression.getCharacterBuffer())
+                    .underlineFragment(underline)
+                    .explanation("expected %d arguments but %d provided.".formatted(functionDef.getParams().size(), argumentsEvaluated.size()))
+                    .build());
+        }
+
         functionDef.accept(this);
     }
 
@@ -161,8 +177,20 @@ public class InterpreterVisitor implements Visitor {
     public void visit(VarStmt varStmt) {
         varStmt.getInitial().accept(this);
         if(lastResult == null){
+            Pattern pattern = Pattern.compile(".*=\\s*(.*)");
+            String underline = null;
+            if(varStmt.getCharacterBuffer() != null){
+                Matcher matcher = pattern.matcher(varStmt.getCharacterBuffer());
+                if (matcher.find())
+                {
+                    underline = matcher.group(1);
+                }
+            }
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .location(varStmt.getLocation())
+                    .codeLineBuffer(varStmt.getCharacterBuffer())
+                    .underlineFragment(underline)
                     .explanation("tried assigning void to a new variable")
                     .build());
             return;
@@ -221,6 +249,9 @@ public class InterpreterVisitor implements Visitor {
         } else {
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .location(objectAccessExpression.getLocation())
+                    .codeLineBuffer(objectAccessExpression.getCharacterBuffer())
+                    .underlineFragment(objectAccessExpression.getCharacterBuffer().trim())
                     .explanation("object access only allowed on class instances")
                     .build()
             );
@@ -239,10 +270,13 @@ public class InterpreterVisitor implements Visitor {
         if (cls == null){
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNDEFINED_SYMBOL)
+                    .location(classInitExpression.getLocation())
+                    .codeLineBuffer(classInitExpression.getCharacterBuffer())
+                    .underlineFragment(classInitExpression.getIdentifier())
                     .explanation("%s unknown".formatted(classInitExpression.getIdentifier()))
                     .build()
             );
-            return;
+            throw new InterpreterException();
         }
 
         var classContext = new Context(true);
@@ -278,9 +312,13 @@ public class InterpreterVisitor implements Visitor {
         } else {
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .location(leftRightExpression.getLocation())
+                    .codeLineBuffer(leftRightExpression.getCharacterBuffer())
+                    .underlineFragment(getLeftRightUnderline(leftRightExpression, leftValue, rightValue))
                     .explanation("%s is only supported on object of the same type. You may need to cast one of the expressions first.".formatted(operationName))
                     .build()
             );
+            throw new InterpreterException();
         }
     }
 
@@ -299,12 +337,29 @@ public class InterpreterVisitor implements Visitor {
         } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
             lastResult = new ValueProxy(new BoolValue(floatOperation.apply(left.getValue(), right.getValue())));
         } else {
+            getLeftRightUnderline(leftRightExpression, leftValue, rightValue);
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .location(leftRightExpression.getLocation())
+                    .underlineFragment(getLeftRightUnderline(leftRightExpression, leftValue, rightValue))
+                    .codeLineBuffer(leftRightExpression.getCharacterBuffer())
                     .explanation("%s is only supported on object of the same type. You may need to cast one of the expressions first.".formatted(operationName))
                     .build()
             );
+            throw new InterpreterException();
         }
+    }
+
+    private String getLeftRightUnderline(LeftRightExpression leftRightExpression, Value leftValue, Value rightValue) {
+        Pattern pattern = Pattern.compile(".*(\\s*" + Pattern.quote(leftValue.toString()) + ".*" + Pattern.quote(rightValue.toString()) + "\\s*)");
+        if(leftRightExpression.getCharacterBuffer() != null){
+            Matcher matcher = pattern.matcher(leftRightExpression.getCharacterBuffer());
+            if (matcher.find())
+            {
+                return matcher.group(1);
+            }
+        }
+        return null;
     }
 
     private void evaluateLeftRightBinary(
@@ -321,9 +376,13 @@ public class InterpreterVisitor implements Visitor {
         } else {
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .location(leftRightExpression.getLocation())
+                    .underlineFragment(getLeftRightUnderline(leftRightExpression, leftValue, rightValue))
+                    .codeLineBuffer(leftRightExpression.getCharacterBuffer())
                     .explanation("%s is only supported on object of the same type. You may need to cast one of the expressions first.".formatted(operationName))
                     .build()
             );
+            throw new InterpreterException();
         }
     }
 
@@ -387,17 +446,26 @@ public class InterpreterVisitor implements Visitor {
     public void visit(DivisionFactor divisionFactor) {
         evaluateLeftRightNumerical(divisionFactor, "division", (a, b) -> {
             if (b == 0) {
-                errorModule.addError(ErrorElement.builder().errorType(ErrorType.DIVISION_BY_ZERO).build());
-                throw new InterpreterException();
+                handleDivisionByZero(divisionFactor);
             }
             return a / b;
         }, (a, b) -> {
             if (b.compareTo(0.0f) == 0) {
-                errorModule.addError(ErrorElement.builder().errorType(ErrorType.DIVISION_BY_ZERO).build());
-                throw new InterpreterException();
+                handleDivisionByZero(divisionFactor);
             }
             return a / b;
         });
+    }
+
+    private void handleDivisionByZero(DivisionFactor divisionFactor) {
+        errorModule.addError(ErrorElement.builder()
+                .errorType(ErrorType.DIVISION_BY_ZERO)
+                .location(divisionFactor.getLocation())
+                .codeLineBuffer(divisionFactor.getCharacterBuffer())
+                .underlineFragment("/")
+                .build()
+        );
+        throw new InterpreterException();
     }
 
     @Override

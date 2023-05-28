@@ -21,6 +21,11 @@ public class MockLexer implements Lexer {
     }
 
     @Override
+    public Location getPreviousLocation() {
+        return new Location();
+    }
+
+    @Override
     public Token getNextToken() {
         currentToken = tokensIterator.hasNext() ?
             tokensIterator.next() :
@@ -38,6 +43,11 @@ public class MockLexer implements Lexer {
 
     @Override
     public String getCharacterBuffer() {
+        return "";
+    }
+
+    @Override
+    public String getEffectiveCharacterBuffer() {
         return "";
     }
 }

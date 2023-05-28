@@ -1,0 +1,6 @@
+
+main() {
+    var x = new Circle();
+    return 0;
+}
+

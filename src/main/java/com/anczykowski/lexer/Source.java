@@ -31,6 +31,9 @@ public class Source implements AutoCloseable {
     private Location currentLocation = new Location();
 
     @Getter
+    private Location previousLocation = new Location();
+
+    @Getter
     private final Stack<String> characterBuffer = new FixedCharacterStack(LINE_BUFFER_LIMIT);
 
     @Getter
@@ -89,6 +92,7 @@ public class Source implements AutoCloseable {
             );
         }
         currentCharacter = "\n";
+        previousLocation = currentLocation.clone();
         currentLocation.resetColumnNumber();
         if(!characterBuffer.isEmpty()) {
             characterBuffer.pop();

@@ -1,0 +1,11 @@
+
+
+f1() {
+    return 1;
+}
+
+main() {
+    f1().size();
+    return 0;
+}
+

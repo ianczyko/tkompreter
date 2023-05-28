@@ -1,6 +1,8 @@
 package com.anczykowski.errormodule;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 import com.anczykowski.lexer.Location;
 import lombok.Builder;
@@ -46,7 +48,7 @@ public class ErrorElement {
             default -> "unknownError";
         };
         var locationString = location == null ? "" : location.toString();
-        var codeLineBufferString = codeLineBuffer == null ? "" : codeLineBuffer;
+        var codeLineBufferString = codeLineBuffer == null ? "" : codeLineBuffer.trim().lines().map(String::trim).collect(Collectors.joining("\n"));
         return "%s: %s%s\n%s%s\n".formatted(locationString, msg, explanationText, codeLineBufferString, underline);
 
     }
@@ -56,12 +58,17 @@ public class ErrorElement {
     }
 
     public String getUnderlineText() {
+        AtomicReference<String> underlineResult = new AtomicReference<>("");
         if (underlineFragment != null) {
-            var underlineIndex = codeLineBuffer.lastIndexOf(underlineFragment);
-            if (underlineIndex > -1) {
-                return "\n" + " ".repeat(underlineIndex) + "~".repeat(underlineFragment.length());
-            }
+            var codeLineBufferString = codeLineBuffer == null ? "" : codeLineBuffer.trim().lines().map(String::trim).collect(Collectors.joining("\n"));
+            codeLineBufferString.lines().forEach(codeLineFragment -> {
+                var underlineIndex = codeLineFragment.lastIndexOf(underlineFragment);
+                if (underlineIndex > -1) {
+                    underlineResult.set("\n" + " ".repeat(underlineIndex) + "~".repeat(underlineFragment.length()));
+                }
+            });
         }
-        return "";
+
+        return underlineResult.get();
     }
 }

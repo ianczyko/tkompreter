@@ -1286,4 +1286,95 @@ class InterpreterVisitorTest {
 
     }
 
+    @Test
+    void testSwitchStmtWithValueAccess() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.loadBultins();
+        interpreter.contextManager.getGlobalSymbolManager().addClasses(new HashMap<>() {{
+            put("Circle", new ClassDef("Circle", new ClassBody(
+                    new HashMap<>() {{
+                        put("init", new FuncDef(
+                                "init",
+                                new ArrayList<>() {{
+                                    add(new Parameter("radius"));
+                                }},
+                                new CodeBLock(new ArrayList<>() {{
+                                    add(new AssignmentStatement(
+                                            new IdentifierExpression("r"),
+                                            new IdentifierExpression("radius")
+                                    ));
+                                }}),
+                                true
+                        ));
+                    }},
+                    new HashMap<>() {{
+                        put("r", new VarStmt("r", new IntegerConstantExpr(0)));
+                    }}
+            )));
+        }});
+
+
+        var block = new CodeBLock(new ArrayList<>() {{
+            add(new VarStmt("acc", new IntegerConstantExpr(0)));
+            add(new VarStmt("circle", new ClassInitExpression("Circle", new ArrayList<>(){{
+                add(new Arg(new IntegerConstantExpr(5), false));
+            }})));
+            add(new VarStmt("lst", new FunctionCallExpression(
+                    "list",
+                    new ArrayList<>() {{
+                        add(new Arg(new FloatConstantExpr(1.0f), false));
+                        add(new Arg(new IntegerConstantExpr(2), false));
+                        add(new Arg(new IdentifierExpression("circle"), false));
+                    }}
+            )));
+            add(new ForStmt("el", new IdentifierExpression("lst"),
+                    new CodeBLock(new ArrayList<>() {{
+                        add(new SwitchStmt(new IdentifierExpression("el"), new HashMap<>() {{
+                            put(
+                                    new SwitchLabel("int"),
+                                    new CodeBLock(new ArrayList<>() {{
+                                        add(new AssignmentStatement(
+                                                new IdentifierExpression("acc"),
+                                                new AdditionTerm(new IdentifierExpression("acc"), new IntegerConstantExpr(1))
+                                        ));
+                                    }})
+                            );
+                            put(
+                                    new SwitchLabel("Circle"),
+                                    new CodeBLock(new ArrayList<>() {{
+                                        add(new AssignmentStatement(
+                                                new IdentifierExpression("acc"),
+                                                new AdditionTerm(new IdentifierExpression("acc"), new ObjectAccessExpression(
+                                                        new IdentifierExpression("r"),
+                                                        new IdentifierExpression("value")
+                                                ))
+                                        ));
+                                    }})
+                            );
+                            put(
+                                    new SwitchLabel("default"),
+                                    new CodeBLock(new ArrayList<>() {{
+                                        add(new AssignmentStatement(
+                                                new IdentifierExpression("acc"),
+                                                new AdditionTerm(new IdentifierExpression("acc"), new IntegerConstantExpr(3))
+                                        ));
+                                    }})
+                            );
+                        }}));
+                    }})
+            ));
+            add(new ReturnStatement(new IdentifierExpression("acc")));
+        }});
+
+        // when
+        block.accept(interpreter);
+
+        // then
+        assertEquals(9, ((IntValue) interpreter.lastResult.getValue()).getValue());
+
+    }
+
 }

@@ -557,6 +557,7 @@ public class InterpreterVisitor implements Visitor {
         var switchedExpr = lastResult;
         lastResult = null;
         contextManager.addContext(new Context());
+        contextManager.addVariable("value", switchedExpr);
         boolean matched = false;
         for (var entry : switchStmt.getSwitchElements().entrySet()) {
             SwitchLabel label = entry.getKey();

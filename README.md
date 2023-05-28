@@ -226,6 +226,25 @@ for(el in lst) {
 
 ```
 
+```js
+wrapper(x) {
+  return x;
+}
+
+var lst = list(1, 2.0, new Circle(3), new Square(4));
+for(el in lst) {
+    switch(wrapper(el)) {
+        int -> { print("integer"); }
+        float -> { print("float"); }
+        Circle -> { print(value.r); } // <- wewnątrz switch jest dostęp do ewaluawonej wartości pod nazwą `value`
+        default -> { print("other type"); }
+    }
+}
+
+// prints: integer, float, circle, other type
+
+```
+
 ### Klasy
 
 ```js

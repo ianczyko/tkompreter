@@ -186,6 +186,50 @@ class InterpreterVisitorTest {
     }
 
     @Test
+    void interpretIntegerDivBy0() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        var expr = new DivisionFactor(
+                new IntegerConstantExpr(6),
+                new IntegerConstantExpr(0)
+        );
+
+        // when
+        assertThrows(InterpreterException.class, () -> {
+            // when
+            expr.accept(interpreter);
+        });
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.DIVISION_BY_ZERO, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
+    void interpretFloatDivBy0() {
+        // given
+        var errorModule = new ErrorModule();
+        var interpreter = new InterpreterVisitor(errorModule);
+
+        var expr = new DivisionFactor(
+                new FloatConstantExpr(6.0f),
+                new FloatConstantExpr(0.0f)
+        );
+
+        // when
+        assertThrows(InterpreterException.class, () -> {
+            // when
+            expr.accept(interpreter);
+        });
+
+        // then
+        assertFalse(errorModule.getErrors().isEmpty());
+        assertEquals(ErrorType.DIVISION_BY_ZERO, errorModule.getErrors().get(0).getErrorType());
+    }
+
+    @Test
     void interpretIntegerEq() {
         // given
         var errorModule = new ErrorModule();

@@ -214,11 +214,12 @@ public class Parser {
 
         Statement expressionStatement = null;
         if (consumeIf(TokenType.ASSIGNMENT)) {
+            var location = lexer.getCurrentLocation().clone();
             var assignExpr = parseExpr();
             if (assignExpr == null) {
                 reportUnexpectedToken("=", "expected expression after '='");
             } else {
-                expressionStatement = new AssignmentStatement(expression, assignExpr);
+                expressionStatement = new AssignmentStatement(expression, assignExpr, location, lexer.getEffectiveCharacterBuffer());
             }
         }
 

@@ -498,8 +498,20 @@ public class InterpreterVisitor implements Visitor {
         var lval = consumeLastResult();
         assignmentStatement.getRval().accept(this);
         if(lastResult == null){
+            Pattern pattern = Pattern.compile(".*=\\s*(.*)");
+            String underline = null;
+            if(assignmentStatement.getCharacterBuffer() != null){
+                Matcher matcher = pattern.matcher(assignmentStatement.getCharacterBuffer());
+                if (matcher.find())
+                {
+                    underline = matcher.group(1);
+                }
+            }
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .location(assignmentStatement.getLocation())
+                    .codeLineBuffer(assignmentStatement.getCharacterBuffer())
+                    .underlineFragment(underline)
                     .explanation("tried assigning void to a variable")
                     .build());
             return;

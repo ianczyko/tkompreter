@@ -9,6 +9,7 @@ public class AndExpr extends LeftRightExpression {
         super(left, right);
     }
 
+    @SuppressWarnings("unused")
     public AndExpr(Expression left, Expression right, Location location, String characterBuffer) {
         super(left, right, location, characterBuffer);
     }

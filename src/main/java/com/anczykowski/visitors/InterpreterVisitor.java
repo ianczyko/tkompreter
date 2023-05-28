@@ -132,20 +132,11 @@ public class InterpreterVisitor implements Visitor {
         }
 
         if (functionDef.getRequireArgMatch() && functionDef.getParams().size() != argumentsEvaluated.size()) {
-            Pattern pattern = Pattern.compile("[(](.*)[)]");
-            String underline = null;
-            if(functionCallExpression.getCharacterBuffer() != null){
-                Matcher matcher = pattern.matcher(functionCallExpression.getCharacterBuffer());
-                if (matcher.find())
-                {
-                    underline = matcher.group(1);
-                }
-            }
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNMATCHED_ARGUMENTS)
                     .location(functionCallExpression.getLocation())
                     .codeLineBuffer(functionCallExpression.getCharacterBuffer())
-                    .underlineFragment(underline)
+                    .underlineFragment(getUnderline(functionCallExpression.getCharacterBuffer(), "[(](.*)[)]"))
                     .explanation("expected %d arguments but %d provided.".formatted(functionDef.getParams().size(), argumentsEvaluated.size()))
                     .build());
         }
@@ -177,20 +168,11 @@ public class InterpreterVisitor implements Visitor {
     public void visit(VarStmt varStmt) {
         varStmt.getInitial().accept(this);
         if(lastResult == null){
-            Pattern pattern = Pattern.compile(".*=\\s*(.*)");
-            String underline = null;
-            if(varStmt.getCharacterBuffer() != null){
-                Matcher matcher = pattern.matcher(varStmt.getCharacterBuffer());
-                if (matcher.find())
-                {
-                    underline = matcher.group(1);
-                }
-            }
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
                     .location(varStmt.getLocation())
                     .codeLineBuffer(varStmt.getCharacterBuffer())
-                    .underlineFragment(underline)
+                    .underlineFragment(getUnderline(varStmt.getCharacterBuffer(), ".*=\\s*(.*)"))
                     .explanation("tried assigning void to a new variable")
                     .build());
             return;
@@ -314,7 +296,7 @@ public class InterpreterVisitor implements Visitor {
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
                     .location(leftRightExpression.getLocation())
                     .codeLineBuffer(leftRightExpression.getCharacterBuffer())
-                    .underlineFragment(getLeftRightUnderline(leftRightExpression, leftValue, rightValue))
+                    .underlineFragment(getUnderline(leftRightExpression.getCharacterBuffer(), ".*(\\s*" + Pattern.quote(leftValue.toString()) + ".*" + Pattern.quote(rightValue.toString()) + "\\s*)"))
                     .explanation("%s is only supported on object of the same type. You may need to cast one of the expressions first.".formatted(operationName))
                     .build()
             );
@@ -337,29 +319,16 @@ public class InterpreterVisitor implements Visitor {
         } else if (leftValue instanceof FloatValue left && rightValue instanceof FloatValue right) {
             lastResult = new ValueProxy(new BoolValue(floatOperation.apply(left.getValue(), right.getValue())));
         } else {
-            getLeftRightUnderline(leftRightExpression, leftValue, rightValue);
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
                     .location(leftRightExpression.getLocation())
-                    .underlineFragment(getLeftRightUnderline(leftRightExpression, leftValue, rightValue))
+                    .underlineFragment(getUnderline(leftRightExpression.getCharacterBuffer(), ".*(\\s*" + Pattern.quote(leftValue.toString()) + ".*" + Pattern.quote(rightValue.toString()) + "\\s*)"))
                     .codeLineBuffer(leftRightExpression.getCharacterBuffer())
                     .explanation("%s is only supported on object of the same type. You may need to cast one of the expressions first.".formatted(operationName))
                     .build()
             );
             throw new InterpreterException();
         }
-    }
-
-    private String getLeftRightUnderline(LeftRightExpression leftRightExpression, Value leftValue, Value rightValue) {
-        Pattern pattern = Pattern.compile(".*(\\s*" + Pattern.quote(leftValue.toString()) + ".*" + Pattern.quote(rightValue.toString()) + "\\s*)");
-        if(leftRightExpression.getCharacterBuffer() != null){
-            Matcher matcher = pattern.matcher(leftRightExpression.getCharacterBuffer());
-            if (matcher.find())
-            {
-                return matcher.group(1);
-            }
-        }
-        return null;
     }
 
     private void evaluateLeftRightBinary(
@@ -377,7 +346,7 @@ public class InterpreterVisitor implements Visitor {
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
                     .location(leftRightExpression.getLocation())
-                    .underlineFragment(getLeftRightUnderline(leftRightExpression, leftValue, rightValue))
+                    .underlineFragment(getUnderline(leftRightExpression.getCharacterBuffer(), ".*(\\s*" + Pattern.quote(leftValue.toString()) + ".*" + Pattern.quote(rightValue.toString()) + "\\s*)"))
                     .codeLineBuffer(leftRightExpression.getCharacterBuffer())
                     .explanation("%s is only supported on object of the same type. You may need to cast one of the expressions first.".formatted(operationName))
                     .build()
@@ -498,26 +467,29 @@ public class InterpreterVisitor implements Visitor {
         var lval = consumeLastResult();
         assignmentStatement.getRval().accept(this);
         if(lastResult == null){
-            Pattern pattern = Pattern.compile(".*=\\s*(.*)");
-            String underline = null;
-            if(assignmentStatement.getCharacterBuffer() != null){
-                Matcher matcher = pattern.matcher(assignmentStatement.getCharacterBuffer());
-                if (matcher.find())
-                {
-                    underline = matcher.group(1);
-                }
-            }
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
                     .location(assignmentStatement.getLocation())
                     .codeLineBuffer(assignmentStatement.getCharacterBuffer())
-                    .underlineFragment(underline)
+                    .underlineFragment(getUnderline(assignmentStatement.getCharacterBuffer(), ".*=\\s*(.*)"))
                     .explanation("tried assigning void to a variable")
                     .build());
             return;
         }
         var rval = consumeLastResult().getValue();
         lval.setValue(rval);
+    }
+
+    private String getUnderline(String buffer, String regexStr){
+        Pattern pattern = Pattern.compile(regexStr);
+        if(buffer != null){
+            Matcher matcher = pattern.matcher(buffer);
+            if (matcher.find())
+            {
+                return matcher.group(1);
+            }
+        }
+        return null;
     }
 
     @Override

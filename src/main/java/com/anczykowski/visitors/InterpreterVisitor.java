@@ -541,10 +541,7 @@ public class InterpreterVisitor implements Visitor {
                 } else if (lastResult.getValue() instanceof FloatValue floatValue) {
                     lastResult = new ValueProxy(new IntValue((int) floatValue.getValue()));
                 } else {
-                    errorModule.addError(ErrorElement.builder()
-                            .errorType(ErrorType.UNSUPPORTED_OPERATION)
-                            .explanation("Can only cast int/float to int")
-                            .build());
+                    handleUnsupportedCast(castExpression);
                 }
             }
             case "float" -> {
@@ -553,13 +550,25 @@ public class InterpreterVisitor implements Visitor {
                 } else if (lastResult.getValue() instanceof FloatValue floatValue) {
                     lastResult = new ValueProxy(new FloatValue(floatValue.getValue()));
                 } else {
-                    errorModule.addError(ErrorElement.builder()
-                            .errorType(ErrorType.UNSUPPORTED_OPERATION)
-                            .explanation("Can only cast int/float to int")
-                            .build());
+                    handleUnsupportedCast(castExpression);
                 }
             }
         }
+    }
+
+    private void handleUnsupportedCast(CastExpression castExpression) {
+        var lhsClassName = "unknown";
+        if (lastResult.getValue() instanceof ClassValue classValue){
+            lhsClassName = classValue.getClassIdentifier();
+        }
+        errorModule.addError(ErrorElement.builder()
+                .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                .location(castExpression.getLocation())
+                .codeLineBuffer(castExpression.getCharacterBuffer())
+                .underlineFragment("as")
+                .explanation("Can only cast int/float to int (got lhs of type: %s)".formatted(lhsClassName))
+                .build());
     }
 
     @Override

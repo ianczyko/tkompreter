@@ -1,0 +1,13 @@
+
+
+main() {
+
+    var a = 2.0;
+    var b = 2;
+    var isEq = a as int == b;
+
+    print(isEq);
+
+    return 0;
+}
+

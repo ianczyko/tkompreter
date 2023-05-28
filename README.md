@@ -139,7 +139,7 @@ t and t or t and f
 ```js
 var a = 2.0;
 var b = 2;
-var isEq = (int)a == b;
+var isEq = a as int  == b;
 ```
 
 ### Pętla while

@@ -387,13 +387,14 @@ public class Parser {
         }
 
         if (consumeIf(TokenType.AS_KEYWORD)) {
+            var location = lexer.getCurrentLocation().clone();
             if (!peekIf(TokenType.IDENTIFIER)) {
                 reportUnexpectedToken("as", "expected identifier after 'as' keyboard");
                 return factor;
             }
             var identifier = ((StringToken) lexer.getCurrentToken()).getValue();
             lexer.getNextToken();
-            factor = new CastExpression(factor, identifier);
+            factor = new CastExpression(factor, identifier, location, lexer.getEffectiveCharacterBuffer());
         }
 
         return factor;

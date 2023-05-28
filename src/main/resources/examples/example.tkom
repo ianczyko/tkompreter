@@ -1,12 +1,36 @@
 
+class Circle {
+    var r = 0;
 
-fun(x) {
-    x = x + 1;
+    init(radius) {
+        r = radius;
+    }
+
+}
+
+class Box {
+    var w = 0;
+
+    init(width) {
+        w = width;
+    }
+}
+
+wrapper(x){
     return x;
 }
 
 main() {
-    var a = 1;
-    a = 2;
+    var lst = list(1, 2.0, new Circle(3), new Box(3));
+    for(el in lst) {
+        switch(wrapper(el)) {
+            int -> { print("integer"); }
+            float -> { print("float"); }
+            Circle -> { print(value.r); }
+            default -> { print("other type"); }
+        }
+    }
+
     return 0;
 }
+

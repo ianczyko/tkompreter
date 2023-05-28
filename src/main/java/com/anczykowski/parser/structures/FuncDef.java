@@ -23,6 +23,10 @@ public class FuncDef implements Visitable {
     @Setter
     private Boolean isMethod = false;
 
+    @Getter
+    @Setter
+    protected Boolean requireArgMatch = true;
+
     public FuncDef(String name, CodeBLock codeBLock) {
         this.name = name;
         this.codeBLock = codeBLock;

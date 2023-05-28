@@ -695,6 +695,9 @@ public class Parser {
             throw new ParserException();
         }
 
+        var location = lexer.getCurrentLocation().clone();
+        var buffer = lexer.getEffectiveCharacterBuffer();
+
         if (!consumeIf(TokenType.RPAREN)) {
             reportUnexpectedTokenWithExplanation("unmatched ')'");
         }
@@ -705,7 +708,7 @@ public class Parser {
             return null;
         }
 
-        return new ForStmt(iteratorIdentifier, iterable, codeBlock);
+        return new ForStmt(iteratorIdentifier, iterable, codeBlock, location, buffer);
     }
 
     // switch_stmt = "switch", "(", (expr), ")", "{", { (type | class_id | "default"), "->", code_block } ,"}";

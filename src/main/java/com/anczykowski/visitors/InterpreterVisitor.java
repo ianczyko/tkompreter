@@ -131,7 +131,7 @@ public class InterpreterVisitor implements Visitor {
             }
         }
 
-        if (functionDef.getParams().size() != argumentsEvaluated.size()) {
+        if (functionDef.getRequireArgMatch() && functionDef.getParams().size() != argumentsEvaluated.size()) {
             Pattern pattern = Pattern.compile("[(](.*)[)]");
             String underline = null;
             if(functionCallExpression.getCharacterBuffer() != null){
@@ -643,6 +643,9 @@ public class InterpreterVisitor implements Visitor {
         } else {
             errorModule.addError(ErrorElement.builder()
                     .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .location(forStmt.getLocation())
+                    .codeLineBuffer(forStmt.getCharacterBuffer())
+                    .underlineFragment("in")
                     .explanation("iterable in for statement must be a list.")
                     .build());
         }

@@ -949,6 +949,72 @@ class InterpreterVisitorTest {
     }
 
     @Test
+    void testCleanLastResultVoidFun() {
+        // given
+        var errorModule = new ErrorModule();
+        var outputStream = new ByteArrayOutputStream();
+        var printStream = new PrintStream(outputStream);
+        var interpreter = new InterpreterVisitor(errorModule, printStream);
+
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.contextManager.getGlobalSymbolManager().addFunctions(new HashMap<>() {{
+            put("voidFun", new FuncDef(
+                    "voidFun",
+                    new ArrayList<>(),
+                    new CodeBLock(new ArrayList<>() {{
+                        add(new VarStmt("x", new IntegerConstantExpr(5)));
+                        add(new ReturnStatement(null));
+                    }})
+            ));
+        }});
+
+
+        var funcCall = new FunctionCallExpression(
+                "voidFun",
+                new ArrayList<>()
+        );
+
+        // when
+        funcCall.accept(interpreter);
+
+        // then
+        assertNull(interpreter.lastResult);
+    }
+
+    @Test
+    void testCleanLastResultUnassignedFun() {
+        // given
+        var errorModule = new ErrorModule();
+        var outputStream = new ByteArrayOutputStream();
+        var printStream = new PrintStream(outputStream);
+        var interpreter = new InterpreterVisitor(errorModule, printStream);
+
+        interpreter.contextManager.addContext(new Context(true));
+        interpreter.contextManager.getGlobalSymbolManager().addFunctions(new HashMap<>() {{
+            put("voidFun", new FuncDef(
+                    "voidFun",
+                    new ArrayList<>(),
+                    new CodeBLock(new ArrayList<>() {{
+                        add(new VarStmt("x", new IntegerConstantExpr(5)));
+                        add(new ReturnStatement(new IdentifierExpression("x")));
+                    }})
+            ));
+        }});
+
+
+        var expressionStatement = new ExpressionStatement(new FunctionCallExpression(
+                "voidFun",
+                new ArrayList<>()
+        ));
+
+        // when
+        expressionStatement.accept(interpreter);
+
+        // then
+        assertNull(interpreter.lastResult);
+    }
+
+    @Test
     void testClassInit() {
         // given
         var errorModule = new ErrorModule();

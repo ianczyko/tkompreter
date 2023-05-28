@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
-// TODO: void funkcja ma czyścić lastResult
-// TODO: "fun();" bez przypisania ma również czyścić lastResult
 // TODO: błędy powinny wskazywać lokalizację a najlepiej jeszcze fragment kodu
 
 public class InterpreterVisitor implements Visitor {
@@ -156,6 +154,13 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(VarStmt varStmt) {
         varStmt.getInitial().accept(this);
+        if(lastResult == null){
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .explanation("tried assigning void to a new variable")
+                    .build());
+            return;
+        }
         contextManager.addVariable(varStmt.getName(), lastResult);
         lastResult = null;
     }
@@ -427,6 +432,13 @@ public class InterpreterVisitor implements Visitor {
         var lval = lastResult;
         lastResult = null;
         assignmentStatement.getRval().accept(this);
+        if(lastResult == null){
+            errorModule.addError(ErrorElement.builder()
+                    .errorType(ErrorType.UNSUPPORTED_OPERATION)
+                    .explanation("tried assigning void to a variable")
+                    .build());
+            return;
+        }
         var rval = lastResult.getValue();
         lastResult = null;
         lval.setValue(rval);
@@ -435,6 +447,7 @@ public class InterpreterVisitor implements Visitor {
     @Override
     public void visit(ExpressionStatement expressionStatement) {
         expressionStatement.getExpression().accept(this);
+        lastResult = null;
     }
 
     @Override
@@ -482,6 +495,8 @@ public class InterpreterVisitor implements Visitor {
         if (returnStatement.getInner() != null) {
             returnStatement.getInner().accept(this);
             isReturn = true;
+        } else {
+            lastResult = null;
         }
     }
 

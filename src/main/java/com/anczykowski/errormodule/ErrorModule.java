@@ -19,7 +19,7 @@ public class ErrorModule {
     public void printErrors(PrintStream out) {
         if (errors.isEmpty()) return;
         out.println("\n===== Error Module =====");
-        out.printf("%d Errors, most recent errors first:%n", errors.size());
+        out.printf("%d Errors, most recent errors last:%n", errors.size());
         var it = errors.descendingIterator();
         while(it.hasNext()) {
             out.println(it.next());

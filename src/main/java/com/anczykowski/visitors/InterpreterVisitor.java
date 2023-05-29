@@ -23,8 +23,6 @@ import java.util.function.BinaryOperator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-// TODO: błędy powinny wskazywać lokalizację a najlepiej jeszcze fragment kodu
-
 public class InterpreterVisitor implements Visitor {
 
     private final ErrorModule errorModule;

@@ -1,13 +1,18 @@
 package com.anczykowski.parser.structures.expressions.relops;
 
+import com.anczykowski.lexer.Location;
 import com.anczykowski.parser.structures.expressions.Expression;
 import com.anczykowski.parser.structures.expressions.LeftRightExpression;
-import com.anczykowski.parser.visitors.Visitor;
+import com.anczykowski.visitors.Visitor;
 
 public class GeRelExpr extends LeftRightExpression {
 
     public GeRelExpr(Expression left, Expression right) {
         super(left, right);
+    }
+
+    public GeRelExpr(Expression left, Expression right, Location location, String characterBuffer) {
+        super(left, right, location, characterBuffer);
     }
 
     @Override

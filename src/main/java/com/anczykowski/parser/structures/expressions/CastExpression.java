@@ -1,10 +1,13 @@
 package com.anczykowski.parser.structures.expressions;
 
-import com.anczykowski.parser.visitors.Visitor;
+import com.anczykowski.lexer.Location;
+import com.anczykowski.visitors.Visitor;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@AllArgsConstructor
 public class CastExpression extends Expression {
 
     @Getter
@@ -12,6 +15,12 @@ public class CastExpression extends Expression {
 
     @Getter
     private final String type;
+
+    @Getter
+    private Location location = null;
+
+    @Getter
+    private String characterBuffer = null;
 
     @Override
     public void accept(Visitor visitor) {

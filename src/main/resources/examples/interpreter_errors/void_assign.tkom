@@ -1,0 +1,11 @@
+
+
+f1 () {
+    return;
+}
+
+main() {
+    var x = f1();
+    return 0;
+}
+

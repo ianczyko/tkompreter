@@ -41,3 +41,17 @@ tasks.withType(JavaCompile).configureEach {
 application {
     mainClass = "${group}.Main"
 }
+
+// Uncomment these when you need type pattern matching
+
+//tasks.withType(JavaCompile).configureEach {
+//    options.compilerArgs += "--enable-preview"
+//}
+//
+//tasks.withType(Test).configureEach {
+//    jvmArgs += "--enable-preview"
+//}
+//
+//tasks.withType(JavaExec).configureEach {
+//    jvmArgs += '--enable-preview'
+//}

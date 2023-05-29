@@ -1,5 +1,7 @@
-package com.anczykowski.parser.visitors;
+package com.anczykowski.visitors;
 
+import com.anczykowski.interpreter.ListFuncDef;
+import com.anczykowski.interpreter.PrintCodeBlock;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
@@ -12,6 +14,8 @@ public interface Visitor {
 
     void visit(FuncDef funcDef);
 
+    void visit(ListFuncDef listFuncDef);
+
     void visit(ClassBody classBody);
 
     void visit(VarStmt varStmt);
@@ -19,6 +23,8 @@ public interface Visitor {
     void visit(Parameter parameter);
 
     void visit(CodeBLock codeBLock);
+
+    void visit(PrintCodeBlock codeBLock);
 
     void visit(Statement statement);
 
@@ -32,13 +38,13 @@ public interface Visitor {
 
     void visit(NeRelExpr neRelOpArg);
 
-    void visit(GtRelExpr gtRelOpArg);
+    void visit(GtRelExpr gtRelExpr);
 
-    void visit(GeRelExpr geRelOpArg);
+    void visit(GeRelExpr geRelExpr);
 
-    void visit(LtRelExpr ltRelOpArg);
+    void visit(LtRelExpr ltRelExpr);
 
-    void visit(LeRelExpr leRelOpArg);
+    void visit(LeRelExpr leRelExpr);
 
     void visit(AdditionTerm additionTerm);
 

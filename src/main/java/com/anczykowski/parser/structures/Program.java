@@ -2,8 +2,8 @@ package com.anczykowski.parser.structures;
 
 import java.util.HashMap;
 
-import com.anczykowski.parser.visitors.Visitable;
-import com.anczykowski.parser.visitors.Visitor;
+import com.anczykowski.visitors.Visitable;
+import com.anczykowski.visitors.Visitor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 

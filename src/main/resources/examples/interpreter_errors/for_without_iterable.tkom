@@ -1,0 +1,10 @@
+
+
+main() {
+    for(el in 1) {
+        print(el);
+    }
+
+    return 0;
+}
+

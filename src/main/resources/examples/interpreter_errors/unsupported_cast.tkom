@@ -1,0 +1,23 @@
+
+
+class Circle {
+    var r = 0;
+
+    init(radius) {
+        r = radius;
+    }
+
+}
+
+main() {
+
+    var a = new Circle(5);
+    var b = 1;
+
+    var c = a as int;
+
+    print(isEq);
+
+    return 0;
+}
+

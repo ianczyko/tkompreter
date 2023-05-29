@@ -1,5 +1,7 @@
-package com.anczykowski.parser.visitors;
+package com.anczykowski.visitors;
 
+import com.anczykowski.interpreter.ListFuncDef;
+import com.anczykowski.interpreter.PrintCodeBlock;
 import com.anczykowski.parser.structures.*;
 import com.anczykowski.parser.structures.expressions.*;
 import com.anczykowski.parser.structures.expressions.relops.*;
@@ -31,6 +33,7 @@ public class PrinterVisitor implements Visitor {
         program.getClasses().values().forEach(cls -> cls.accept(this));
         program.getFunctions().values().forEach(fun -> fun.accept(this));
         level--;
+        out.println();
     }
 
 
@@ -53,6 +56,11 @@ public class PrinterVisitor implements Visitor {
         funcDef.getParams().forEach(method -> method.accept(this));
         funcDef.getCodeBLock().accept(this);
         level--;
+    }
+
+    @Override
+    public void visit(ListFuncDef listFuncDef) {
+        out.println("listFuncDef: ");
     }
 
     @Override
@@ -90,6 +98,12 @@ public class PrinterVisitor implements Visitor {
         level++;
         codeBLock.getStatements().forEach(statement -> statement.accept(this));
         level--;
+    }
+
+    @Override
+    public void visit(PrintCodeBlock printCodeBlock) {
+        printIndentation();
+        out.println("printCodeBlock: ");
     }
 
     @Override
@@ -178,32 +192,32 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(GeRelExpr geRelOpArg) {
+    public void visit(GeRelExpr geRelExpr) {
         printIndentation();
         out.println("geRelOpArg");
         level++;
-        geRelOpArg.getLeft().accept(this);
-        geRelOpArg.getRight().accept(this);
+        geRelExpr.getLeft().accept(this);
+        geRelExpr.getRight().accept(this);
         level--;
     }
 
     @Override
-    public void visit(GtRelExpr gtRelOpArg) {
+    public void visit(GtRelExpr gtRelExpr) {
         printIndentation();
         out.println("gtRelOpArg");
         level++;
-        gtRelOpArg.getLeft().accept(this);
-        gtRelOpArg.getRight().accept(this);
+        gtRelExpr.getLeft().accept(this);
+        gtRelExpr.getRight().accept(this);
         level--;
     }
 
     @Override
-    public void visit(LtRelExpr ltRelOpArg) {
+    public void visit(LtRelExpr ltRelExpr) {
         printIndentation();
         out.println("ltRelOpArg");
         level++;
-        ltRelOpArg.getLeft().accept(this);
-        ltRelOpArg.getRight().accept(this);
+        ltRelExpr.getLeft().accept(this);
+        ltRelExpr.getRight().accept(this);
         level--;
     }
 
@@ -218,12 +232,12 @@ public class PrinterVisitor implements Visitor {
     }
 
     @Override
-    public void visit(LeRelExpr leRelOpArg) {
+    public void visit(LeRelExpr leRelExpr) {
         printIndentation();
         out.println("leRelOpArg");
         level++;
-        leRelOpArg.getLeft().accept(this);
-        leRelOpArg.getRight().accept(this);
+        leRelExpr.getLeft().accept(this);
+        leRelExpr.getRight().accept(this);
         level--;
     }
 

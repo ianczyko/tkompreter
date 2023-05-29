@@ -1,13 +1,15 @@
 package com.anczykowski;
 
 import com.anczykowski.errormodule.ErrorModule;
+import com.anczykowski.errormodule.exceptions.InterpreterException;
 import com.anczykowski.errormodule.exceptions.ParserException;
 import com.anczykowski.lexer.LexerFiltered;
 import com.anczykowski.lexer.LexerImpl;
 import com.anczykowski.lexer.Source;
 import com.anczykowski.lexer.TokenFilters;
 import com.anczykowski.parser.Parser;
-import com.anczykowski.parser.visitors.PrinterVisitor;
+import com.anczykowski.visitors.InterpreterVisitor;
+import com.anczykowski.visitors.PrinterVisitor;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -27,12 +29,21 @@ public class Main {
             var parser = new Parser(lexerFiltered, errorModule);
 
             try {
+                outPrintStream.println("#### Printer ####");
                 var program = parser.parse();
                 var printer = new PrinterVisitor(outPrintStream);
                 program.accept(printer);
-            } catch (ParserException pe) {
-                if (isDebug) pe.printStackTrace();
-            } finally {
+
+                outPrintStream.println("#### Interpreter ####");
+                var interpreter = new InterpreterVisitor(errorModule, outPrintStream);
+                program.accept(interpreter);
+            } catch (ParserException | InterpreterException e) {
+                if (isDebug) {
+                    outPrintStream.println("#### Debug StackTrace ####");
+                    e.printStackTrace(outPrintStream);
+                }
+            }
+            finally {
                 errorModule.printErrors(outPrintStream);
             }
 

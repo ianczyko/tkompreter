@@ -16,8 +16,18 @@ public class LexerFiltered implements Lexer {
     }
 
     @Override
+    public Location getPreviousLocation() {
+        return lexer.getPreviousLocation();
+    }
+
+    @Override
     public String getCharacterBuffer() {
         return lexer.getCharacterBuffer();
+    }
+
+    @Override
+    public String getEffectiveCharacterBuffer() {
+        return lexer.getEffectiveCharacterBuffer();
     }
 
     @Override
